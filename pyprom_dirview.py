@@ -9,8 +9,8 @@ import tkinter.ttk as ttk
 from textwrap import dedent
 from tkinter import scrolledtext
 
+import git
 import pyperclip
-from git import Repo
 
 
 class dirview:
@@ -182,14 +182,16 @@ class dirview:
 
     def git_init(self):
         if os.path.isdir(self._dirpath):
-            Repo.init(self._dirpath)
-            # TODO support git
+            try:
+                git.Repo.init(self._dirpath)
+            except git.exc.GitError as e:
+                tkinter.messagebox.showerror(message=e)
 
     def read_git(self):
         """this func reads git commit log and makes git tree.
         """
         if os.path.isdir(git_path := os.path.join(self._dirpath, ".git")):
-            repo = Repo(git_path)
+            repo = git.Repo(git_path)
             for commit in repo.iter_commits():
                 self.git_committree.insert(
                     "",
