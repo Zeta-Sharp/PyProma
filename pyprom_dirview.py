@@ -183,6 +183,7 @@ class dirview:
     def git_init(self):
         if os.path.isdir(self._dirpath):
             Repo.init(self._dirpath)
+            # TODO support git
 
     def read_git(self):
         """this func reads git commit log and makes git tree.

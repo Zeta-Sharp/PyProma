@@ -93,7 +93,7 @@ class projectview:
             command=self.add_schedule)
         self.calendar_menu.add_command(
             label="Remove",
-            command=self.add_schedule)
+            command=self.remove_schedule)
         self.calender_tree.bind(
             "<Button-3>",
             self.calendar_frame_on_right_click)
@@ -354,6 +354,14 @@ class projectview:
             text="save", command=save)
         add_schedule_button2.place(x=100, y=185)
         add_schedule_window.mainloop()
+
+    def remove_schedule(self):
+        selected_schedule = self.calender_tree.selection()
+        self.projects["schedule"].remove(
+            list(self.calender_tree.item(selected_schedule, "values")))
+        with open(json_path, "w") as f:
+            json.dump(self.projects, f, indent=4)
+        self.refresh_trees()
 
     def calendar_frame_on_right_click(self, event: tkinter.Event):
         """this func shows right-clicked menu.
