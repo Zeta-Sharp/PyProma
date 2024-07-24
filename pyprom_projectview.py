@@ -14,8 +14,6 @@ import git
 from cookiecutter.exceptions import CookiecutterException
 from cookiecutter.main import cookiecutter
 
-# import tkinter.ttk as ttk
-
 json_path = "pyprom_settings.json"
 
 json_template = {
