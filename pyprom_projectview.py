@@ -354,8 +354,6 @@ class projectview:
             text="save", command=save)
         add_schedule_button2.place(x=100, y=185)
         add_schedule_window.mainloop()
-        # TODO make add_schedule_window.
-        # TODO enable for us to add schedule related to project.
 
     def calendar_frame_on_right_click(self, event: tkinter.Event):
         """this func shows right-clicked menu.
