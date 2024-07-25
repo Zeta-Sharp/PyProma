@@ -5,6 +5,7 @@ import subprocess
 import tkinter as tk
 import tkinter.filedialog
 import tkinter.messagebox
+import tkinter.simpledialog
 import tkinter.ttk as ttk
 from textwrap import dedent
 from tkinter import scrolledtext
@@ -39,6 +40,14 @@ class dirview:
         self.git_menu.add_command(
             label="Git Init",
             command=self.git_init)
+
+        self.pip_menu = tk.Menu(self.main_menu, tearoff=False)
+        self.main_menu.add_cascade(label="pip", menu=self.pip_menu)
+        self.pip_menu.add_command(label="pip", command=self.pip_install)
+
+        self.venv_menu = tk.Menu(self.main_menu, tearoff=False)
+        self.main_menu.add_cascade(label="venv", menu=self.venv_menu)
+        self.venv_menu.add_command(label="venv")
 
         self.help_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="Help", menu=self.help_menu)
@@ -92,8 +101,7 @@ class dirview:
         self.git_tab = tk.Frame(self.tab, width=800, height=600)
         self.git_tab.propagate(False)
         self.git_committree = ttk.Treeview(
-            self.git_tab,
-            show="headings",
+            self.git_tab, show="headings",
             columns=("hash", "author", "date", "message"))
         self.git_committree.heading("hash", text="hash", anchor=tk.CENTER)
         self.git_committree.heading("author", text="author", anchor=tk.CENTER)
@@ -321,6 +329,24 @@ class dirview:
                 self.dirtree.item(targetpath, "text"))
             path = os.path.normpath(path)
             pyperclip.copy(path)
+
+    def pip_install(self):
+        if os.path.isdir(self._dirpath):
+            package = tkinter.simpledialog.askstring(
+                "install package", "type pip package name here")
+            if package:
+                venv_path = os.path.join(
+                    self._dirpath, r".venv\Scripts\python.exe")
+                command = [
+                    venv_path if os.path.isdir(venv_path) else "python",
+                    "-m", "pip", "install", package]
+                try:
+                    subprocess.Popen(command, shell=False)
+                except subprocess.CalledProcessError as e:
+                    tkinter.messagebox.showerror(message=e)
+                else:
+                    tkinter.messagebox.showinfo(
+                        message=f"sucsessfully installed {package}")
 
     def dir_menu_on_right_click(self, event: tkinter.Event):
         """this func shows right-clicked menu.
