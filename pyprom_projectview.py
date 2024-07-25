@@ -43,8 +43,7 @@ class projectview:
         self.project_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="Projects", menu=self.project_menu)
         self.project_menu.add_command(
-            label="Add Project",
-            command=self.add_project)
+            label="Add Project", command=self.add_project)
         self.help_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="Help", menu=self.help_menu)
         self.help_menu.add_command(label="Version information")
@@ -60,6 +59,14 @@ class projectview:
             "#0", text="Projects", anchor=tk.CENTER)
         self.project_tree.pack(fill=tk.BOTH, expand=True)
         self.projectview_frame.grid(row=0, column=0, sticky=tk.NSEW)
+        self.project_tree_menu = tk.Menu(
+            self.projectview_frame, tearoff=False)
+        self.project_tree_menu.add_command(
+            label="Add Project", command=self.add_project)
+        self.project_tree_menu.add_command(
+            label="Remove Project", command=self.Remove_project)
+        self.project_tree.bind(
+            "<Button-3>", self.project_tree_on_right_click)
 
         self.tabframe = tk.Frame(
             self.projectview_window, width=800, height=600)
@@ -90,11 +97,10 @@ class projectview:
             label="Add Schedule",
             command=self.add_schedule)
         self.calendar_menu.add_command(
-            label="Remove",
+            label="Remove Schedule",
             command=self.remove_schedule)
         self.calender_tree.bind(
-            "<Button-3>",
-            self.calendar_frame_on_right_click)
+            "<Button-3>", self.calendar_tree_on_right_click)
 
         self.tab.pack(anchor=tk.NW)
         self.refresh_trees()
@@ -252,6 +258,16 @@ class projectview:
 
         add_project_window.mainloop()
 
+    def remove_project(self):
+        selected_project = self.project_tree.selection()
+        index = self.projects["projects"]["project_names"].index(
+            self.project_tree.item(selected_project["values"]))
+        self.projects["projects"]["project_names"].pop(index)
+        self.projects["projects"]["dir_paths"].pop(index)
+        with open(json_path, "w") as f:
+            json.dump(self.projects, f, indent=4)
+        self.refresh_trees()
+
     def add_schedule(self):
 
         def save():
@@ -361,7 +377,7 @@ class projectview:
             json.dump(self.projects, f, indent=4)
         self.refresh_trees()
 
-    def calendar_frame_on_right_click(self, event: tkinter.Event):
+    def calendar_tree_on_right_click(self, event: tkinter.Event):
         """this func shows right-clicked menu.
 
         Args:
@@ -372,9 +388,23 @@ class projectview:
             "Add Schedule",
             state=tk.NORMAL)
         self.calendar_menu.entryconfig(
-            "Remove",
+            "Remove Schedule",
             state=tk.NORMAL if flag else tk.DISABLED)
         self.calendar_menu.post(event.x_root, event.y_root)
+
+    def project_tree_on_right_click(self, event: tkinter.Event):
+        """this func shows right-clicked menu.
+
+        Args:
+            event (tkinter.Event): information about event
+        """
+        flag = len(self.project_tree.selection()) > 0
+        self.project_tree_menu.entryconfig(
+            "Add Project")
+        self.project_tree_menu.entryconfig(
+            "Remove Project",
+            state=tk.NORMAL if flag else tk.DISABLED)
+        self.project_tree_menu.post(event.x_root, event.y_root)
 
     def refresh_trees(self):
         self.project_tree.delete(*self.project_tree.get_children())
