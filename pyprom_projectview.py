@@ -64,7 +64,7 @@ class projectview:
         self.project_tree_menu.add_command(
             label="Add Project", command=self.add_project)
         self.project_tree_menu.add_command(
-            label="Remove Project", command=self.Remove_project)
+            label="Remove Project", command=self.remove_project)
         self.project_tree.bind(
             "<Button-3>", self.project_tree_on_right_click)
 
