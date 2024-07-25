@@ -95,7 +95,6 @@ class dirview:
             self.git_tab,
             show="headings",
             columns=("hash", "author", "date", "message"))
-        self.git_committree.heading("#0", text="Commits", anchor=tk.CENTER)
         self.git_committree.heading("hash", text="hash", anchor=tk.CENTER)
         self.git_committree.heading("author", text="author", anchor=tk.CENTER)
         self.git_committree.heading("date", text="date", anchor=tk.CENTER)
@@ -106,7 +105,6 @@ class dirview:
 
         self.tab.pack(anchor=tk.NW)
 
-        print(os.path.isdir(dirpath))
         if os.path.isdir(dirpath):
             self._dirpath = os.path.normpath(dirpath.replace("/", "\\"))
             self.prepare_make_dirtree()
@@ -127,7 +125,7 @@ class dirview:
 
     def prepare_make_dirtree(self):
         """this func initialize tree.
-        after this func -> make_dirtree(dirpath).
+        after this func -> make_dirtree(dirpath), read_README(), read_git().
         """
         if os.path.isdir(self._dirpath):
             self.dirtree.delete(*self.dirtree.get_children())
