@@ -18,7 +18,7 @@ class dirview:
         """this constructor sets _dirpath and create GUI.
 
         Args:
-            project_name (str, optional): project name.
+            project_name (str, optional): project name. Defaults to "".
             dirpath (str, optional): path to directory. Defaults to "".
         """
         self.dirview_window = tk.Tk()
@@ -335,7 +335,12 @@ class dirview:
             path = os.path.normpath(path)
             pyperclip.copy(path)
 
-    def code_runner(self, command):
+    def code_runner(self, command: str):
+        """this func runs shell command and shows outputs to textbox.
+
+        Args:
+            command (str): command
+        """
         root = tk.Toplevel()
         root.title("code runner")
         text = tk.Text(root)
@@ -356,6 +361,8 @@ class dirview:
         root.destroy()
 
     def pip_install(self):
+        """this func asks pip package and installs.
+        """
         if os.path.isdir(self._dirpath):
             package = simpledialog.askstring(
                 "install package", "type pip package name here")
@@ -374,6 +381,8 @@ class dirview:
                         message=f"sucsessfully installed {package}")
 
     def pip_freeze(self):
+        """this func generates requirements.txt.
+        """
         if os.path.isdir(self._dirpath):
             venv_path = os.path.join(
                 self._dirpath, r".venv\Scripts\python.exe")
