@@ -282,7 +282,7 @@ class dirview:
         path = os.path.normpath(path)
         subprocess.Popen(
             ["explorer", f"/select,{path}"] if targetpath else ["explorer"],
-            shell=True)
+            shell=False)
 
     def remove_directory(self, targetpath: str):
         """this func removes selected file or directory from device.
