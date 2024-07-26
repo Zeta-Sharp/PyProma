@@ -4,12 +4,9 @@ import shutil
 import subprocess
 import time
 import tkinter as tk
-import tkinter.filedialog
-import tkinter.messagebox
-import tkinter.simpledialog
 import tkinter.ttk as ttk
 from textwrap import dedent
-from tkinter import scrolledtext
+from tkinter import filedialog, messagebox, scrolledtext, simpledialog
 
 import git
 import pyperclip
@@ -129,7 +126,7 @@ class dirview:
         after this func -> prepare_make_dirtree().
         """
         path = os.path.normpath(
-            tkinter.filedialog.askdirectory().replace("/", "\\"))
+            filedialog.askdirectory().replace("/", "\\"))
         if os.path.isdir(path):
             self._dirpath = path
             self.prepare_make_dirtree()
@@ -194,7 +191,7 @@ class dirview:
             try:
                 git.Repo.init(self._dirpath)
             except git.exc.GitError as e:
-                tkinter.messagebox.showerror(message=e)
+                messagebox.showerror(message=e)
 
     def read_git(self):
         """this func reads git commit log and makes git tree.
@@ -297,7 +294,7 @@ class dirview:
             message = f"""\
             Remove {path} ?
             This action cannot be undone!"""
-            if tkinter.messagebox.askokcancel(
+            if messagebox.askokcancel(
                     "Confirm",
                     dedent(message)):
                 if os.path.isfile(path):
@@ -355,7 +352,7 @@ class dirview:
 
     def pip_install(self):
         if os.path.isdir(self._dirpath):
-            package = tkinter.simpledialog.askstring(
+            package = simpledialog.askstring(
                 "install package", "type pip package name here")
             if package:
                 venv_path = os.path.join(
@@ -366,9 +363,9 @@ class dirview:
                 try:
                     self.code_runner(command)
                 except subprocess.CalledProcessError as e:
-                    tkinter.messagebox.showerror(message=e)
+                    messagebox.showerror(message=e)
                 else:
-                    tkinter.messagebox.showinfo(
+                    messagebox.showinfo(
                         message=f"sucsessfully installed {package}")
 
     def pip_freeze(self):
@@ -381,9 +378,9 @@ class dirview:
             try:
                 subprocess.run(command, shell=True)
             except subprocess.CalledProcessError as e:
-                tkinter.messagebox.showerror(message=e)
+                messagebox.showerror(message=e)
 
-    def dir_menu_on_right_click(self, event: tkinter.Event):
+    def dir_menu_on_right_click(self, event: tk.Event):
         """this func shows right-clicked menu.
 
         Args:

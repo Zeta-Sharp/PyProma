@@ -2,13 +2,11 @@ import json
 import os
 import shutil
 import tkinter as tk
-import tkinter.filedialog
-import tkinter.messagebox
-import tkinter.simpledialog
 import tkinter.ttk as ttk
 from calendar import monthrange
 from datetime import datetime
 from textwrap import dedent
+from tkinter import filedialog, messagebox
 
 import git
 from cookiecutter.exceptions import CookiecutterException
@@ -117,7 +115,7 @@ class projectview:
         add_project_window.geometry("300x175")
 
         def insert_path():
-            path = tkinter.filedialog.askdirectory(parent=add_project_window)
+            path = filedialog.askdirectory(parent=add_project_window)
             if path:
                 sv.set(path)
 
@@ -129,13 +127,13 @@ class projectview:
                         The directory {target_dir} not exist.
                         Make directory and Start Project?
                         """
-                    if tkinter.messagebox.askokcancel(
+                    if messagebox.askokcancel(
                             parent=add_project_window,
                             message=dedent(message)):
                         try:
                             os.mkdir(target_dir)
                         except OSError as e:
-                            tkinter.messagebox.showerror(
+                            messagebox.showerror(
                                 parent=add_project_window, message=e)
                             return
                     else:
@@ -146,7 +144,7 @@ class projectview:
                             The directory {target_dir} is not empty.
                             clear directory and Start Project?
                             """
-                        if tkinter.messagebox.askokcancel(
+                        if messagebox.askokcancel(
                                 parent=add_project_window,
                                 message=dedent(message)):
                             shutil.rmtree(target_dir)
@@ -158,7 +156,7 @@ class projectview:
                         try:
                             git.Repo.clone_from(git_url, target_dir)
                         except git.exc.GitError as e:
-                            tkinter.messagebox.showerror(
+                            messagebox.showerror(
                                 parent=add_project_window, message=e)
                             return
                     else:
@@ -171,7 +169,7 @@ class projectview:
                                 output_dir=target_dir,
                                 skip_if_file_exists=True)
                         except CookiecutterException as e:
-                            tkinter.messagebox.showerror(
+                            messagebox.showerror(
                                 parent=add_project_window, message=e)
                             return
                     else:
@@ -183,7 +181,7 @@ class projectview:
                 add_project_window.destroy()
                 self.refresh_trees()
 
-        def switch_frame(event: tkinter.Event):
+        def switch_frame(event: tk.Event):
             combobox_state = add_project_combobox1.get()
             if combobox_state == "Add from directory":
                 clone_git_repository_frame.place_forget()
@@ -302,7 +300,7 @@ class projectview:
         add_schedule_window.title("Add Schedule")
         add_schedule_window.geometry("150x220")
 
-        def update_max_day(event: tkinter.Event):
+        def update_max_day(event: tk.Event):
             year = int(year_combobox.get())
             month = int(month_combobox.get())
             max_day = monthrange(year, month)[1]
@@ -386,7 +384,7 @@ class projectview:
             json.dump(self.projects, f, indent=4)
         self.refresh_trees()
 
-    def calendar_tree_on_right_click(self, event: tkinter.Event):
+    def calendar_tree_on_right_click(self, event: tk.Event):
         """this func shows right-clicked menu.
 
         Args:
@@ -401,7 +399,7 @@ class projectview:
             state=tk.NORMAL if flag else tk.DISABLED)
         self.calendar_menu.post(event.x_root, event.y_root)
 
-    def project_tree_on_right_click(self, event: tkinter.Event):
+    def project_tree_on_right_click(self, event: tk.Event):
         """this func shows right-clicked menu.
 
         Args:
