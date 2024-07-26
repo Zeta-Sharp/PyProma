@@ -14,6 +14,8 @@ import git
 from cookiecutter.exceptions import CookiecutterException
 from cookiecutter.main import cookiecutter
 
+import pyprom_dirview
+
 json_path = "pyprom_settings.json"
 
 json_template = {
@@ -26,7 +28,6 @@ json_template = {
 
 
 class projectview:
-    projects = {}
 
     def __init__(self):
         if not os.path.isfile(json_path):
@@ -63,6 +64,8 @@ class projectview:
             self.projectview_frame, tearoff=False)
         self.project_tree_menu.add_command(
             label="Add Project", command=self.add_project)
+        self.project_tree_menu.add_command(
+            label="Open Project", command=self.open_project)
         self.project_tree_menu.add_command(
             label="Remove Project", command=self.remove_project)
         self.project_tree.bind(
@@ -119,8 +122,8 @@ class projectview:
                 sv.set(path)
 
         def save():
-            if txt1.get() and txt2.get():
-                target_dir = txt2.get()
+            if txt1.get() and (target_dir := txt2.get()):
+                combobox_state = add_project_combobox1.get()
                 if not os.path.isdir(target_dir):
                     message = f"""\
                         The directory {target_dir} not exist.
@@ -137,19 +140,19 @@ class projectview:
                             return
                     else:
                         return
-                elif len(os.listdir(target_dir)) > 0:
-                    message = f"""\
-                        The directory {target_dir} is not empty.
-                        clear directory and Start Project?
-                        """
-                    if tkinter.messagebox.askokcancel(
-                            parent=add_project_window,
-                            message=dedent(message)):
-                        shutil.rmtree(target_dir)
-                        os.mkdir(target_dir)
-                    else:
-                        return
-                combobox_state = add_project_combobox1.get()
+                elif combobox_state != "Add from directory":
+                    if len(os.listdir(target_dir)) > 0:
+                        message = f"""\
+                            The directory {target_dir} is not empty.
+                            clear directory and Start Project?
+                            """
+                        if tkinter.messagebox.askokcancel(
+                                parent=add_project_window,
+                                message=dedent(message)):
+                            shutil.rmtree(target_dir)
+                            os.mkdir(target_dir)
+                        else:
+                            return
                 if combobox_state == "Clone github repository":
                     if git_url := git_txt1.get():
                         try:
@@ -173,8 +176,6 @@ class projectview:
                             return
                     else:
                         return
-                else:
-                    return
                 self.projects["projects"]["project_names"].append(txt1.get())
                 self.projects["projects"]["dir_paths"].append(target_dir)
                 with open(json_path, "w") as f:
@@ -257,6 +258,14 @@ class projectview:
         cookiecutter_template_frame.place_forget()
 
         add_project_window.mainloop()
+
+    def open_project(self):
+        selected_project = self.project_tree.selection()[0]
+        index = self.projects["projects"]["project_names"].index(
+            self.project_tree.item(selected_project, "text"))
+        dirpath = self.projects["projects"]["dir_paths"][index]
+        self.projectview_window.destroy()
+        pyprom_dirview.dirview(dirpath)
 
     def remove_project(self):
         selected_project = self.project_tree.selection()
@@ -401,6 +410,9 @@ class projectview:
         flag = len(self.project_tree.selection()) > 0
         self.project_tree_menu.entryconfig(
             "Add Project")
+        self.project_tree_menu.entryconfig(
+            "Open Project",
+            state=tk.NORMAL if flag else tk.DISABLED)
         self.project_tree_menu.entryconfig(
             "Remove Project",
             state=tk.NORMAL if flag else tk.DISABLED)
