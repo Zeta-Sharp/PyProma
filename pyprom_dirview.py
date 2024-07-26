@@ -2,6 +2,7 @@ import os
 import re
 import shutil
 import subprocess
+import time
 import tkinter as tk
 import tkinter.filedialog
 import tkinter.messagebox
@@ -43,7 +44,9 @@ class dirview:
 
         self.pip_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="pip", menu=self.pip_menu)
-        self.pip_menu.add_command(label="pip", command=self.pip_install)
+        self.pip_menu.add_command(
+            label="install package", command=self.pip_install)
+        self.pip_menu.add_command(label="freeze", command=self.pip_freeze)
 
         self.venv_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="venv", menu=self.venv_menu)
@@ -330,6 +333,26 @@ class dirview:
             path = os.path.normpath(path)
             pyperclip.copy(path)
 
+    def code_runner(self, command):
+        root = tk.Toplevel()
+        root.title("code runner")
+        text = tk.Text(root)
+        text.pack()
+        process = subprocess.Popen(
+            command, shell=False,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+        while True:
+            output = process.stdout.readline().decode()
+            if output == '':
+                break
+            text.insert(tk.END, output)
+            text.see(tk.END)
+            root.update()
+            time.sleep(0.1)
+
+        root.destroy()
+
     def pip_install(self):
         if os.path.isdir(self._dirpath):
             package = tkinter.simpledialog.askstring(
@@ -338,15 +361,27 @@ class dirview:
                 venv_path = os.path.join(
                     self._dirpath, r".venv\Scripts\python.exe")
                 command = [
-                    venv_path if os.path.isdir(venv_path) else "python",
+                    venv_path if os.path.isfile(venv_path) else "python",
                     "-m", "pip", "install", package]
                 try:
-                    subprocess.Popen(command, shell=False)
+                    self.code_runner(command)
                 except subprocess.CalledProcessError as e:
                     tkinter.messagebox.showerror(message=e)
                 else:
                     tkinter.messagebox.showinfo(
                         message=f"sucsessfully installed {package}")
+
+    def pip_freeze(self):
+        if os.path.isdir(self._dirpath):
+            venv_path = os.path.join(
+                self._dirpath, r".venv\Scripts\python.exe")
+            command = [
+                venv_path if os.path.isfile(venv_path) else "python",
+                "freeze", ">", "requirements.txt"]
+            try:
+                self.code_runner(command)
+            except subprocess.CalledProcessError as e:
+                tkinter.messagebox.showerror(message=e)
 
     def dir_menu_on_right_click(self, event: tkinter.Event):
         """this func shows right-clicked menu.
