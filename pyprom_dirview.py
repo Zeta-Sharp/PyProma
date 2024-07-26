@@ -377,9 +377,9 @@ class dirview:
                 self._dirpath, r".venv\Scripts\python.exe")
             command = [
                 venv_path if os.path.isfile(venv_path) else "python",
-                "freeze", ">", "requirements.txt"]
+                "-m", "pip", "freeze", ">", "requirements.txt"]
             try:
-                self.code_runner(command)
+                subprocess.run(command, shell=True)
             except subprocess.CalledProcessError as e:
                 tkinter.messagebox.showerror(message=e)
 
