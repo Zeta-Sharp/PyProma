@@ -30,7 +30,7 @@ class projectview:
     def __init__(self):
         if not os.path.isfile(json_path):
             with open(json_path, "w") as f:
-                json.dump(json_template, f, indent=4, ensure_ascii=False)
+                json.dump(json_template, f, indent=4)
         with open(json_path) as f:
             self.projects = json.load(f)
 
