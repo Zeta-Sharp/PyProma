@@ -261,9 +261,10 @@ class projectview:
         selected_project = self.project_tree.selection()[0]
         index = self.projects["projects"]["project_names"].index(
             self.project_tree.item(selected_project, "text"))
+        project_name = self.projects["projects"]["project_names"][index]
         dirpath = self.projects["projects"]["dir_paths"][index]
         self.projectview_window.destroy()
-        pyprom_dirview.dirview(dirpath)
+        pyprom_dirview.dirview(project_name, dirpath)
 
     def remove_project(self):
         selected_project = self.project_tree.selection()

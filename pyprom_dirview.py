@@ -14,15 +14,19 @@ import pyperclip
 
 class dirview:
 
-    def __init__(self, dirpath: str = ""):
+    def __init__(self, project_name: str = "", dirpath: str = ""):
         """this constructor sets _dirpath and create GUI.
 
         Args:
+            project_name (str, optional): project name.
             dirpath (str, optional): path to directory. Defaults to "".
         """
         self.dirview_window = tk.Tk()
         self.dirview_window.geometry("1000x600")
-        self.dirview_window.title("Python project manager")
+        title = (
+            "Python project manager"
+            + (f" - {project_name}" if project_name else ""))
+        self.dirview_window.title(title)
 
         self.main_menu = tk.Menu(self.dirview_window)
         self.dirview_window.config(menu=self.main_menu)
