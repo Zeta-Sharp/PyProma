@@ -258,6 +258,8 @@ class projectview:
         add_project_window.mainloop()
 
     def open_project(self):
+        """this func opens selected projectview.
+        """
         selected_project = self.project_tree.selection()[0]
         index = self.projects["projects"]["project_names"].index(
             self.project_tree.item(selected_project, "text"))
@@ -267,6 +269,8 @@ class projectview:
         pyprom_dirview.dirview(project_name, dirpath)
 
     def remove_project(self):
+        """this func removes selected project.
+        """
         selected_project = self.project_tree.selection()
         index = self.projects["projects"]["project_names"].index(
             self.project_tree.item(selected_project["values"]))
@@ -277,6 +281,8 @@ class projectview:
         self.refresh_trees()
 
     def add_schedule(self):
+        """this func adds schedule.
+        """
 
         def save():
             if (
@@ -378,6 +384,8 @@ class projectview:
         add_schedule_window.mainloop()
 
     def remove_schedule(self):
+        """this func removes selected schedule.
+        """
         selected_schedule = self.calender_tree.selection()
         self.projects["schedule"].remove(
             list(self.calender_tree.item(selected_schedule, "values")))
@@ -418,6 +426,8 @@ class projectview:
         self.project_tree_menu.post(event.x_root, event.y_root)
 
     def refresh_trees(self):
+        """this func refresh trees.
+        """
         self.project_tree.delete(*self.project_tree.get_children())
         self.calender_tree.delete(*self.calender_tree.get_children())
         for project in self.projects["projects"]["project_names"]:
