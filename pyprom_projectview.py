@@ -260,7 +260,7 @@ class projectview:
     def open_project(self):
         """this func opens selected projectview.
         """
-        selected_project = self.project_tree.selection()[0]
+        selected_project = self.project_tree.selection()
         index = self.projects["projects"]["project_names"].index(
             self.project_tree.item(selected_project, "text"))
         project_name = self.projects["projects"]["project_names"][index]
