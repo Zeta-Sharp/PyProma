@@ -273,7 +273,7 @@ class projectview:
         """
         selected_project = self.project_tree.selection()
         index = self.projects["projects"]["project_names"].index(
-            self.project_tree.item(selected_project["values"]))
+            self.project_tree.item(selected_project, "text"))
         self.projects["projects"]["project_names"].pop(index)
         self.projects["projects"]["dir_paths"].pop(index)
         with open(json_path, "w") as f:
