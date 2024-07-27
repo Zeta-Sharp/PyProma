@@ -139,7 +139,7 @@ class DirView:
 
     def refresh_trees(self):
         """this func initialize tree.
-        after this func -> make_dir_tree(dir_path), read_README(), read_git().
+        after this func -> make_dir_tree(dir_path), read_readme(), read_git().
         """
         if os.path.isdir(self._dir_path):
             self.dir_tree.delete(*self.dir_tree.get_children())
@@ -151,7 +151,7 @@ class DirView:
                 anchor=tk.CENTER,
                 command=lambda: self.open_directory(self._dir_path))
             self.make_dir_tree(self._dir_path)
-            self.read_README()
+            self.read_readme()
             self.read_git()
 
     def make_dir_tree(self, path: str, parent_tree: str = None):
@@ -180,7 +180,7 @@ class DirView:
                         text=d)
                     self.make_dir_tree(full_path, child)
 
-    def read_README(self):
+    def read_readme(self):
         """this func reads README.md and writes on readme_text.
         """
         readme_path = os.path.join(self._dir_path, "README.md")

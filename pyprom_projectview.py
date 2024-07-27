@@ -181,7 +181,7 @@ class ProjectView:
                 add_project_window.destroy()
                 self.refresh_trees()
 
-        def switch_frame(event: tk.Event):
+        def switch_frame(_: tk.Event):
             combobox_state = add_project_combobox1.get()
             if combobox_state == "Add from directory":
                 clone_git_repository_frame.place_forget()
@@ -260,7 +260,7 @@ class ProjectView:
     def open_project(self):
         """this func opens selected project_view.
         """
-        selected_project = self.project_tree.selection()
+        selected_project = self.project_tree.selection()[0]
         index = self.projects["projects"]["project_names"].index(
             self.project_tree.item(selected_project, "text"))
         project_name = self.projects["projects"]["project_names"][index]
@@ -271,7 +271,7 @@ class ProjectView:
     def remove_project(self):
         """this func removes selected project.
         """
-        selected_project = self.project_tree.selection()
+        selected_project = self.project_tree.selection()[0]
         index = self.projects["projects"]["project_names"].index(
             self.project_tree.item(selected_project, "text"))
         self.projects["projects"]["project_names"].pop(index)
@@ -307,7 +307,7 @@ class ProjectView:
         add_schedule_window.title("Add Schedule")
         add_schedule_window.geometry("150x220")
 
-        def update_max_day(event: tk.Event):
+        def update_max_day(_: tk.Event):
             year = int(year_combobox.get())
             month = int(month_combobox.get())
             max_day = monthrange(year, month)[1]
@@ -386,7 +386,7 @@ class ProjectView:
     def remove_schedule(self):
         """this func removes selected schedule.
         """
-        selected_schedule = self.calender_tree.selection()
+        selected_schedule = self.calender_tree.selection()[0]
         self.projects["schedule"].remove(
             list(self.calender_tree.item(selected_schedule, "values")))
         with open(json_path, "w") as f:
