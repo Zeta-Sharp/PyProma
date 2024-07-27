@@ -162,4 +162,4 @@ cython_debug/
 #.idea/
 
 tests/
-pyprom_settings.json
+PyProm_settings.json

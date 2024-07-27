@@ -14,7 +14,7 @@ from cookiecutter.main import cookiecutter
 
 import pyprom_dirview
 
-json_path = "pyprom_settings.json"
+json_path = "PyProm_settings.json"
 
 json_template = {
     "projects": {
@@ -25,7 +25,7 @@ json_template = {
 }
 
 
-class projectview:
+class ProjectView:
 
     def __init__(self):
         if not os.path.isfile(json_path):
@@ -34,11 +34,11 @@ class projectview:
         with open(json_path) as f:
             self.projects = json.load(f)
 
-        self.projectview_window = tk.Tk()
-        self.projectview_window.title("Python project manager")
-        self.projectview_window.geometry("1000x600")
-        self.main_menu = tk.Menu(self.projectview_window)
-        self.projectview_window.config(menu=self.main_menu)
+        self.project_view_window = tk.Tk()
+        self.project_view_window.title("Python project manager")
+        self.project_view_window.geometry("1000x600")
+        self.main_menu = tk.Menu(self.project_view_window)
+        self.project_view_window.config(menu=self.main_menu)
         self.project_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="Projects", menu=self.project_menu)
         self.project_menu.add_command(
@@ -47,19 +47,19 @@ class projectview:
         self.main_menu.add_cascade(label="Help", menu=self.help_menu)
         self.help_menu.add_command(label="Version information")
 
-        self.projectview_frame = tk.Frame(
-            self.projectview_window,
+        self.project_view_frame = tk.Frame(
+            self.project_view_window,
             width=200, height=600)
-        self.projectview_window.propagate(False)
+        self.project_view_window.propagate(False)
         self.project_tree = ttk.Treeview(
-            self.projectview_frame,
+            self.project_view_frame,
             show=["tree", "headings"])
         self.project_tree.heading(
             "#0", text="Projects", anchor=tk.CENTER)
         self.project_tree.pack(fill=tk.BOTH, expand=True)
-        self.projectview_frame.grid(row=0, column=0, sticky=tk.NSEW)
+        self.project_view_frame.grid(row=0, column=0, sticky=tk.NSEW)
         self.project_tree_menu = tk.Menu(
-            self.projectview_frame, tearoff=False)
+            self.project_view_frame, tearoff=False)
         self.project_tree_menu.add_command(
             label="Add Project", command=self.add_project)
         self.project_tree_menu.add_command(
@@ -69,11 +69,11 @@ class projectview:
         self.project_tree.bind(
             "<Button-3>", self.project_tree_on_right_click)
 
-        self.tabframe = tk.Frame(
-            self.projectview_window, width=800, height=600)
-        self.tabframe.propagate(False)
-        self.tabframe.grid(row=0, column=1, sticky=tk.NSEW)
-        self.tab = ttk.Notebook(self.tabframe)
+        self.tab_frame = tk.Frame(
+            self.project_view_window, width=800, height=600)
+        self.tab_frame.propagate(False)
+        self.tab_frame.grid(row=0, column=1, sticky=tk.NSEW)
+        self.tab = ttk.Notebook(self.tab_frame)
 
         self.calendar_tab = tk.Frame(
             self.tab,
@@ -105,7 +105,7 @@ class projectview:
 
         self.tab.pack(anchor=tk.NW)
         self.refresh_trees()
-        self.projectview_window.mainloop()
+        self.project_view_window.mainloop()
 
     def add_project(self):
         """This func makes add_project_window.
@@ -134,7 +134,7 @@ class projectview:
                             os.mkdir(target_dir)
                         except OSError as e:
                             messagebox.showerror(
-                                parent=add_project_window, message=e)
+                                parent=add_project_window, message=str(e))
                             return
                     else:
                         return
@@ -157,7 +157,7 @@ class projectview:
                             git.Repo.clone_from(git_url, target_dir)
                         except git.exc.GitError as e:
                             messagebox.showerror(
-                                parent=add_project_window, message=e)
+                                parent=add_project_window, message=str(e))
                             return
                     else:
                         return
@@ -170,7 +170,7 @@ class projectview:
                                 skip_if_file_exists=True)
                         except CookiecutterException as e:
                             messagebox.showerror(
-                                parent=add_project_window, message=e)
+                                parent=add_project_window, message=str(e))
                             return
                     else:
                         return
@@ -258,15 +258,15 @@ class projectview:
         add_project_window.mainloop()
 
     def open_project(self):
-        """this func opens selected projectview.
+        """this func opens selected project_view.
         """
         selected_project = self.project_tree.selection()
         index = self.projects["projects"]["project_names"].index(
             self.project_tree.item(selected_project, "text"))
         project_name = self.projects["projects"]["project_names"][index]
-        dirpath = self.projects["projects"]["dir_paths"][index]
-        self.projectview_window.destroy()
-        pyprom_dirview.dirview(project_name, dirpath)
+        dir_path = self.projects["projects"]["dir_paths"][index]
+        self.project_view_window.destroy()
+        pyprom_dirview.DirView(project_name, dir_path)
 
     def remove_project(self):
         """this func removes selected project.
@@ -440,4 +440,4 @@ class projectview:
 
 
 if __name__ == "__main__":
-    window = projectview()
+    window = ProjectView()
