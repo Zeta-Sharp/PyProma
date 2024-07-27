@@ -5,6 +5,7 @@ import subprocess
 import time
 import tkinter as tk
 import tkinter.ttk as ttk
+import venv
 from textwrap import dedent
 from tkinter import filedialog, messagebox, scrolledtext, simpledialog
 
@@ -119,7 +120,7 @@ class dirview:
 
         if os.path.isdir(dirpath):
             self._dirpath = os.path.normpath(dirpath.replace("/", "\\"))
-            self.prepare_make_dirtree()
+            self.refresh_trees()
         else:
             self._dirpath = ""
 
@@ -127,15 +128,15 @@ class dirview:
 
     def set_dirpath(self):
         """this func asks directory and sets _dirpath.
-        after this func -> prepare_make_dirtree().
+        after this func -> refresh_trees().
         """
         path = os.path.normpath(
             filedialog.askdirectory().replace("/", "\\"))
         if os.path.isdir(path):
             self._dirpath = path
-            self.prepare_make_dirtree()
+            self.refresh_trees()
 
-    def prepare_make_dirtree(self):
+    def refresh_trees(self):
         """this func initialize tree.
         after this func -> make_dirtree(dirpath), read_README(), read_git().
         """
@@ -392,6 +393,13 @@ class dirview:
             try:
                 subprocess.run(command, shell=True)
             except subprocess.CalledProcessError as e:
+                messagebox.showerror(message=e)
+
+    def venv_create(self):
+        if os.path.isdir(self._dirpath):
+            try:
+                venv.create(self._dirpath)
+            except OSError as e:
                 messagebox.showerror(message=e)
 
     def dir_menu_on_right_click(self, event: tk.Event):
