@@ -163,3 +163,4 @@ cython_debug/
 
 tests/
 PyProm_settings.json
+project_projectmanager.code-workspace
