@@ -73,13 +73,15 @@ class DirView:
             command=lambda: self.open_directory(self.dir_tree.selection()[0]))
         self.dir_menu.add_command(
             label="Remove",
-            command=lambda: self.remove_directory(self.dir_tree.selection()[0]))
+            command=lambda:
+                self.remove_directory(self.dir_tree.selection()[0]))
         self.dir_menu.add_command(
             label="Copy path",
             command=lambda: self.copy_path(self.dir_tree.selection()[0]))
         self.dir_menu.add_command(
             label="Copy relative path",
-            command=lambda: self.copy_relative_path(self.dir_tree.selection()[0]))
+            command=lambda:
+                self.copy_relative_path(self.dir_tree.selection()[0]))
         self.dir_tree.bind("<Button-3>", self.dir_menu_on_right_click)
         self.dir_tree.pack(fill=tk.BOTH, expand=True)
         self.dir_frame.grid(row=0, column=0, sticky=tk.NSEW)
