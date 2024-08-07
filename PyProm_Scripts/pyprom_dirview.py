@@ -416,38 +416,24 @@ class DirView:
         if "venv" not in filename:
             with open(filename, "r", encoding="utf-8") as f:
                 lines = f.readlines()
-            todo_items = []
-#            bug_items = []
-#            fixme_items = []
-#            hack_items = []
+            comments = []
             for i, line in enumerate(lines):
-                match1 = re.search(r"# TODO (.*)", line)
-#                match2 = re.search(r"# BUG (.*)", line)
-#                match3 = re.search(r"# FIXME (.*)", line)
-#                match4 = re.search(r"# HACK (.*)", line)
-                if match1:
-                    todo_items.append(
-                        [filename, i + 1, match1.group(1).strip()])
-#                elif match2:
-#                    bug_items.append(
-#                        [filename, i + 1, match2.group(1).strip()])
-#                elif match3:
-#                    fixme_items.append(
-#                        [filename, i + 1, match3.group(1).strip()])
-#                elif match4:
-#                    hack_items.append(
-#                        [filename, i + 1, match4.group(1).strip()])
+                match = re.search(r"# (TODO|BUG|FIXME|HACK) (.*)", line)
+                if match:
+                    tag, text = match.groups()
+                    comments.append(
+                        [tag, i + 1, text])
 
-            if len(todo_items) > 0:
+            if len(comments) > 0:
                 parent = self.todo_tree.insert(
                     "",
                     tk.END,
                     text=filename.replace(self._dir_path + "\\", ""))
-                for filename, line_no, todo_text in todo_items:
+                for filename, line_no, todo_text in comments:
                     self.todo_tree.insert(
                         parent,
                         tk.END,
-                        text=f"(line {line_no}) {todo_text}")
+                        text=f"{tag} {todo_text}(line {line_no})")
 
     def open_directory(self, target_path: str):
         """this func opens selected file or directory in explorer.
