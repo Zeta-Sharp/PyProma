@@ -191,6 +191,10 @@ class DirView:
             self.dir_tree.delete(*self.dir_tree.get_children())
             self.todo_tree.delete(*self.todo_tree.get_children())
             self.git_commit_tree.delete(*self.git_commit_tree.get_children())
+            self.git_staged_changes.delete(
+                *self.git_staged_changes.get_children())
+            self.git_unstaged_changes.delete(
+                *self.git_unstaged_changes.get_children())
             self.dir_tree.heading(
                 "#0",
                 text=os.path.basename(self._dir_path),
@@ -212,6 +216,7 @@ class DirView:
                 self.git_branches.set(repo.active_branch)
                 self.git_branches.bind(
                     "<<ComboboxSelected>>", self.git_switch_branch)
+                self.commit_button["state"] = tk.ACTIVE
 
     def make_dir_tree(self, path: str, parent_tree: str = None):
         """this func makes directry tree.
@@ -298,6 +303,12 @@ class DirView:
                 change_type = diff.change_type
                 self.git_unstaged_changes.insert(
                     "", tk.END, values=(a, change_type))
+            diffs = repo.index.diff("HEAD")
+            for diff in diffs:
+                a = diff.a_path
+                change_type = diff.change_type
+                self.git_staged_changes.insert(
+                    "", tk.END, values=(a, change_type))
 
     def git_switch_branch(self, _: tk.Event):
         """this func switches local git branch
@@ -358,8 +369,22 @@ class DirView:
                         widget.delete(selected_item)
 
     def git_commit(self):
-        # TODO enable git commit
-        pass
+        """this func commits staged diffs
+        """
+        if os.path.isdir(git_path := os.path.join(self._dir_path, ".git")):
+            repo = git.Repo(git_path)
+            message = self.commit_message.get(0., tk.END)
+            if message and message != "Commit message":
+                try:
+                    repo.index.commit(message)
+                except git.exc.CommandError as e:
+                    messagebox.showerror(
+                        title="git.exc.CommandError",
+                        message=str(e))
+            else:
+                messagebox.showerror(
+                    title="Commitmessage is Empty",
+                    message="Please write commit message in entrybox.")
 
     def getpath(self, target_path: str):
         """this func generates path from treeview node.
@@ -509,7 +534,7 @@ class DirView:
 
             while True:
                 output = process.stdout.readline()
-                if output == '':
+                if output == "":
                     break
                 text.insert(tk.END, output)
                 text.see(tk.END)
