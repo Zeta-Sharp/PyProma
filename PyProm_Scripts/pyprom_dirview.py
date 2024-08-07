@@ -318,6 +318,13 @@ class DirView:
                 self.git_branches.set(repo.active_branch)
 
     def git_stage(self, e: tk.Event):
+        """this func stage(unstage)s files.
+
+        Args:
+            e (tk.Event): tkinter event object
+
+        IMPORTANT: this func has a risk to destroy index file.
+        """
         if os.path.isdir(git_path := os.path.join(self._dir_path, ".git")):
             repo = git.Repo(git_path)
             widget = e.widget
