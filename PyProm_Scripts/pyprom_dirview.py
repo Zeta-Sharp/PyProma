@@ -372,9 +372,11 @@ class DirView:
         """
         if os.path.isdir(git_path := os.path.join(self._dir_path, ".git")):
             repo = git.Repo(git_path)
-            commit_message = self.commit_message.get(0., tk.END)
+            commit_message = self.commit_message.get(1., tk.END)
             staged_changes = repo.index.diff("HEAD")
-            if commit_message and commit_message != "Commit message":
+            literal_message = commit_message.replace(" ", "").replace("\n", "")
+            if (len(literal_message) > 0
+                    and commit_message != "Commit message\n"):
                 if len(staged_changes) == 0:
                     message = """\
                     There are no staged changes and so you cannot commit.
@@ -383,6 +385,8 @@ class DirView:
                     if messagebox.askokcancel(
                             title="Confirm", message=dedent(message)):
                         repo.git.add(".")
+                    else:
+                        return
                 try:
                     repo.index.commit(message=commit_message)
                 except git.exc.CommandError as e:
