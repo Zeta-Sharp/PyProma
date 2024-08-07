@@ -325,18 +325,30 @@ class DirView:
             if len(selected_item) > 0:
                 print(widget.item(selected_item)["values"][0])
                 if widget == self.git_staged_changes:
-                    repo.index.reset(
-                        paths=widget.item(selected_item)["values"][0])
-                    self.git_unstaged_changes.insert(
-                        "", tk.END,
-                        values=widget.item(selected_item)["values"])
-                    widget.delete(selected_item)
+                    try:
+                        repo.index.reset(
+                            paths=[widget.item(selected_item)["values"][0]])
+                    except git.exc.GitCommandError as e:
+                        messagebox.showerror(
+                            title="git.exc.GitCommandError",
+                            message=str(e))
+                    else:
+                        self.git_unstaged_changes.insert(
+                            "", tk.END,
+                            values=widget.item(selected_item)["values"])
+                        widget.delete(selected_item)
                 elif widget == self.git_unstaged_changes:
-                    repo.git.add(widget.item(selected_item)["values"][0])
-                    self.git_staged_changes.insert(
-                        "", tk.END,
-                        values=widget.item(selected_item)["values"])
-                    widget.delete(selected_item)
+                    try:
+                        repo.git.add(widget.item(selected_item)["values"][0])
+                    except git.exc.GitCommandError as e:
+                        messagebox.showerror(
+                            title="git.exc.GitCommandError",
+                            message=str(e))
+                    else:
+                        self.git_staged_changes.insert(
+                            "", tk.END,
+                            values=widget.item(selected_item)["values"])
+                        widget.delete(selected_item)
 
     def git_commit(self):
         # TODO enable git commit
