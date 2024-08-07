@@ -381,6 +381,8 @@ class DirView:
                     messagebox.showerror(
                         title="git.exc.CommandError",
                         message=str(e))
+                finally:
+                    self.refresh_trees()
             else:
                 messagebox.showerror(
                     title="Commitmessage is Empty",
