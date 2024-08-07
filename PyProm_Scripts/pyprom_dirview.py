@@ -418,7 +418,7 @@ class DirView:
                 lines = f.readlines()
             comments = []
             for i, line in enumerate(lines):
-                match = re.search(r"# (TODO|BUG|FIXME|HACK) (.*)", line)
+                match = re.search(r"#\s*(TODO|BUG|FIXME|HACK)\s+(.*)", line)
                 if match:
                     tag, text = match.groups()
                     comments.append(
