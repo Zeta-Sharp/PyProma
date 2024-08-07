@@ -7,7 +7,6 @@ import tkinter.ttk as ttk
 import venv
 from textwrap import dedent
 from tkinter import filedialog, messagebox, scrolledtext, simpledialog
-from typing import Union
 
 import git
 import git.exc
@@ -373,10 +372,19 @@ class DirView:
         """
         if os.path.isdir(git_path := os.path.join(self._dir_path, ".git")):
             repo = git.Repo(git_path)
-            message = self.commit_message.get(0., tk.END)
-            if message and message != "Commit message":
+            commit_message = self.commit_message.get(0., tk.END)
+            staged_changes = repo.index.diff("HEAD")
+            if commit_message and commit_message != "Commit message":
+                if len(staged_changes) == 0:
+                    message = """\
+                    There are no staged changes and so you cannot commit.
+                    Would you like to stage all changes and commit directly?
+                    """
+                    if messagebox.askokcancel(
+                            title="Confirm", message=dedent(message)):
+                        repo.git.add(".")
                 try:
-                    repo.index.commit(message)
+                    repo.index.commit(message=commit_message)
                 except git.exc.CommandError as e:
                     messagebox.showerror(
                         title="git.exc.CommandError",
@@ -505,7 +513,7 @@ class DirView:
             pyperclip.copy(path)
 
     @staticmethod
-    def code_runner(command: Union[str, list]):
+    def code_runner(command: str | list):
         """this func runs bash command and shows outputs to textbox.
 
         Args:
