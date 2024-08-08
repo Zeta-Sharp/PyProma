@@ -272,6 +272,8 @@ class DirView:
         self.readme_text.insert(tk.END, text)
 
     def get_packages(self):
+        """this func gets python packages in environment.
+        """
         if os.path.isdir(self._dir_path):
             site_packages_dir = os.path.join(
                 self._dir_path, ".venv", "Lib", "site-packages")
@@ -606,6 +608,8 @@ class DirView:
                     title="subprocess.CalledProcessError", message=str(e))
 
     def venv_create(self):
+        """this func creats .venv environment.
+        """
         if os.path.isdir(self._dir_path):
             try:
                 venv_path = os.path.join(self._dir_path, ".venv")
