@@ -284,10 +284,10 @@ class ProjectView:
         """
 
         def save():
-            if (
-                    (date := get_date()) and
-                    (project := add_schedule_combobox2.get()) and
-                    (subject := add_schedule_text3.get())):
+            date = get_date()
+            project = add_schedule_combobox2.get()
+            subject = add_schedule_text3.get()
+            if date and project and subject:
                 date = date.strftime("%Y-%m-%d")
                 detail = add_schedule_text4.get()
                 schedule = [date, project, subject, detail]

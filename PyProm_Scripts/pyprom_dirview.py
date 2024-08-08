@@ -234,7 +234,7 @@ class DirView:
                 self.commit_button["state"] = tk.ACTIVE
 
     def make_dir_tree(self, path: str, parent_tree: str = None):
-        """this func makes directry tree.
+        """this func makes directory tree.
 
         Args:
             path (str): path which you want to make tree from
@@ -425,8 +425,8 @@ class DirView:
                     self.refresh_trees()
             else:
                 messagebox.showerror(
-                    title="Commitmessage is Empty",
-                    message="Please write commit message in entrybox.")
+                    title="Commit message is Empty",
+                    message="Please write commit message in entry box.")
 
     def getpath(self, target_path: str):
         """this func generates path from treeview node.
@@ -469,7 +469,7 @@ class DirView:
                     "",
                     tk.END,
                     text=filename.replace(self._dir_path + "\\", ""))
-                for filename, line_no, todo_text in comments:
+                for tag, line_no, todo_text in comments:
                     self.todo_tree.insert(
                         parent,
                         tk.END,
