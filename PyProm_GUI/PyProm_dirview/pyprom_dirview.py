@@ -13,7 +13,6 @@ import git
 import git.exc
 import git.repo
 import pyperclip
-
 import tabs.git_tab
 
 

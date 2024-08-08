@@ -1,9 +1,10 @@
+import os
 import tkinter as tk
 import tkinter.ttk as ttk
-import git
-import os
-from tkinter import messagebox
 from textwrap import dedent
+from tkinter import messagebox
+
+import git
 
 
 class GitTab(tk.Frame):
