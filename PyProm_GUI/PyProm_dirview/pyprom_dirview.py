@@ -608,7 +608,7 @@ class DirView:
                     title="subprocess.CalledProcessError", message=str(e))
 
     def venv_create(self):
-        """this func creats .venv environment.
+        """this func creates .venv environment.
         """
         if os.path.isdir(self._dir_path):
             try:

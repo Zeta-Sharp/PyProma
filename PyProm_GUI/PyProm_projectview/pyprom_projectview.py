@@ -9,7 +9,7 @@ from textwrap import dedent
 from tkinter import filedialog, messagebox
 
 import git
-import pyprom_dirview
+from PyProm_GUI.PyProm_dirview import pyprom_dirview
 from cookiecutter.exceptions import CookiecutterException
 from cookiecutter.main import cookiecutter
 
