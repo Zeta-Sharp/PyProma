@@ -37,7 +37,7 @@ class ToDoTab(tk.Frame):
                 parent = self.todo_tree.insert(
                     "",
                     tk.END,
-                    text=filename.replace(self.dir_path + "\\", ""))
+                    text=filename.replace(self.main.dir_path + "\\", ""))
                 for tag, line_no, todo_text in comments:
                     self.todo_tree.insert(
                         parent,
