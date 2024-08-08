@@ -1,6 +1,5 @@
 import importlib.metadata
 import os
-import re
 import shutil
 import subprocess
 import tkinter as tk
@@ -14,6 +13,7 @@ import git.exc
 import git.repo
 import pyperclip
 import tabs.git_tab
+import tabs.todo_tab
 
 
 class DirView:
@@ -92,11 +92,7 @@ class DirView:
         self.tab_frame.grid(row=0, column=1, sticky=tk.NSEW)
         self.tab = ttk.Notebook(self.tab_frame)
 
-        self.todo_tab = tk.Frame(self.tab, width=800, height=600)
-        self.todo_tab.propagate(False)
-        self.todo_tree = ttk.Treeview(self.todo_tab, show=["tree", "headings"])
-        self.todo_tree.heading("#0", text="ToDo", anchor=tk.CENTER)
-        self.todo_tree.pack(fill=tk.BOTH, expand=True)
+        self.todo_tab = tabs.todo_tab.ToDoTab(self.tab, self)
         self.tab.add(self.todo_tab, text="ToDo", padding=3)
 
         self.readme_tab = tk.Frame(self.tab, width=800, height=600)
@@ -149,8 +145,9 @@ class DirView:
         -> make_dir_tree(dir_path), read_readme(), git_read_commits().
         """
         if os.path.isdir(self.dir_path):
+            self.todo_tab.refresh()
+            self.git_tab.refresh()
             self.dir_tree.delete(*self.dir_tree.get_children())
-            self.todo_tree.delete(*self.todo_tree.get_children())
             self.packages_tree.delete(*self.packages_tree.get_children())
             self.dir_tree.heading(
                 "#0",
@@ -160,7 +157,6 @@ class DirView:
             self.make_dir_tree(self.dir_path)
             self.read_readme()
             self.get_packages()
-            self.git_tab.refresh()
 
     def make_dir_tree(self, path: str, parent_tree: str = None):
         """this func makes directory tree.
@@ -180,7 +176,7 @@ class DirView:
                         tk.END,
                         text=d)
                     if os.path.splitext(full_path)[1] == ".py":
-                        self.find_todo(full_path)
+                        self.todo_tab.find_todo(full_path)
                 else:
                     child = self.dir_tree.insert(
                         "" if parent_tree is None else parent_tree,
@@ -243,35 +239,6 @@ class DirView:
                 item_id = self.dir_tree.parent(item_id)
             path = "\\".join(path_list)
             return path
-
-    def find_todo(self, filename: str):
-        """this func finds todos and add node to todo_tree.
-        this finds "# TODO", "# BUG", "# FIXME", "# HACK".
-
-        Args:
-            filename (string): path to .py file
-        """
-        if "venv" not in filename:
-            with open(filename, "r", encoding="utf-8") as f:
-                lines = f.readlines()
-            comments = []
-            for i, line in enumerate(lines):
-                match = re.search(r"#\s*(TODO|BUG|FIXME|HACK)\s+(.*)", line)
-                if match:
-                    tag, text = match.groups()
-                    comments.append(
-                        [tag, i + 1, text])
-
-            if len(comments) > 0:
-                parent = self.todo_tree.insert(
-                    "",
-                    tk.END,
-                    text=filename.replace(self.dir_path + "\\", ""))
-                for tag, line_no, todo_text in comments:
-                    self.todo_tree.insert(
-                        parent,
-                        tk.END,
-                        text=f"{tag} {todo_text}(line {line_no})")
 
     def open_directory(self, target_path: str):
         """this func opens selected file or directory in explorer.
