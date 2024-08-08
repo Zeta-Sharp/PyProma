@@ -1,3 +1,4 @@
+import importlib.metadata
 import os
 import re
 import shutil
@@ -161,10 +162,23 @@ class DirView:
         self.git_staging_frame.grid(row=0, column=1)
         self.tab.add(self.git_tab, text="Git", padding=3)
 
+        self.packages_tab = tk.Frame(self.tab, width=800, height=600)
+        self.packages_tab.propagate(False)
+        self.packages_tree = ttk.Treeview(
+            self.packages_tab,
+            show="headings",
+            columns=("Packages", "Version"))
+        self.packages_tree.heading(
+            "Packages", text="Packages", anchor=tk.CENTER)
+        self.packages_tree.heading(
+            "Version", text="Version", anchor=tk.CENTER)
+        self.packages_tree.pack(fill=tk.BOTH, expand=True)
+        self.tab.add(self.packages_tab, text="Packages", padding=3)
+
         self.tab.pack(anchor=tk.NW)
 
         if os.path.isdir(dir_path):
-            self._dir_path = os.path.normpath(dir_path.replace("/", "\\"))
+            self._dir_path = os.path.normpath(dir_path.replace("\\", "/"))
             self.refresh_trees()
         else:
             self._dir_path = ""
@@ -176,20 +190,21 @@ class DirView:
         after this func -> refresh_trees().
         """
         path = os.path.normpath(
-            filedialog.askdirectory().replace("/", "\\"))
-        if os.path.isdir(path):
+            filedialog.askdirectory().replace("\\", "/"))
+        if os.path.isdir(path) and path != ".":
             self._dir_path = path
             self.refresh_trees()
 
     def refresh_trees(self):
         """this func initialize tree.
         after this func
-        -> make_dir_tree(dir_path), read_readme(), read_git_commits().
+        -> make_dir_tree(dir_path), read_readme(), git_read_commits().
         """
         if os.path.isdir(self._dir_path):
             self.dir_tree.delete(*self.dir_tree.get_children())
             self.todo_tree.delete(*self.todo_tree.get_children())
             self.git_commit_tree.delete(*self.git_commit_tree.get_children())
+            self.packages_tree.delete(*self.packages_tree.get_children())
             self.git_staged_changes.delete(
                 *self.git_staged_changes.get_children())
             self.git_unstaged_changes.delete(
@@ -205,8 +220,9 @@ class DirView:
             self.commit_button["state"] = tk.DISABLED
             self.make_dir_tree(self._dir_path)
             self.read_readme()
-            self.read_git_commits()
-            self.read_git_diffs()
+            self.get_packages()
+            self.git_read_commits()
+            self.git_read_diffs()
             if os.path.isdir(git_path := os.path.join(self._dir_path, ".git")):
                 repo = git.Repo(git_path)
                 branches = [branch.name for branch in repo.branches]
@@ -255,6 +271,18 @@ class DirView:
         self.readme_text.delete("1.0", tk.END)
         self.readme_text.insert(tk.END, text)
 
+    def get_packages(self):
+        if os.path.isdir(self._dir_path):
+            site_packages_dir = os.path.join(
+                self._dir_path, ".venv", "Lib", "site-packages")
+            if os.path.isdir(site_packages_dir):
+                packages = []
+                for dist in importlib.metadata.distributions(
+                        path=[site_packages_dir]):
+                    packages.append((dist.name, dist.version))
+                for package in packages:
+                    self.packages_tree.insert("", tk.END, values=package)
+
     def git_init(self):
         """this func runs git init
         """
@@ -267,7 +295,7 @@ class DirView:
                     messagebox.showerror(
                         title="git.exc.GitError", message=str(e))
 
-    def read_git_commits(self):
+    def git_read_commits(self):
         """this func reads git commit log and makes git tree.
         """
         if os.path.isdir(git_path := os.path.join(self._dir_path, ".git")):
@@ -291,7 +319,7 @@ class DirView:
                         "a git",
                         "repository"))
 
-    def read_git_diffs(self):
+    def git_read_diffs(self):
         """this func reads git diffs and inserts into git_unstaged_changes.
         """
         if os.path.isdir(git_path := os.path.join(self._dir_path, ".git")):
@@ -399,6 +427,8 @@ class DirView:
                 messagebox.showerror(
                     title="Commitmessage is Empty",
                     message="Please write commit message in entrybox.")
+
+    # IDEA add pip packages tab
 
     def getpath(self, target_path: str):
         """this func generates path from treeview node.
