@@ -428,8 +428,6 @@ class DirView:
                     title="Commitmessage is Empty",
                     message="Please write commit message in entrybox.")
 
-    # IDEA add pip packages tab
-
     def getpath(self, target_path: str):
         """this func generates path from treeview node.
 
