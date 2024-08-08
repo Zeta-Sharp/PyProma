@@ -12,8 +12,7 @@ import git
 import git.exc
 import git.repo
 import pyperclip
-import tabs.git_tab
-import tabs.todo_tab
+from tabs import git_tab, todo_tab
 
 
 class DirView:
@@ -92,7 +91,7 @@ class DirView:
         self.tab_frame.grid(row=0, column=1, sticky=tk.NSEW)
         self.tab = ttk.Notebook(self.tab_frame)
 
-        self.todo_tab = tabs.todo_tab.ToDoTab(self.tab, self)
+        self.todo_tab = todo_tab.ToDoTab(self.tab, self)
         self.tab.add(self.todo_tab, text="ToDo", padding=3)
 
         self.readme_tab = tk.Frame(self.tab, width=800, height=600)
@@ -103,7 +102,7 @@ class DirView:
         self.readme_text.pack(fill=tk.BOTH, expand=True)
         self.tab.add(self.readme_tab, text="README", padding="3")
 
-        self.git_tab = tabs.git_tab.GitTab(self.tab, self)
+        self.git_tab = git_tab.GitTab(self.tab, self)
         self.tab.add(self.git_tab, text="Git", padding=3)
 
         self.packages_tab = tk.Frame(self.tab, width=800, height=600)
