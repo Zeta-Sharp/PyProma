@@ -11,7 +11,7 @@ import git
 import git.exc
 import git.repo
 import pyperclip
-from tabs import git_tab, packages_tab, readme_tab, todo_tab
+from PyProm_dirview.tabs import git_tab, packages_tab, readme_tab, todo_tab
 
 
 class DirView:

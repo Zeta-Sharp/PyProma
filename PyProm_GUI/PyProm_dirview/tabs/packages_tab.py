@@ -3,10 +3,10 @@ import os
 import tkinter as tk
 import tkinter.ttk as ttk
 
-import tabs.tab_template
+from PyProm_templates import tab_template
 
 
-class PackagesTab(tabs.tab_template.TabTemplate):
+class PackagesTab(tab_template.TabTemplate):
     NAME = "Packages"
 
     def __init__(self, master=None, main=None):

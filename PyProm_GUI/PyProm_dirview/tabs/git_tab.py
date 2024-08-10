@@ -5,10 +5,10 @@ from textwrap import dedent
 from tkinter import messagebox
 
 import git
-import tabs.tab_template
+from PyProm_templates import tab_template
 
 
-class GitTab(tabs.tab_template.TabTemplate):
+class GitTab(tab_template.TabTemplate):
     NAME = "Git"
 
     def __init__(self, master=None, main=None):

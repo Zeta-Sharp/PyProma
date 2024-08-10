@@ -2,10 +2,10 @@ import re
 import tkinter as tk
 import tkinter.ttk as ttk
 
-import tabs.tab_template
+from PyProm_templates import tab_template
 
 
-class ToDoTab(tabs.tab_template.TabTemplate):
+class ToDoTab(tab_template.TabTemplate):
     NAME = "ToDo"
 
     def __init__(self, master=None, main=None):
