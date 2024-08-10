@@ -1,4 +1,3 @@
-import importlib.metadata
 import os
 import shutil
 import subprocess
@@ -6,13 +5,13 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import venv
 from textwrap import dedent
-from tkinter import filedialog, messagebox, scrolledtext, simpledialog
+from tkinter import filedialog, messagebox, simpledialog
 
 import git
 import git.exc
 import git.repo
 import pyperclip
-from tabs import git_tab, todo_tab
+from tabs import git_tab, packages_tab, readme_tab, todo_tab
 
 
 class DirView:
@@ -92,31 +91,18 @@ class DirView:
         self.tab = ttk.Notebook(self.tab_frame)
 
         self.todo_tab = todo_tab.ToDoTab(self.tab, self)
-        self.tab.add(self.todo_tab, text="ToDo", padding=3)
+        self.tab.add(self.todo_tab, text=todo_tab.ToDoTab.NAME, padding=3)
 
-        self.readme_tab = tk.Frame(self.tab, width=800, height=600)
-        self.readme_tab.propagate(False)
-        self.readme_text = scrolledtext.ScrolledText(self.readme_tab)
-        text = "There is no README.md in this directory."
-        self.readme_text.insert(tk.END, text)
-        self.readme_text.pack(fill=tk.BOTH, expand=True)
-        self.tab.add(self.readme_tab, text="README", padding="3")
+        self.readme_tab = readme_tab.ReadmeTab(self.tab, self)
+        self.tab.add(
+            self.readme_tab, text=readme_tab.ReadmeTab.NAME, padding="3")
 
         self.git_tab = git_tab.GitTab(self.tab, self)
-        self.tab.add(self.git_tab, text="Git", padding=3)
+        self.tab.add(self.git_tab, text=git_tab.GitTab.NAME, padding=3)
 
-        self.packages_tab = tk.Frame(self.tab, width=800, height=600)
-        self.packages_tab.propagate(False)
-        self.packages_tree = ttk.Treeview(
-            self.packages_tab,
-            show="headings",
-            columns=("Packages", "Version"))
-        self.packages_tree.heading(
-            "Packages", text="Packages", anchor=tk.CENTER)
-        self.packages_tree.heading(
-            "Version", text="Version", anchor=tk.CENTER)
-        self.packages_tree.pack(fill=tk.BOTH, expand=True)
-        self.tab.add(self.packages_tab, text="Packages", padding=3)
+        self.packages_tab = packages_tab.PackagesTab(self.tab, self)
+        self.tab.add(
+            self.packages_tab, text=packages_tab.PackagesTab.NAME, padding=3)
 
         self.tab.pack(anchor=tk.NW)
 
@@ -141,21 +127,20 @@ class DirView:
     def refresh_trees(self):
         """this func initialize tree.
         after this func
-        -> make_dir_tree(dir_path), read_readme(), git_read_commits().
+        -> make_dir_tree(dir_path)
         """
         if os.path.isdir(self.dir_path):
             self.todo_tab.refresh()
             self.git_tab.refresh()
+            self.readme_tab.refresh()
+            self.packages_tab.refresh()
             self.dir_tree.delete(*self.dir_tree.get_children())
-            self.packages_tree.delete(*self.packages_tree.get_children())
             self.dir_tree.heading(
                 "#0",
                 text=os.path.basename(self.dir_path),
                 anchor=tk.CENTER,
                 command=lambda: self.open_directory(self.dir_path))
             self.make_dir_tree(self.dir_path)
-            self.read_readme()
-            self.get_packages()
 
     def make_dir_tree(self, path: str, parent_tree: str = None):
         """this func makes directory tree.
@@ -182,32 +167,6 @@ class DirView:
                         tk.END,
                         text=d)
                     self.make_dir_tree(full_path, child)
-
-    def read_readme(self):
-        """this func reads README.md and writes on readme_text.
-        """
-        readme_path = os.path.join(self.dir_path, "README.md")
-        if os.path.isfile(readme_path):
-            with open(readme_path, "r", encoding="utf-8") as f:
-                text = f.read()
-        else:
-            text = "There is no README.md in this directory."
-        self.readme_text.delete("1.0", tk.END)
-        self.readme_text.insert(tk.END, text)
-
-    def get_packages(self):
-        """this func gets python packages in environment.
-        """
-        if os.path.isdir(self.dir_path):
-            site_packages_dir = os.path.join(
-                self.dir_path, ".venv", "Lib", "site-packages")
-            if os.path.isdir(site_packages_dir):
-                packages = []
-                for dist in importlib.metadata.distributions(
-                        path=[site_packages_dir]):
-                    packages.append((dist.name, dist.version))
-                for package in packages:
-                    self.packages_tree.insert("", tk.END, values=package)
 
     def git_init(self):
         """this func runs git init

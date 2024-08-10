@@ -2,12 +2,15 @@ import re
 import tkinter as tk
 import tkinter.ttk as ttk
 
+import tabs.tab_template
 
-class ToDoTab(tk.Frame):
+
+class ToDoTab(tabs.tab_template.TabTemplate):
+    NAME = "ToDo"
+
     def __init__(self, master=None, main=None):
         self.main = main
-        super().__init__(master, width=800, height=600)
-        self.propagate(False)
+        super().__init__(master)
         self.todo_tree = ttk.Treeview(self, show=["tree", "headings"])
         self.todo_tree.heading("#0", text="ToDo", anchor=tk.CENTER)
         self.todo_tree.pack(fill=tk.BOTH, expand=True)
