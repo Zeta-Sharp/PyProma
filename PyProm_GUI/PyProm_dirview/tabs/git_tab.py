@@ -5,13 +5,15 @@ from textwrap import dedent
 from tkinter import messagebox
 
 import git
+from PyProm_templates import tab_template
 
 
-class GitTab(tk.Frame):
+class GitTab(tab_template.TabTemplate):
+    NAME = "Git"
+
     def __init__(self, master=None, main=None):
         self.main = main
-        super().__init__(master, width=800, height=600)
-        self.propagate(False)
+        super().__init__(master)
         self.git_log_frame = tk.Frame(self, width=400, height=600)
         self.git_log_frame.propagate(False)
         self.git_commit_tree = ttk.Treeview(
