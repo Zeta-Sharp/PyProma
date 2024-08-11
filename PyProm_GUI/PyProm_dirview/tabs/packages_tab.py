@@ -33,3 +33,11 @@ class PackagesTab(tab_template.TabTemplate):
                     packages.append((dist.name, dist.version))
                 for package in packages:
                     self.packages_tree.insert("", tk.END, values=package)
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.geometry("800x575")
+    packages_tab = PackagesTab(root)
+    packages_tab.pack()
+    root.mainloop()

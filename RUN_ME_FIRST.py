@@ -8,11 +8,20 @@ def create_virtual_environment(package_path):
         venv.create(venv_path)
 
 
-def install_requirements(package_path):
+def install_poetry(package_path, install_poetry=True):
+    if install_poetry:
+        command = [
+            os.path.join(package_path, ".venv/Scripts/python"), "-m",
+            "pip", "install", "poetry"
+        ]
+        subprocess.run(command)
+
+
+def poetry_install(package_path):
     command = [
         os.path.join(package_path, ".venv/Scripts/python"), "-m",
-        "pip", "install", "-r", "requirements.txt"]
-    subprocess.run(command, shell=True)
+        "poetry", "install"]
+    subprocess.run(command)
 
 
 def add_to_site_packages(package_path):
@@ -27,5 +36,6 @@ if __name__ == "__main__":
     project_root = os.path.abspath(os.path.dirname(__file__))
     print(project_root)
     create_virtual_environment(project_root)
-    install_requirements(project_root)
+    install_poetry(project_root)
+    poetry_install(project_root)
     add_to_site_packages(project_root)

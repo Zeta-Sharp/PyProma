@@ -46,3 +46,11 @@ class ToDoTab(tab_template.TabTemplate):
                         parent,
                         tk.END,
                         text=f"{tag} {todo_text}(line {line_no})")
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.geometry("800x575")
+    todo_tab = ToDoTab(root)
+    todo_tab.pack()
+    root.mainloop()

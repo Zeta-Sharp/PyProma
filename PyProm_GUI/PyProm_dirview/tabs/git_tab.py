@@ -220,3 +220,11 @@ class GitTab(tab_template.TabTemplate):
                 messagebox.showerror(
                     title="Commit message is Empty",
                     message="Please write commit message in entry box.")
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.geometry("800x575")
+    git_tab = GitTab(root)
+    git_tab.pack()
+    root.mainloop()

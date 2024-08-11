@@ -27,3 +27,11 @@ class ReadmeTab(tab_template.TabTemplate):
             text = "There is no README.md in this directory."
         self.readme_text.delete("1.0", tk.END)
         self.readme_text.insert(tk.END, text)
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.geometry("800x575")
+    readme_tab = ReadmeTab(root)
+    readme_tab.pack()
+    root.mainloop()

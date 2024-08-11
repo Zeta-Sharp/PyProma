@@ -10,7 +10,7 @@ json_path = "PyProm_settings.json"
 
 
 class CalendarTab(tab_template.TabTemplate):
-    NAME = "Calen"
+    NAME = "Calendar"
 
     def __init__(self, master=None, main=None):
         self.main = main
@@ -173,3 +173,11 @@ class CalendarTab(tab_template.TabTemplate):
             "Remove Schedule",
             state=tk.NORMAL if flag else tk.DISABLED)
         self.calendar_menu.post(event.x_root, event.y_root)
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.geometry("800x575")
+    calendar_tab = CalendarTab(root)
+    calendar_tab.pack()
+    root.mainloop()
