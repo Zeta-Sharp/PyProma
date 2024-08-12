@@ -9,8 +9,8 @@ from tkinter import filedialog, messagebox
 import git
 from cookiecutter.exceptions import CookiecutterException
 from cookiecutter.main import cookiecutter
-from PyProm_dirview import pyprom_dirview
-from PyProm_projectview.tabs import calendar_tab
+from PyProma_dirview import pyprom_dirview
+from PyProma_projectview.tabs import calendar_tab
 
 json_path = "PyProm_settings.json"
 

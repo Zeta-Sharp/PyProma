@@ -5,7 +5,7 @@ from textwrap import dedent
 from tkinter import messagebox
 
 import git
-from PyProm_templates import tab_template
+from PyProma_templates import tab_template
 
 
 class GitTab(tab_template.TabTemplate):

@@ -4,7 +4,7 @@ import tkinter.ttk as ttk
 from calendar import monthrange
 from datetime import datetime
 
-from PyProm_templates import tab_template
+from PyProma_templates import tab_template
 
 json_path = "PyProm_settings.json"
 

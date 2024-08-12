@@ -2,7 +2,7 @@ import re
 import tkinter as tk
 import tkinter.ttk as ttk
 
-from PyProm_templates import tab_template
+from PyProma_templates import tab_template
 
 
 class ToDoTab(tab_template.TabTemplate):
