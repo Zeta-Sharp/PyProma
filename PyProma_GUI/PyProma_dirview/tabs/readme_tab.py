@@ -2,7 +2,7 @@ import os
 import tkinter as tk
 from tkinter import scrolledtext
 
-from PyProm_templates import tab_template
+from PyProma_templates import tab_template
 
 
 class ReadmeTab(tab_template.TabTemplate):
