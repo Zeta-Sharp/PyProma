@@ -12,7 +12,7 @@ from cookiecutter.main import cookiecutter
 from PyProma_dirview import pyproma_dirview
 from PyProma_projectview.tabs import calendar_tab
 
-json_path = "PyProm_settings.json"
+json_path = "PyProma_settings.json"
 
 json_template = {
     "projects": {
