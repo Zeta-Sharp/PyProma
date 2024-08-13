@@ -164,5 +164,5 @@ cython_debug/
 .vs/
 
 snippets/
-PyProm_settings.json
+PyProma_settings.json
 project_projectmanager.code-workspace
