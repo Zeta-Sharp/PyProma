@@ -239,7 +239,7 @@ class ProjectView:
         project_name = self.projects["projects"]["project_names"][index]
         dir_path = self.projects["projects"]["dir_paths"][index]
         self.project_view_window.destroy()
-        pyprom_dirview.DirView(project_name, dir_path)
+        pyproma_dirview.DirView(project_name, dir_path)
 
     def remove_project(self):
         """this func removes selected project.
