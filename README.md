@@ -1,6 +1,7 @@
 # PyProm
 ## Abstract
 This is a project for better project management.  
+(This is currently GUI only. CUI tools and APIs coming soon.)  
 ## Environment
 ![PythonBadge](https://img.shields.io/badge/Python-3.10-%3776AB?logo=python)  
 ## How to use
