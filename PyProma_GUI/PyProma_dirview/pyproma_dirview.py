@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+import sys
 import tkinter as tk
 import tkinter.ttk as ttk
 import venv
@@ -11,6 +12,7 @@ import git
 import git.exc
 import git.repo
 import pyperclip
+import toml
 from PyProma_dirview.tabs import git_tab, packages_tab, readme_tab, todo_tab
 
 
@@ -56,7 +58,8 @@ class DirView:
 
         self.help_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="Help", menu=self.help_menu)
-        self.help_menu.add_command(label="Version information")
+        self.help_menu.add_command(
+            label="Version information", command=self.show_version)
 
         self.dir_frame = tk.Frame(self.dir_view_window, width=200, height=600)
         self.dir_frame.propagate(False)
@@ -167,6 +170,23 @@ class DirView:
                         tk.END,
                         text=d)
                     self.make_dir_tree(full_path, child)
+
+    def show_version(self):
+        """This func shows version information.
+        """
+        version_window = tk.Toplevel(self.dir_view_window)
+        version_window.title("version information")
+        toml_file = "pyproject.toml"
+        with open(toml_file, "r") as f:
+            config = toml.load(f)
+        app_version = config["tool"]["poetry"]["version"]
+        version_text = f"""\
+        Tkinter: {tk.TkVersion}
+        Python: {sys.version}
+        application: {app_version}"""
+        version_label = tk.Label(version_window, text=dedent(version_text))
+        version_label.pack()
+        version_window.mainloop()
 
     def git_init(self):
         """this func runs git init

@@ -1,12 +1,14 @@
 import json
 import os
 import shutil
+import sys
 import tkinter as tk
 import tkinter.ttk as ttk
 from textwrap import dedent
 from tkinter import filedialog, messagebox
 
 import git
+import toml
 from cookiecutter.exceptions import CookiecutterException
 from cookiecutter.main import cookiecutter
 from PyProma_dirview import pyproma_dirview
@@ -43,7 +45,8 @@ class ProjectView:
             label="Add Project", command=self.add_project)
         self.help_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="Help", menu=self.help_menu)
-        self.help_menu.add_command(label="Version information")
+        self.help_menu.add_command(
+            label="Version information", command=self.show_version)
 
         self.project_view_frame = tk.Frame(
             self.project_view_window,
@@ -79,6 +82,32 @@ class ProjectView:
         self.tab.pack(anchor=tk.NW)
         self.refresh_trees()
         self.project_view_window.mainloop()
+
+    def refresh_trees(self):
+        """this func refresh trees.
+        """
+        self.project_tree.delete(*self.project_tree.get_children())
+        for project in self.projects["projects"]["project_names"]:
+            self.project_tree.insert(
+                "", tk.END, text=project)
+        self.calendar_tab.refresh()
+
+    def show_version(self):
+        """This func shows version information.
+        """
+        version_window = tk.Toplevel(self.project_view_window)
+        version_window.title("version information")
+        toml_file = "pyproject.toml"
+        with open(toml_file, "r") as f:
+            config = toml.load(f)
+        app_version = config["tool"]["poetry"]["version"]
+        version_text = f"""\
+        Tkinter: {tk.TkVersion}
+        Python: {sys.version}
+        application: {app_version}"""
+        version_label = tk.Label(version_window, text=dedent(version_text))
+        version_label.pack()
+        version_window.mainloop()
 
     def add_project(self):
         """This func makes add_project_window.
@@ -269,15 +298,6 @@ class ProjectView:
             "Remove Project",
             state=tk.NORMAL if flag else tk.DISABLED)
         self.project_tree_menu.post(event.x_root, event.y_root)
-
-    def refresh_trees(self):
-        """this func refresh trees.
-        """
-        self.project_tree.delete(*self.project_tree.get_children())
-        for project in self.projects["projects"]["project_names"]:
-            self.project_tree.insert(
-                "", tk.END, text=project)
-        self.calendar_tab.refresh()
 
 
 if __name__ == "__main__":
