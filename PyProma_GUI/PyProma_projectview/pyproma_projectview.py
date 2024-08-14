@@ -1,18 +1,20 @@
+import importlib
 import json
 import os
 import shutil
 import sys
 import tkinter as tk
 import tkinter.ttk as ttk
+from pathlib import Path
 from textwrap import dedent
 from tkinter import filedialog, messagebox
 
 import git
+import inflection
 import toml
 from cookiecutter.exceptions import CookiecutterException
 from cookiecutter.main import cookiecutter
 from PyProma_dirview import pyproma_dirview
-from PyProma_projectview.tabs import calendar_tab
 
 json_path = "PyProma_settings.json"
 
@@ -75,13 +77,34 @@ class ProjectView:
         self.tab_frame.propagate(False)
         self.tab_frame.grid(row=0, column=1, sticky=tk.NSEW)
         self.tab = ttk.Notebook(self.tab_frame)
-
-        self.calendar_tab = calendar_tab.CalendarTab(self.tab, self)
-        self.tab.add(self.calendar_tab, text="Calendar", padding=3)
-
+        self.tabs = {}
+        self.add_tabs()
         self.tab.pack(anchor=tk.NW)
         self.refresh_trees()
         self.project_view_window.mainloop()
+
+    def add_tabs(self):
+        for filename in os.listdir("PyProma_GUI/PyProma_projectview/tabs"):
+            if filename.endswith(".py"):
+                module_name = filename[:-3]
+                module = importlib.import_module(f"tabs.{module_name}")
+
+                class_name = inflection.camelize(module_name)
+
+                try:
+                    class_ = getattr(module, class_name)
+                    tab = class_(self.tab, self)
+
+                    tab_name = getattr(class_, 'NAME', class_name)
+                    self.tab.add(tab, text=tab_name, padding=3)
+
+                    self.tabs[tab_name] = tab
+                except AttributeError:
+                    message = (
+                        f"class {class_name} is not in module {module_name}.")
+                    messagebox.showerror(
+                        title="AttributeError",
+                        message=message)
 
     def refresh_trees(self):
         """this func refresh trees.
@@ -90,7 +113,8 @@ class ProjectView:
         for project in self.projects["projects"]["project_names"]:
             self.project_tree.insert(
                 "", tk.END, text=project)
-        self.calendar_tab.refresh()
+        for instance in self.tabs.values():
+            instance.refresh()
 
     def show_version(self):
         """This func shows version information.
@@ -301,4 +325,6 @@ class ProjectView:
 
 
 if __name__ == "__main__":
+    script_path = Path(__file__).resolve().parent.parent.parent
+    os.chdir(script_path)
     window = ProjectView()

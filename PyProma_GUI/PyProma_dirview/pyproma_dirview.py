@@ -1,3 +1,4 @@
+import importlib
 import os
 import shutil
 import subprocess
@@ -5,15 +6,16 @@ import sys
 import tkinter as tk
 import tkinter.ttk as ttk
 import venv
+from pathlib import Path
 from textwrap import dedent
 from tkinter import filedialog, messagebox, simpledialog
 
 import git
 import git.exc
 import git.repo
+import inflection
 import pyperclip
 import toml
-from PyProma_dirview.tabs import git_tab, packages_tab, readme_tab, todo_tab
 
 
 class DirView:
@@ -92,21 +94,8 @@ class DirView:
         self.tab_frame.propagate(False)
         self.tab_frame.grid(row=0, column=1, sticky=tk.NSEW)
         self.tab = ttk.Notebook(self.tab_frame)
-
-        self.todo_tab = todo_tab.ToDoTab(self.tab, self)
-        self.tab.add(self.todo_tab, text=todo_tab.ToDoTab.NAME, padding=3)
-
-        self.readme_tab = readme_tab.ReadmeTab(self.tab, self)
-        self.tab.add(
-            self.readme_tab, text=readme_tab.ReadmeTab.NAME, padding="3")
-
-        self.git_tab = git_tab.GitTab(self.tab, self)
-        self.tab.add(self.git_tab, text=git_tab.GitTab.NAME, padding=3)
-
-        self.packages_tab = packages_tab.PackagesTab(self.tab, self)
-        self.tab.add(
-            self.packages_tab, text=packages_tab.PackagesTab.NAME, padding=3)
-
+        self.tabs = {}
+        self.add_tabs()
         self.tab.pack(anchor=tk.NW)
 
         if os.path.isdir(dir_path):
@@ -127,16 +116,37 @@ class DirView:
             self.dir_path = path
             self.refresh_trees()
 
+    def add_tabs(self):
+        for filename in os.listdir("PyProma_GUI/PyProma_dirview/tabs"):
+            if filename.endswith(".py"):
+                module_name = filename[:-3]
+                module = importlib.import_module(f"tabs.{module_name}")
+
+                class_name = inflection.camelize(module_name)
+
+                try:
+                    class_ = getattr(module, class_name)
+                    tab = class_(self.tab, self)
+
+                    tab_name = getattr(class_, 'NAME', class_name)
+                    self.tab.add(tab, text=tab_name, padding=3)
+
+                    self.tabs[tab_name] = tab
+                except AttributeError:
+                    message = (
+                        f"class {class_name} is not in module {module_name}.")
+                    messagebox.showerror(
+                        title="AttributeError",
+                        message=message)
+
     def refresh_trees(self):
         """this func initialize tree.
         after this func
         -> make_dir_tree(dir_path)
         """
         if os.path.isdir(self.dir_path):
-            self.todo_tab.refresh()
-            self.git_tab.refresh()
-            self.readme_tab.refresh()
-            self.packages_tab.refresh()
+            for instance in self.tabs.values():
+                instance.refresh()
             self.dir_tree.delete(*self.dir_tree.get_children())
             self.dir_tree.heading(
                 "#0",
@@ -163,7 +173,7 @@ class DirView:
                         tk.END,
                         text=d)
                     if os.path.splitext(full_path)[1] == ".py":
-                        self.todo_tab.find_todo(full_path)
+                        self.tabs["ToDo"].find_todo(full_path)
                 else:
                     child = self.dir_tree.insert(
                         "" if parent_tree is None else parent_tree,
@@ -383,4 +393,6 @@ class DirView:
 
 
 if __name__ == "__main__":
+    script_path = Path(__file__).resolve().parent.parent.parent
+    os.chdir(script_path)
     window = DirView()

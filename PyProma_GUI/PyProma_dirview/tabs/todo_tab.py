@@ -5,7 +5,7 @@ import tkinter.ttk as ttk
 from PyProma_templates import tab_template
 
 
-class ToDoTab(tab_template.TabTemplate):
+class TodoTab(tab_template.TabTemplate):
     NAME = "ToDo"
 
     def __init__(self, master=None, main=None):
@@ -51,6 +51,6 @@ class ToDoTab(tab_template.TabTemplate):
 if __name__ == "__main__":
     root = tk.Tk()
     root.geometry("800x575")
-    todo_tab = ToDoTab(root)
+    todo_tab = TodoTab(root)
     todo_tab.pack()
     root.mainloop()
