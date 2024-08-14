@@ -4,6 +4,7 @@ import shutil
 import sys
 import tkinter as tk
 import tkinter.ttk as ttk
+from pathlib import Path
 from textwrap import dedent
 from tkinter import filedialog, messagebox
 
@@ -301,4 +302,6 @@ class ProjectView:
 
 
 if __name__ == "__main__":
+    script_path = Path(__file__).resolve().parent.parent.parent
+    os.chdir(script_path)
     window = ProjectView()
