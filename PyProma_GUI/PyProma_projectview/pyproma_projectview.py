@@ -84,6 +84,8 @@ class ProjectView:
         self.project_view_window.mainloop()
 
     def add_tabs(self):
+        """this func loads and adds tabs from tabs directory.
+        """
         for filename in os.listdir("PyProma_GUI/PyProma_projectview/tabs"):
             if filename.endswith(".py"):
                 module_name = filename[:-3]
@@ -95,7 +97,7 @@ class ProjectView:
                     class_ = getattr(module, class_name)
                     tab = class_(self.tab, self)
 
-                    tab_name = getattr(class_, 'NAME', class_name)
+                    tab_name = getattr(class_, "NAME", class_name)
                     self.tab.add(tab, text=tab_name, padding=3)
 
                     self.tabs[tab_name] = tab
