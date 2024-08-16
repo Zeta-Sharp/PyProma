@@ -152,8 +152,8 @@ class DirView:
 
                 except AttributeError as e:
                     message = (
-                        f"class {class_name} is not in module {module_name} ",
-                        f"or 'NAME' attribute missing: {e}")
+                        f"class {class_name} is not in module {module_name}"
+                        f": {e}")
                     messagebox.showerror(
                         title="AttributeError",
                         message=message)
