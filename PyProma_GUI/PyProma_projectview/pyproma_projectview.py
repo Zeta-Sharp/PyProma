@@ -15,6 +15,7 @@ import toml
 from cookiecutter.exceptions import CookiecutterException
 from cookiecutter.main import cookiecutter
 from PyProma_dirview import pyproma_dirview
+from PyProma_templates import tab_template
 
 json_path = "PyProma_settings.json"
 
@@ -89,21 +90,37 @@ class ProjectView:
         for filename in os.listdir("PyProma_GUI/PyProma_projectview/tabs"):
             if filename.endswith(".py"):
                 module_name = filename[:-3]
-                module = importlib.import_module(f"tabs.{module_name}")
-
+                try:
+                    module = importlib.import_module(f"tabs.{module_name}")
+                except ImportError as e:
+                    message = f"Failed to import module '{module_name}': {e}"
+                    messagebox.showerror(title="ImportError", message=message)
+                    continue
                 class_name = inflection.camelize(module_name)
-
                 try:
                     class_ = getattr(module, class_name)
-                    tab = class_(self.tab, self)
+                    if issubclass(class_, tab_template.TabTemplate):
+                        tab = class_(self.tab, self)
+                        tab_name = getattr(class_, "NAME", class_name)
+                        self.tab.add(tab, text=tab_name, padding=3)
+                        self.tabs[tab_name] = tab
+                    else:
+                        if issubclass(tab, tk.Frame):
+                            message = f"""\
+                            {tab_name} is a tkinter frame but might not a tab.
+                            do you want to load anyway?"""
+                            confirm = messagebox.askyesno(
+                                title="confirm", message=dedent(message))
+                            if confirm:
+                                tab = class_(self.tab, self)
+                                tab_name = getattr(class_, "NAME", class_name)
+                                self.tab.add(tab, text=tab_name, padding=3)
+                                self.tabs[tab_name] = tab
 
-                    tab_name = getattr(class_, "NAME", class_name)
-                    self.tab.add(tab, text=tab_name, padding=3)
-
-                    self.tabs[tab_name] = tab
-                except AttributeError:
+                except AttributeError as e:
                     message = (
-                        f"class {class_name} is not in module {module_name}.")
+                        f"class {class_name} is not in module {module_name} ",
+                        f"or 'NAME' attribute missing: {e}")
                     messagebox.showerror(
                         title="AttributeError",
                         message=message)
