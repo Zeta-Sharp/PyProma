@@ -9,8 +9,7 @@ class TodoTab(tab_template.TabTemplate):
     NAME = "ToDo"
 
     def __init__(self, master=None, main=None):
-        self.main = main
-        super().__init__(master)
+        super().__init__(master, main)
         self.todo_tree = ttk.Treeview(self, show=["tree", "headings"])
         self.todo_tree.heading("#0", text="ToDo", anchor=tk.CENTER)
         self.todo_tree.pack(fill=tk.BOTH, expand=True)
