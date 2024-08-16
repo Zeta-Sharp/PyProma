@@ -137,18 +137,17 @@ class DirView:
                         tab_name = getattr(class_, "NAME", class_name)
                         self.tab.add(tab, text=tab_name, padding=3)
                         self.tabs[tab_name] = tab
-                    else:
-                        if issubclass(tab, tk.Frame):
-                            message = f"""\
-                            {tab_name} is a tkinter frame but might not a tab.
-                            do you want to load anyway?"""
-                            confirm = messagebox.askyesno(
-                                title="confirm", message=dedent(message))
-                            if confirm:
-                                tab = class_(self.tab, self)
-                                tab_name = getattr(class_, "NAME", class_name)
-                                self.tab.add(tab, text=tab_name, padding=3)
-                                self.tabs[tab_name] = tab
+                    elif issubclass(class_, tk.Frame):
+                        tab = class_(self.tab)
+                        tab_name = getattr(class_, "NAME", class_name)
+                        message = f"""\
+                        {tab_name} is a tkinter frame but might not a tab.
+                        do you want to load anyway?"""
+                        confirm = messagebox.askyesno(
+                            title="confirm", message=dedent(message))
+                        if confirm:
+                            self.tab.add(tab, text=tab_name, padding=3)
+                            self.tabs[tab_name] = tab
 
                 except AttributeError as e:
                     message = (

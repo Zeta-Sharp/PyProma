@@ -12,8 +12,7 @@ class GitTab(tab_template.TabTemplate):
     NAME = "Git"
 
     def __init__(self, master=None, main=None):
-        self.main = main
-        super().__init__(master)
+        super().__init__(master, main)
         self.git_log_frame = tk.Frame(self, width=400, height=600)
         self.git_log_frame.propagate(False)
         self.git_commit_tree = ttk.Treeview(

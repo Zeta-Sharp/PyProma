@@ -10,8 +10,7 @@ class PackagesTab(tab_template.TabTemplate):
     NAME = "Packages"
 
     def __init__(self, master=None, main=None):
-        self.main = main
-        super().__init__(master)
+        super().__init__(master, main)
         self.packages_tree = ttk.Treeview(
             self, show="headings", columns=("Packages", "Version"))
         self.packages_tree.heading(

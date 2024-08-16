@@ -9,8 +9,7 @@ class ReadmeTab(tab_template.TabTemplate):
     NAME = "README"
 
     def __init__(self, master=None, main=None):
-        self.main = main
-        super().__init__(master)
+        super().__init__(master, main)
         self.readme_text = scrolledtext.ScrolledText(self)
         text = "There is no README.md in this directory."
         self.readme_text.insert(tk.END, text)
