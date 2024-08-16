@@ -131,15 +131,15 @@ class DirView:
                     continue
                 class_name = inflection.camelize(module_name)
                 try:
-                    class_ = getattr(module, class_name)
-                    if issubclass(class_, tab_template.TabTemplate):
-                        tab = class_(self.tab, self)
-                        tab_name = getattr(class_, "NAME", class_name)
+                    tab_class = getattr(module, class_name)
+                    if issubclass(tab_class, tab_template.TabTemplate):
+                        tab = tab_class(self.tab, self)
+                        tab_name = getattr(tab_class, "NAME", class_name)
                         self.tab.add(tab, text=tab_name, padding=3)
                         self.tabs[tab_name] = tab
-                    elif issubclass(class_, tk.Frame):
-                        tab = class_(self.tab)
-                        tab_name = getattr(class_, "NAME", class_name)
+                    elif issubclass(tab_class, tk.Frame):
+                        tab = tab_class(self.tab)
+                        tab_name = getattr(tab_class, "NAME", class_name)
                         message = f"""\
                         {tab_name} is a tkinter frame but might not a tab.
                         do you want to load anyway?"""
