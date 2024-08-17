@@ -154,8 +154,7 @@ class DirView:
                         f"class {class_name} is not in module {module_name}"
                         f": {e}")
                     messagebox.showerror(
-                        title="AttributeError",
-                        message=message)
+                        title="AttributeError", message=message)
 
     def refresh_trees(self):
         """this func initialize tree.
