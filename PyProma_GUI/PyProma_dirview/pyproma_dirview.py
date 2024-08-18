@@ -2,21 +2,17 @@ import importlib
 import os
 import shutil
 import subprocess
-import sys
 import tkinter as tk
 import tkinter.ttk as ttk
-import venv
 from pathlib import Path
 from textwrap import dedent
-from tkinter import filedialog, messagebox, simpledialog
+from tkinter import messagebox
 
-import git
-import git.exc
-import git.repo
 import inflection
 import pyperclip
-import toml
-from PyProma_templates import tab_template
+from PyProma_common.PyProma_templates import tab_template
+from PyProma_common.show_version import ShowVersion
+from PyProma_dirview.menus import file_menu, git_menu, pip_menu, venv_menu
 
 
 class DirView:
@@ -38,31 +34,27 @@ class DirView:
         self.main_menu = tk.Menu(self.dir_view_window)
         self.dir_view_window.config(menu=self.main_menu)
 
-        self.file_menu = tk.Menu(self.main_menu, tearoff=False)
-        self.main_menu.add_cascade(label="File", menu=self.file_menu)
-        self.file_menu.add_command(
-            label="Open directory",
-            command=self.set_dir_path)
+        self.file_menu = file_menu.FileMenu(self.main_menu, self)
+        self.main_menu.add_cascade(
+            label=file_menu.FileMenu.NAME, menu=self.file_menu)
 
-        self.git_menu = tk.Menu(self.main_menu, tearoff=False)
-        self.main_menu.add_cascade(label="Git", menu=self.git_menu)
-        self.git_menu.add_command(
-            label="Git Init", command=self.git_init)
+        self.git_menu = git_menu.GitMenu(self.main_menu, self)
+        self.main_menu.add_cascade(
+            label=git_menu.GitMenu.NAME, menu=self.git_menu)
 
-        self.pip_menu = tk.Menu(self.main_menu, tearoff=False)
-        self.main_menu.add_cascade(label="pip", menu=self.pip_menu)
-        self.pip_menu.add_command(
-            label="install package", command=self.pip_install)
-        self.pip_menu.add_command(label="freeze", command=self.pip_freeze)
+        self.pip_menu = pip_menu.PipMenu(self.main_menu, self)
+        self.main_menu.add_cascade(
+            label=pip_menu.PipMenu.NAME, menu=self.pip_menu)
 
-        self.venv_menu = tk.Menu(self.main_menu, tearoff=False)
-        self.main_menu.add_cascade(label="venv", menu=self.venv_menu)
-        self.venv_menu.add_command(label="venv", command=self.venv_create)
+        self.venv_menu = venv_menu.VenvMenu(self.main_menu, self)
+        self.main_menu.add_cascade(
+            label=venv_menu.VenvMenu.NAME, menu=self.venv_menu)
 
         self.help_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="Help", menu=self.help_menu)
         self.help_menu.add_command(
-            label="Version information", command=self.show_version)
+            label="Version information",
+            command=lambda: ShowVersion(self.dir_view_window))
 
         self.dir_frame = tk.Frame(self.dir_view_window, width=200, height=600)
         self.dir_frame.propagate(False)
@@ -106,16 +98,6 @@ class DirView:
             self.dir_path = ""
 
         self.dir_view_window.mainloop()
-
-    def set_dir_path(self):
-        """this func asks directory and sets dir_path.
-        after this func -> refresh_trees().
-        """
-        path = os.path.normpath(
-            filedialog.askdirectory().replace("\\", "/"))
-        if os.path.isdir(path) and path != ".":
-            self.dir_path = path
-            self.refresh_trees()
 
     def add_tabs(self):
         """this func loads and adds tabs from tabs directory.
@@ -197,35 +179,6 @@ class DirView:
                         tk.END,
                         text=d)
                     self.make_dir_tree(full_path, child)
-
-    def show_version(self):
-        """This func shows version information.
-        """
-        version_window = tk.Toplevel(self.dir_view_window)
-        version_window.title("version information")
-        toml_file = "pyproject.toml"
-        with open(toml_file, "r") as f:
-            config = toml.load(f)
-        app_version = config["tool"]["poetry"]["version"]
-        version_text = f"""\
-        Tkinter: {tk.TkVersion}
-        Python: {sys.version}
-        application: {app_version}"""
-        version_label = tk.Label(version_window, text=dedent(version_text))
-        version_label.pack()
-        version_window.mainloop()
-
-    def git_init(self):
-        """this func runs git init
-        """
-        if os.path.isdir(self.dir_path):
-            git_path = os.path.join(self.dir_path, ".git")
-            if not os.path.isdir(git_path):
-                try:
-                    git.Repo.init(self.dir_path)
-                except git.exc.GitError as e:
-                    messagebox.showerror(
-                        title="git.exc.GitError", message=str(e))
 
     def getpath(self, target_path: str):
         """this func generates path from treeview node.
@@ -345,47 +298,6 @@ class DirView:
             messagebox.showinfo(parent=root, message="Command succeed.")
 
         root.destroy()
-
-    def pip_install(self):
-        """this func asks pip package and installs.
-        """
-        if os.path.isdir(self.dir_path):
-            package = simpledialog.askstring(
-                "install package", "type pip package name here")
-            if package:
-                venv_path = os.path.join(
-                    self.dir_path, r".venv\Scripts\python.exe")
-                command = [
-                    venv_path if os.path.isfile(venv_path) else "python",
-                    "-m", "pip", "install", package]
-                self.code_runner(command)
-
-    def pip_freeze(self):
-        """this func generates requirements.txt.
-        """
-        if os.path.isdir(self.dir_path):
-            venv_path = os.path.join(
-                self.dir_path, r".venv\Scripts\python.exe")
-            command = [
-                venv_path if os.path.isfile(venv_path) else "python",
-                "-m", "pip", "freeze", ">", "requirements.txt"]
-            try:
-                subprocess.run(command, shell=True)
-            except subprocess.CalledProcessError as e:
-                messagebox.showerror(
-                    title="subprocess.CalledProcessError", message=str(e))
-
-    def venv_create(self):
-        """this func creates .venv environment.
-        """
-        if os.path.isdir(self.dir_path):
-            try:
-                venv_path = os.path.join(self.dir_path, ".venv")
-                venv.create(venv_path)
-            except OSError as e:
-                messagebox.showerror(
-                    title="OSError", message=str(e))
-            self.refresh_trees()
 
     def dir_menu_on_right_click(self, event: tk.Event):
         """this func shows right-clicked menu.

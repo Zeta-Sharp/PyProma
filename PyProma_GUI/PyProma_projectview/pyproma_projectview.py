@@ -2,7 +2,6 @@ import importlib
 import json
 import os
 import shutil
-import sys
 import tkinter as tk
 import tkinter.ttk as ttk
 from pathlib import Path
@@ -11,11 +10,11 @@ from tkinter import filedialog, messagebox
 
 import git
 import inflection
-import toml
 from cookiecutter.exceptions import CookiecutterException
 from cookiecutter.main import cookiecutter
+from PyProma_common.PyProma_templates import tab_template
+from PyProma_common.show_version import ShowVersion
 from PyProma_dirview import pyproma_dirview
-from PyProma_templates import tab_template
 
 json_path = "PyProma_settings.json"
 
@@ -49,15 +48,14 @@ class ProjectView:
         self.help_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="Help", menu=self.help_menu)
         self.help_menu.add_command(
-            label="Version information", command=self.show_version)
+            label="Version information",
+            command=lambda: ShowVersion(self.dir_view_window))
 
         self.project_view_frame = tk.Frame(
-            self.project_view_window,
-            width=200, height=600)
+            self.project_view_window, width=200, height=600)
         self.project_view_window.propagate(False)
         self.project_tree = ttk.Treeview(
-            self.project_view_frame,
-            show=["tree", "headings"])
+            self.project_view_frame, show=["tree", "headings"])
         self.project_tree.heading(
             "#0", text="Projects", anchor=tk.CENTER)
         self.project_tree.pack(fill=tk.BOTH, expand=True)
@@ -132,23 +130,6 @@ class ProjectView:
                 "", tk.END, text=project)
         for instance in self.tabs.values():
             instance.refresh()
-
-    def show_version(self):
-        """This func shows version information.
-        """
-        version_window = tk.Toplevel(self.project_view_window)
-        version_window.title("version information")
-        toml_file = "pyproject.toml"
-        with open(toml_file, "r") as f:
-            config = toml.load(f)
-        app_version = config["tool"]["poetry"]["version"]
-        version_text = f"""\
-        Tkinter: {tk.TkVersion}
-        Python: {sys.version}
-        application: {app_version}"""
-        version_label = tk.Label(version_window, text=dedent(version_text))
-        version_label.pack()
-        version_window.mainloop()
 
     def add_project(self):
         """This func makes add_project_window.

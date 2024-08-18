@@ -4,7 +4,7 @@ import tkinter.ttk as ttk
 from calendar import monthrange
 from datetime import datetime
 
-from PyProma_templates import tab_template
+from PyProma_common.PyProma_templates import tab_template
 
 json_path = "PyProm_settings.json"
 
@@ -13,8 +13,7 @@ class CalendarTab(tab_template.TabTemplate):
     NAME = "Calendar"
 
     def __init__(self, master=None, main=None):
-        self.main = main
-        super().__init__(master)
+        super().__init__(master, main)
         self.calender_tree = ttk.Treeview(
             self,
             show="headings",

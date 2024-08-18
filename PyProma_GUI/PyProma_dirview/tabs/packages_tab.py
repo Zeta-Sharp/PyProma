@@ -3,7 +3,7 @@ import os
 import tkinter as tk
 import tkinter.ttk as ttk
 
-from PyProma_templates import tab_template
+from PyProma_common.PyProma_templates import tab_template
 
 
 class PackagesTab(tab_template.TabTemplate):
