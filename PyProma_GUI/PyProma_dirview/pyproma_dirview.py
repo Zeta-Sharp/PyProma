@@ -121,7 +121,7 @@ class DirView:
         """this func loads and adds tabs from tabs directory.
         """
         for filename in os.listdir("PyProma_GUI/PyProma_dirview/tabs"):
-            if filename.endswith(".py"):
+            if filename.endswith("_tab.py"):
                 module_name = filename[:-3]
                 try:
                     module = importlib.import_module(f"tabs.{module_name}")
