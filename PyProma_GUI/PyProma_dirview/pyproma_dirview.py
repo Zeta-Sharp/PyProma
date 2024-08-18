@@ -12,7 +12,6 @@ import inflection
 import pyperclip
 from PyProma_common.PyProma_templates import tab_template
 from PyProma_common.show_version import ShowVersion
-from PyProma_dirview.menus import file_menu, git_menu, pip_menu, venv_menu
 
 
 class DirView:
@@ -33,23 +32,7 @@ class DirView:
 
         self.main_menu = tk.Menu(self.dir_view_window)
         self.dir_view_window.config(menu=self.main_menu)
-
-        self.file_menu = file_menu.FileMenu(self.main_menu, self)
-        self.main_menu.add_cascade(
-            label=file_menu.FileMenu.NAME, menu=self.file_menu)
-
-        self.git_menu = git_menu.GitMenu(self.main_menu, self)
-        self.main_menu.add_cascade(
-            label=git_menu.GitMenu.NAME, menu=self.git_menu)
-
-        self.pip_menu = pip_menu.PipMenu(self.main_menu, self)
-        self.main_menu.add_cascade(
-            label=pip_menu.PipMenu.NAME, menu=self.pip_menu)
-
-        self.venv_menu = venv_menu.VenvMenu(self.main_menu, self)
-        self.main_menu.add_cascade(
-            label=venv_menu.VenvMenu.NAME, menu=self.venv_menu)
-
+        self.add_menus()
         self.help_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="Help", menu=self.help_menu)
         self.help_menu.add_command(
@@ -130,6 +113,33 @@ class DirView:
                         if confirm:
                             self.tab.add(tab, text=tab_name, padding=3)
                             self.tabs[tab_name] = tab
+
+                except AttributeError as e:
+                    message = (
+                        f"class {class_name} is not in module {module_name}"
+                        f": {e}")
+                    messagebox.showerror(
+                        title="AttributeError", message=message)
+
+    def add_menus(self):
+        """this func loads and adds menus from menus directory.
+        """
+        for filename in os.listdir("PyProma_GUI/PyProma_dirview/menus"):
+            if filename.endswith("_menu.py"):
+                module_name = filename[:-3]
+                try:
+                    module = importlib.import_module(f"menus.{module_name}")
+                except ImportError as e:
+                    message = f"Failed to import module '{module_name}': {e}"
+                    messagebox.showerror(title="ImportError", message=message)
+                    continue
+                class_name = inflection.camelize(module_name)
+                try:
+                    menu_class = getattr(module, class_name)
+                    if issubclass(menu_class, tk.Menu):
+                        menu = menu_class(self.main_menu, self)
+                        menu_name = getattr(menu_class, "NAME", class_name)
+                        self.main_menu.add_cascade(label=menu_name, menu=menu)
 
                 except AttributeError as e:
                     message = (
