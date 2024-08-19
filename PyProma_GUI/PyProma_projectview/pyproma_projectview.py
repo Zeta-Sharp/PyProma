@@ -2,7 +2,6 @@ import importlib
 import json
 import os
 import shutil
-import sys
 import tkinter as tk
 import tkinter.ttk as ttk
 from pathlib import Path
@@ -11,11 +10,11 @@ from tkinter import filedialog, messagebox
 
 import git
 import inflection
-import toml
 from cookiecutter.exceptions import CookiecutterException
 from cookiecutter.main import cookiecutter
+from PyProma_common.PyProma_templates import tab_template
+from PyProma_common.show_version import ShowVersion
 from PyProma_dirview import pyproma_dirview
-from PyProma_templates import tab_template
 
 json_path = "PyProma_settings.json"
 
@@ -46,18 +45,18 @@ class ProjectView:
         self.main_menu.add_cascade(label="Projects", menu=self.project_menu)
         self.project_menu.add_command(
             label="Add Project", command=self.add_project)
+        self.add_menus()
         self.help_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="Help", menu=self.help_menu)
         self.help_menu.add_command(
-            label="Version information", command=self.show_version)
+            label="Version information",
+            command=lambda: ShowVersion(self.dir_view_window))
 
         self.project_view_frame = tk.Frame(
-            self.project_view_window,
-            width=200, height=600)
+            self.project_view_window, width=200, height=600)
         self.project_view_window.propagate(False)
         self.project_tree = ttk.Treeview(
-            self.project_view_frame,
-            show=["tree", "headings"])
+            self.project_view_frame, show=["tree", "headings"])
         self.project_tree.heading(
             "#0", text="Projects", anchor=tk.CENTER)
         self.project_tree.pack(fill=tk.BOTH, expand=True)
@@ -88,25 +87,26 @@ class ProjectView:
         """this func loads and adds tabs from tabs directory.
         """
         for filename in os.listdir("PyProma_GUI/PyProma_projectview/tabs"):
-            if filename.endswith(".py"):
+            if filename.endswith("_tab.py"):
                 module_name = filename[:-3]
                 try:
-                    module = importlib.import_module(f"tabs.{module_name}")
+                    module = importlib.import_module(
+                        f"PyProma_projectview.tabs.{module_name}")
                 except ImportError as e:
                     message = f"Failed to import module '{module_name}': {e}"
                     messagebox.showerror(title="ImportError", message=message)
                     continue
                 class_name = inflection.camelize(module_name)
                 try:
-                    class_ = getattr(module, class_name)
-                    if issubclass(class_, tab_template.TabTemplate):
-                        tab = class_(self.tab, self)
-                        tab_name = getattr(class_, "NAME", class_name)
+                    tab_class = getattr(module, class_name)
+                    if issubclass(tab_class, tab_template.TabTemplate):
+                        tab = tab_class(self.tab, self)
+                        tab_name = getattr(tab_class, "NAME", class_name)
                         self.tab.add(tab, text=tab_name, padding=3)
                         self.tabs[tab_name] = tab
-                    elif issubclass(class_, tk.Frame):
-                        tab = class_(self.tab)
-                        tab_name = getattr(class_, "NAME", class_name)
+                    elif issubclass(tab_class, tk.Frame):
+                        tab = tab_class(self.tab)
+                        tab_name = getattr(tab_class, "NAME", class_name)
                         message = f"""\
                         {tab_name} is a tkinter frame but might not a tab.
                         do you want to load anyway?"""
@@ -121,8 +121,35 @@ class ProjectView:
                         f"class {class_name} is not in module {module_name}"
                         f": {e}")
                     messagebox.showerror(
-                        title="AttributeError",
-                        message=message)
+                        title="AttributeError", message=message)
+
+    def add_menus(self):
+        """this func loads and adds menus from menus directory.
+        """
+        for filename in os.listdir("PyProma_GUI/PyProma_projectview/menus"):
+            if filename.endswith("_menu.py"):
+                module_name = filename[:-3]
+                try:
+                    module = importlib.import_module(
+                        f"PyProma_projectview.menus.{module_name}")
+                except ImportError as e:
+                    message = f"Failed to import module '{module_name}': {e}"
+                    messagebox.showerror(title="ImportError", message=message)
+                    continue
+                class_name = inflection.camelize(module_name)
+                try:
+                    menu_class = getattr(module, class_name)
+                    if issubclass(menu_class, tk.Menu):
+                        menu = menu_class(self.main_menu, self)
+                        menu_name = getattr(menu_class, "NAME", class_name)
+                        self.main_menu.add_cascade(label=menu_name, menu=menu)
+
+                except AttributeError as e:
+                    message = (
+                        f"class {class_name} is not in module {module_name}"
+                        f": {e}")
+                    messagebox.showerror(
+                        title="AttributeError", message=message)
 
     def refresh_trees(self):
         """this func refresh trees.
@@ -133,23 +160,6 @@ class ProjectView:
                 "", tk.END, text=project)
         for instance in self.tabs.values():
             instance.refresh()
-
-    def show_version(self):
-        """This func shows version information.
-        """
-        version_window = tk.Toplevel(self.project_view_window)
-        version_window.title("version information")
-        toml_file = "pyproject.toml"
-        with open(toml_file, "r") as f:
-            config = toml.load(f)
-        app_version = config["tool"]["poetry"]["version"]
-        version_text = f"""\
-        Tkinter: {tk.TkVersion}
-        Python: {sys.version}
-        application: {app_version}"""
-        version_label = tk.Label(version_window, text=dedent(version_text))
-        version_label.pack()
-        version_window.mainloop()
 
     def add_project(self):
         """This func makes add_project_window.
@@ -164,7 +174,8 @@ class ProjectView:
                 sv.set(path)
 
         def save():
-            if txt1.get() and (target_dir := txt2.get()):
+            if txt1.get() and txt2.get():
+                target_dir = os.path.normpath(txt2.get().replace("\\", "/"))
                 combobox_state = add_project_combobox1.get()
                 if not os.path.isdir(target_dir):
                     message = f"""\

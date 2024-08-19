@@ -2,21 +2,16 @@ import importlib
 import os
 import shutil
 import subprocess
-import sys
 import tkinter as tk
 import tkinter.ttk as ttk
-import venv
 from pathlib import Path
 from textwrap import dedent
-from tkinter import filedialog, messagebox, simpledialog
+from tkinter import messagebox
 
-import git
-import git.exc
-import git.repo
 import inflection
 import pyperclip
-import toml
-from PyProma_templates import tab_template
+from PyProma_common.PyProma_templates import tab_template
+from PyProma_common.show_version import ShowVersion
 
 
 class DirView:
@@ -37,32 +32,12 @@ class DirView:
 
         self.main_menu = tk.Menu(self.dir_view_window)
         self.dir_view_window.config(menu=self.main_menu)
-
-        self.file_menu = tk.Menu(self.main_menu, tearoff=False)
-        self.main_menu.add_cascade(label="File", menu=self.file_menu)
-        self.file_menu.add_command(
-            label="Open directory",
-            command=self.set_dir_path)
-
-        self.git_menu = tk.Menu(self.main_menu, tearoff=False)
-        self.main_menu.add_cascade(label="Git", menu=self.git_menu)
-        self.git_menu.add_command(
-            label="Git Init", command=self.git_init)
-
-        self.pip_menu = tk.Menu(self.main_menu, tearoff=False)
-        self.main_menu.add_cascade(label="pip", menu=self.pip_menu)
-        self.pip_menu.add_command(
-            label="install package", command=self.pip_install)
-        self.pip_menu.add_command(label="freeze", command=self.pip_freeze)
-
-        self.venv_menu = tk.Menu(self.main_menu, tearoff=False)
-        self.main_menu.add_cascade(label="venv", menu=self.venv_menu)
-        self.venv_menu.add_command(label="venv", command=self.venv_create)
-
+        self.add_menus()
         self.help_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="Help", menu=self.help_menu)
         self.help_menu.add_command(
-            label="Version information", command=self.show_version)
+            label="Version information",
+            command=lambda: ShowVersion(self.dir_view_window))
 
         self.dir_frame = tk.Frame(self.dir_view_window, width=200, height=600)
         self.dir_frame.propagate(False)
@@ -107,39 +82,30 @@ class DirView:
 
         self.dir_view_window.mainloop()
 
-    def set_dir_path(self):
-        """this func asks directory and sets dir_path.
-        after this func -> refresh_trees().
-        """
-        path = os.path.normpath(
-            filedialog.askdirectory().replace("\\", "/"))
-        if os.path.isdir(path) and path != ".":
-            self.dir_path = path
-            self.refresh_trees()
-
     def add_tabs(self):
         """this func loads and adds tabs from tabs directory.
         """
         for filename in os.listdir("PyProma_GUI/PyProma_dirview/tabs"):
-            if filename.endswith(".py"):
+            if filename.endswith("_tab.py"):
                 module_name = filename[:-3]
                 try:
-                    module = importlib.import_module(f"tabs.{module_name}")
+                    module = importlib.import_module(
+                        f"PyProma_dirview.tabs.{module_name}")
                 except ImportError as e:
                     message = f"Failed to import module '{module_name}': {e}"
                     messagebox.showerror(title="ImportError", message=message)
                     continue
                 class_name = inflection.camelize(module_name)
                 try:
-                    class_ = getattr(module, class_name)
-                    if issubclass(class_, tab_template.TabTemplate):
-                        tab = class_(self.tab, self)
-                        tab_name = getattr(class_, "NAME", class_name)
+                    tab_class = getattr(module, class_name)
+                    if issubclass(tab_class, tab_template.TabTemplate):
+                        tab = tab_class(self.tab, self)
+                        tab_name = getattr(tab_class, "NAME", class_name)
                         self.tab.add(tab, text=tab_name, padding=3)
                         self.tabs[tab_name] = tab
-                    elif issubclass(class_, tk.Frame):
-                        tab = class_(self.tab)
-                        tab_name = getattr(class_, "NAME", class_name)
+                    elif issubclass(tab_class, tk.Frame):
+                        tab = tab_class(self.tab)
+                        tab_name = getattr(tab_class, "NAME", class_name)
                         message = f"""\
                         {tab_name} is a tkinter frame but might not a tab.
                         do you want to load anyway?"""
@@ -154,8 +120,35 @@ class DirView:
                         f"class {class_name} is not in module {module_name}"
                         f": {e}")
                     messagebox.showerror(
-                        title="AttributeError",
-                        message=message)
+                        title="AttributeError", message=message)
+
+    def add_menus(self):
+        """this func loads and adds menus from menus directory.
+        """
+        for filename in os.listdir("PyProma_GUI/PyProma_dirview/menus"):
+            if filename.endswith("_menu.py"):
+                module_name = filename[:-3]
+                try:
+                    module = importlib.import_module(
+                        f"PyProma_dirview.menus.{module_name}")
+                except ImportError as e:
+                    message = f"Failed to import module '{module_name}': {e}"
+                    messagebox.showerror(title="ImportError", message=message)
+                    continue
+                class_name = inflection.camelize(module_name)
+                try:
+                    menu_class = getattr(module, class_name)
+                    if issubclass(menu_class, tk.Menu):
+                        menu = menu_class(self.main_menu, self)
+                        menu_name = getattr(menu_class, "NAME", class_name)
+                        self.main_menu.add_cascade(label=menu_name, menu=menu)
+
+                except AttributeError as e:
+                    message = (
+                        f"class {class_name} is not in module {module_name}"
+                        f": {e}")
+                    messagebox.showerror(
+                        title="AttributeError", message=message)
 
     def refresh_trees(self):
         """this func initialize tree.
@@ -198,35 +191,6 @@ class DirView:
                         tk.END,
                         text=d)
                     self.make_dir_tree(full_path, child)
-
-    def show_version(self):
-        """This func shows version information.
-        """
-        version_window = tk.Toplevel(self.dir_view_window)
-        version_window.title("version information")
-        toml_file = "pyproject.toml"
-        with open(toml_file, "r") as f:
-            config = toml.load(f)
-        app_version = config["tool"]["poetry"]["version"]
-        version_text = f"""\
-        Tkinter: {tk.TkVersion}
-        Python: {sys.version}
-        application: {app_version}"""
-        version_label = tk.Label(version_window, text=dedent(version_text))
-        version_label.pack()
-        version_window.mainloop()
-
-    def git_init(self):
-        """this func runs git init
-        """
-        if os.path.isdir(self.dir_path):
-            git_path = os.path.join(self.dir_path, ".git")
-            if not os.path.isdir(git_path):
-                try:
-                    git.Repo.init(self.dir_path)
-                except git.exc.GitError as e:
-                    messagebox.showerror(
-                        title="git.exc.GitError", message=str(e))
 
     def getpath(self, target_path: str):
         """this func generates path from treeview node.
@@ -346,47 +310,6 @@ class DirView:
             messagebox.showinfo(parent=root, message="Command succeed.")
 
         root.destroy()
-
-    def pip_install(self):
-        """this func asks pip package and installs.
-        """
-        if os.path.isdir(self.dir_path):
-            package = simpledialog.askstring(
-                "install package", "type pip package name here")
-            if package:
-                venv_path = os.path.join(
-                    self.dir_path, r".venv\Scripts\python.exe")
-                command = [
-                    venv_path if os.path.isfile(venv_path) else "python",
-                    "-m", "pip", "install", package]
-                self.code_runner(command)
-
-    def pip_freeze(self):
-        """this func generates requirements.txt.
-        """
-        if os.path.isdir(self.dir_path):
-            venv_path = os.path.join(
-                self.dir_path, r".venv\Scripts\python.exe")
-            command = [
-                venv_path if os.path.isfile(venv_path) else "python",
-                "-m", "pip", "freeze", ">", "requirements.txt"]
-            try:
-                subprocess.run(command, shell=True)
-            except subprocess.CalledProcessError as e:
-                messagebox.showerror(
-                    title="subprocess.CalledProcessError", message=str(e))
-
-    def venv_create(self):
-        """this func creates .venv environment.
-        """
-        if os.path.isdir(self.dir_path):
-            try:
-                venv_path = os.path.join(self.dir_path, ".venv")
-                venv.create(venv_path)
-            except OSError as e:
-                messagebox.showerror(
-                    title="OSError", message=str(e))
-            self.refresh_trees()
 
     def dir_menu_on_right_click(self, event: tk.Event):
         """this func shows right-clicked menu.
