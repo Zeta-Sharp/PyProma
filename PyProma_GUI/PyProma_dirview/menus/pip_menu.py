@@ -1,9 +1,11 @@
 import os
 import subprocess
-from tkinter import Menu, messagebox, simpledialog
+import tkinter as tk
+from tkinter import messagebox, simpledialog
+from PyProma_common.code_runner import CodeRunner
 
 
-class PipMenu(Menu):
+class PipMenu(tk.Menu):
     NAME = "pip"
 
     def __init__(self, master=None, main=None):
@@ -25,7 +27,7 @@ class PipMenu(Menu):
                 command = [
                     venv_path if os.path.isfile(venv_path) else "python",
                     "-m", "pip", "install", package]
-                self.code_runner(command)
+                CodeRunner.code_runner(command)
 
     def pip_freeze(self):
         """this func generates requirements.txt.
