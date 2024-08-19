@@ -50,7 +50,7 @@ class ProjectView:
         self.main_menu.add_cascade(label="Help", menu=self.help_menu)
         self.help_menu.add_command(
             label="Version information",
-            command=lambda: ShowVersion(self.dir_view_window))
+            command=lambda: ShowVersion(self.project_view_window))
 
         self.project_view_frame = tk.Frame(
             self.project_view_window, width=200, height=600)
