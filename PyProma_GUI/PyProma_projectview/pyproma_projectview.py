@@ -45,6 +45,7 @@ class ProjectView:
         self.main_menu.add_cascade(label="Projects", menu=self.project_menu)
         self.project_menu.add_command(
             label="Add Project", command=self.add_project)
+        self.add_menus()
         self.help_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="Help", menu=self.help_menu)
         self.help_menu.add_command(
@@ -89,7 +90,8 @@ class ProjectView:
             if filename.endswith("_tab.py"):
                 module_name = filename[:-3]
                 try:
-                    module = importlib.import_module(f"tabs.{module_name}")
+                    module = importlib.import_module(
+                        f"PyProma_projectview.tabs.{module_name}")
                 except ImportError as e:
                     message = f"Failed to import module '{module_name}': {e}"
                     messagebox.showerror(title="ImportError", message=message)
@@ -121,6 +123,34 @@ class ProjectView:
                     messagebox.showerror(
                         title="AttributeError", message=message)
 
+    def add_menus(self):
+        """this func loads and adds menus from menus directory.
+        """
+        for filename in os.listdir("PyProma_GUI/PyProma_projectview/menus"):
+            if filename.endswith("_menu.py"):
+                module_name = filename[:-3]
+                try:
+                    module = importlib.import_module(
+                        f"PyProma_projectview.menus.{module_name}")
+                except ImportError as e:
+                    message = f"Failed to import module '{module_name}': {e}"
+                    messagebox.showerror(title="ImportError", message=message)
+                    continue
+                class_name = inflection.camelize(module_name)
+                try:
+                    menu_class = getattr(module, class_name)
+                    if issubclass(menu_class, tk.Menu):
+                        menu = menu_class(self.main_menu, self)
+                        menu_name = getattr(menu_class, "NAME", class_name)
+                        self.main_menu.add_cascade(label=menu_name, menu=menu)
+
+                except AttributeError as e:
+                    message = (
+                        f"class {class_name} is not in module {module_name}"
+                        f": {e}")
+                    messagebox.showerror(
+                        title="AttributeError", message=message)
+
     def refresh_trees(self):
         """this func refresh trees.
         """
@@ -144,7 +174,8 @@ class ProjectView:
                 sv.set(path)
 
         def save():
-            if txt1.get() and (target_dir := txt2.get()):
+            if txt1.get() and txt2.get():
+                target_dir = os.path.normpath(txt2.get().replace("\\", "/"))
                 combobox_state = add_project_combobox1.get()
                 if not os.path.isdir(target_dir):
                     message = f"""\

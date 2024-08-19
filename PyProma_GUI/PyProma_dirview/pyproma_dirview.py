@@ -89,7 +89,8 @@ class DirView:
             if filename.endswith("_tab.py"):
                 module_name = filename[:-3]
                 try:
-                    module = importlib.import_module(f"tabs.{module_name}")
+                    module = importlib.import_module(
+                        f"PyProma_dirview.tabs.{module_name}")
                 except ImportError as e:
                     message = f"Failed to import module '{module_name}': {e}"
                     messagebox.showerror(title="ImportError", message=message)
@@ -128,7 +129,8 @@ class DirView:
             if filename.endswith("_menu.py"):
                 module_name = filename[:-3]
                 try:
-                    module = importlib.import_module(f"menus.{module_name}")
+                    module = importlib.import_module(
+                        f"PyProma_dirview.menus.{module_name}")
                 except ImportError as e:
                     message = f"Failed to import module '{module_name}': {e}"
                     messagebox.showerror(title="ImportError", message=message)
