@@ -6,6 +6,8 @@ import venv
 def create_virtual_environment(package_path):
     if not os.path.isdir(venv_path := os.path.join(package_path, ".venv")):
         venv.create(venv_path)
+        subprocess.run(
+            [os.path.join(venv_path, "Scripts/python"), "-m", "ensurepip"])
 
 
 def install_poetry(package_path, install_poetry=True):

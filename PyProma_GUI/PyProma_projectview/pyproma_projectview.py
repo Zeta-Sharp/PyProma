@@ -27,7 +27,7 @@ json_template = {
 }
 
 
-class ProjectView:
+class ProjectView(tk.Tk):
 
     def __init__(self):
         if not os.path.isfile(json_path):
@@ -36,11 +36,11 @@ class ProjectView:
         with open(json_path) as f:
             self.projects = json.load(f)
 
-        self.project_view_window = tk.Tk()
-        self.project_view_window.title("Python project manager")
-        self.project_view_window.geometry("1000x600")
-        self.main_menu = tk.Menu(self.project_view_window)
-        self.project_view_window.config(menu=self.main_menu)
+        super().__init__()
+        self.title("Python project manager")
+        self.geometry("1000x600")
+        self.main_menu = tk.Menu(self)
+        self.config(menu=self.main_menu)
         self.project_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="Projects", menu=self.project_menu)
         self.project_menu.add_command(
@@ -50,11 +50,11 @@ class ProjectView:
         self.main_menu.add_cascade(label="Help", menu=self.help_menu)
         self.help_menu.add_command(
             label="Version information",
-            command=lambda: ShowVersion(self.project_view_window))
+            command=lambda: ShowVersion(self))
 
         self.project_view_frame = tk.Frame(
-            self.project_view_window, width=200, height=600)
-        self.project_view_window.propagate(False)
+            self, width=200, height=600)
+        self.propagate(False)
         self.project_tree = ttk.Treeview(
             self.project_view_frame, show=["tree", "headings"])
         self.project_tree.heading(
@@ -73,7 +73,7 @@ class ProjectView:
             "<Button-3>", self.project_tree_on_right_click)
 
         self.tab_frame = tk.Frame(
-            self.project_view_window, width=800, height=600)
+            self, width=800, height=600)
         self.tab_frame.propagate(False)
         self.tab_frame.grid(row=0, column=1, sticky=tk.NSEW)
         self.tab = ttk.Notebook(self.tab_frame)
@@ -81,7 +81,7 @@ class ProjectView:
         self.add_tabs()
         self.tab.pack(anchor=tk.NW)
         self.refresh_trees()
-        self.project_view_window.mainloop()
+        self.mainloop()
 
     def add_tabs(self):
         """this func loads and adds tabs from tabs directory.
@@ -320,7 +320,7 @@ class ProjectView:
             self.project_tree.item(selected_project, "text"))
         project_name = self.projects["projects"]["project_names"][index]
         dir_path = self.projects["projects"]["dir_paths"][index]
-        self.project_view_window.destroy()
+        self.destroy()
         pyproma_dirview.DirView(project_name, dir_path)
 
     def remove_project(self):

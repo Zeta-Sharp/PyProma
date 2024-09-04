@@ -1,9 +1,12 @@
 import os
 import subprocess
-from tkinter import Menu, messagebox, simpledialog
+import tkinter as tk
+from tkinter import messagebox, simpledialog
+
+from PyProma_common.code_runner import CodeRunner
 
 
-class PipMenu(Menu):
+class PipMenu(tk.Menu):
     NAME = "pip"
 
     def __init__(self, master=None, main=None):
@@ -11,6 +14,7 @@ class PipMenu(Menu):
         super().__init__(master, tearoff=False)
         self.add_command(
             label="install package", command=self.pip_install)
+        self.add_command(label="upgrade", command=self.upgrade_pip)
         self.add_command(label="freeze", command=self.pip_freeze)
 
     def pip_install(self):
@@ -21,18 +25,27 @@ class PipMenu(Menu):
                 "install package", "type pip package name here")
             if package:
                 venv_path = os.path.join(
-                    self.main.dir_path, r".venv\Scripts\python.exe")
+                    self.main.dir_path, ".venv/Scripts/python.exe")
                 command = [
                     venv_path if os.path.isfile(venv_path) else "python",
                     "-m", "pip", "install", package]
-                self.code_runner(command)
+                CodeRunner.code_runner(command)
+
+    def upgrade_pip(self):
+        if os.path.isdir(self.main.dir_path):
+            venv_path = os.path.join(
+                self.main.dir_path, ".venv/Scripts/python.exe")
+            command = [
+                venv_path if os.path.isfile(venv_path) else "python",
+                "-m", "pip", "install", "--upgrade pip"]
+            CodeRunner.code_runner(command)
 
     def pip_freeze(self):
         """this func generates requirements.txt.
         """
         if os.path.isdir(self.main.dir_path):
             venv_path = os.path.join(
-                self.main.dir_path, r".venv\Scripts\python.exe")
+                self.main.dir_path, ".venv/Scripts/python.exe")
             command = [
                 venv_path if os.path.isfile(venv_path) else "python",
                 "-m", "pip", "freeze", ">", "requirements.txt"]

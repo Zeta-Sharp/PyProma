@@ -14,7 +14,7 @@ from PyProma_common.PyProma_templates import tab_template
 from PyProma_common.show_version import ShowVersion
 
 
-class DirView:
+class DirView(tk.Tk):
 
     def __init__(self, project_name: str = "", dir_path: str = ""):
         """this constructor sets dir_path and create GUI.
@@ -23,23 +23,23 @@ class DirView:
             project_name (str, optional): project name. Defaults to "".
             dir_path (str, optional): path to directory. Defaults to "".
         """
-        self.dir_view_window = tk.Tk()
-        self.dir_view_window.geometry("1000x600")
+        super().__init__()
+        self.geometry("1000x600")
         title = (
             "Python project manager"
             + (f" - {project_name}" if project_name else ""))
-        self.dir_view_window.title(title)
+        self.title(title)
 
-        self.main_menu = tk.Menu(self.dir_view_window)
-        self.dir_view_window.config(menu=self.main_menu)
+        self.main_menu = tk.Menu(self)
+        self.config(menu=self.main_menu)
         self.add_menus()
         self.help_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="Help", menu=self.help_menu)
         self.help_menu.add_command(
             label="Version information",
-            command=lambda: ShowVersion(self.dir_view_window))
+            command=lambda: ShowVersion(self))
 
-        self.dir_frame = tk.Frame(self.dir_view_window, width=200, height=600)
+        self.dir_frame = tk.Frame(self, width=200, height=600)
         self.dir_frame.propagate(False)
         self.dir_tree = ttk.Treeview(self.dir_frame, show=["tree", "headings"])
         self.dir_tree.heading(
@@ -66,7 +66,7 @@ class DirView:
         self.dir_tree.pack(fill=tk.BOTH, expand=True)
         self.dir_frame.grid(row=0, column=0, sticky=tk.NSEW)
 
-        self.tab_frame = tk.Frame(self.dir_view_window, width=800, height=600)
+        self.tab_frame = tk.Frame(self, width=800, height=600)
         self.tab_frame.propagate(False)
         self.tab_frame.grid(row=0, column=1, sticky=tk.NSEW)
         self.tab = ttk.Notebook(self.tab_frame)
@@ -80,7 +80,7 @@ class DirView:
         else:
             self.dir_path = ""
 
-        self.dir_view_window.mainloop()
+        self.mainloop()
 
     def add_tabs(self):
         """this func loads and adds tabs from tabs directory.
@@ -278,38 +278,6 @@ class DirView:
                 self.dir_tree.item(target_path, "text"))
             path = os.path.normpath(path)
             pyperclip.copy(path)
-
-    @staticmethod
-    def code_runner(command: str | list):
-        """this func runs bash command and shows outputs to textbox.
-
-        Args:
-            command (str): command
-        """
-        root = tk.Toplevel()
-        root.title("code runner")
-        text = tk.Text(root)
-        text.pack()
-        try:
-            process = subprocess.Popen(
-                command, shell=False, text=True,
-                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-            while True:
-                output = process.stdout.readline()
-                if output == "":
-                    break
-                text.insert(tk.END, output)
-                text.see(tk.END)
-        except subprocess.CalledProcessError as e:
-            messagebox.showerror(
-                parent=root,
-                title="subprocess.CalledProcessError",
-                message=str(e))
-        else:
-            messagebox.showinfo(parent=root, message="Command succeed.")
-
-        root.destroy()
 
     def dir_menu_on_right_click(self, event: tk.Event):
         """this func shows right-clicked menu.

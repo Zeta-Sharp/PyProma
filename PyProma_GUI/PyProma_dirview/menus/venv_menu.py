@@ -1,4 +1,5 @@
 import os
+import subprocess
 import venv
 from tkinter import Menu, messagebox
 
@@ -18,6 +19,8 @@ class VenvMenu(Menu):
             try:
                 venv_path = os.path.join(self.main.dir_path, ".venv")
                 venv.create(venv_path)
+                python_path = os.path.join(venv_path, "Scripts/python")
+                subprocess.run([python_path, "-m", "ensurepip"])
             except OSError as e:
                 messagebox.showerror(
                     title="OSError", message=str(e))
