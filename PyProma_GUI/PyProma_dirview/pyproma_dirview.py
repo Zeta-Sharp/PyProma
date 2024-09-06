@@ -75,7 +75,7 @@ class DirView(tk.Tk):
         self.tab.pack(anchor=tk.NW)
 
         if os.path.isdir(dir_path):
-            self.dir_path = os.path.normpath(dir_path.replace("\\", "/"))
+            self.dir_path = os.path.normpath(dir_path.replace("/", "/"))
             self.refresh_trees()
         else:
             self.dir_path = ""
@@ -107,8 +107,8 @@ class DirView(tk.Tk):
                         tab = tab_class(self.tab)
                         tab_name = getattr(tab_class, "NAME", class_name)
                         message = f"""\
-                        {tab_name} is a tkinter frame but might not a tab.
-                        do you want to load anyway?"""
+                            {tab_name} is a tkinter frame but might not a tab.
+                            do you want to load anyway?"""
                         confirm = messagebox.askyesno(
                             title="confirm", message=dedent(message))
                         if confirm:
@@ -207,7 +207,7 @@ class DirView(tk.Tk):
             while item_id:
                 path_list.insert(0, self.dir_tree.item(item_id, "text"))
                 item_id = self.dir_tree.parent(item_id)
-            path = "\\".join(path_list)
+            path = "/".join(path_list)
             return path
 
     def open_directory(self, target_path: str):
