@@ -41,6 +41,9 @@ urllib3 = "2.2.2"
 pip-licenses = "^5.0.0"
 toml = "^0.10.2"
 inflection = "^0.5.1"
+flake8 = "^7.1.1"
+isort = "^5.13.2"
+pylint = "^3.2.7"
 
 [build-system]
 requires = ["poetry-core"]
