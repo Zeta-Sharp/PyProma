@@ -6,7 +6,12 @@ import toml
 
 
 class ShowVersion(tk.Toplevel):
-    def __init__(self, master=None):
+    def __init__(self, master: tk.Tk = None):
+        """This func makes a Toplevel to show version information.
+
+        Args:
+            master (tkinter.Tk, optional): Master window. Defaults to None.
+        """
         super().__init__(master)
         self.title("version information")
         toml_file = "pyproject.toml"
