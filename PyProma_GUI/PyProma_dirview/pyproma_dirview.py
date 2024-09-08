@@ -75,7 +75,7 @@ class DirView(tk.Tk):
         self.tab.pack(anchor=tk.NW)
 
         if os.path.isdir(dir_path):
-            self.dir_path = os.path.normpath(dir_path.replace("/", "/"))
+            self.dir_path = os.path.normpath(dir_path.replace("\\", "/"))
             self.refresh_trees()
         else:
             self.dir_path = ""
