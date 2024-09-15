@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from PyProma_projectview import pyproma_projectview
+from PyProma_project_view import PyProma_project_view
 
 if __name__ == "__main__":
     script_path = Path(__file__).resolve().parent.parent
