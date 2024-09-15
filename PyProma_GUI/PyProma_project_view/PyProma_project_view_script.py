@@ -14,7 +14,7 @@ from cookiecutter.exceptions import CookiecutterException
 from cookiecutter.main import cookiecutter
 from PyProma_common.PyProma_templates import tab_template
 from PyProma_common.show_version import ShowVersion
-from PyProma_dir_view import PyProma_dir_view
+from PyProma_dir_view import PyProma_dir_view_script
 
 json_path = "PyProma_settings.json"
 
@@ -321,7 +321,7 @@ class ProjectView(tk.Tk):
         project_name = self.projects["projects"]["project_names"][index]
         dir_path = self.projects["projects"]["dir_paths"][index]
         self.destroy()
-        PyProma_dir_view.DirView(project_name, dir_path)
+        PyProma_dir_view_script.DirView(project_name, dir_path)
 
     def remove_project(self):
         """this func removes selected project.
