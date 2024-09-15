@@ -90,12 +90,12 @@ class DirView(tk.Tk):
     def add_tabs(self):
         """this func loads and adds tabs from tabs directory.
         """
-        for filename in os.listdir("PyProma_GUI/PyProma_dirview/tabs"):
+        for filename in os.listdir("PyProma_GUI/PyProma_dir_view/tabs"):
             if filename.endswith("_tab.py"):
                 module_name = filename[:-3]
                 try:
                     module = importlib.import_module(
-                        f"PyProma_dirview.tabs.{module_name}")
+                        f"PyProma_dir_view.tabs.{module_name}")
                 except ImportError as e:
                     message = f"Failed to import module '{module_name}': {e}"
                     messagebox.showerror(title="ImportError", message=message)
@@ -130,12 +130,12 @@ class DirView(tk.Tk):
     def add_menus(self):
         """this func loads and adds menus from menus directory.
         """
-        for filename in os.listdir("PyProma_GUI/PyProma_dirview/menus"):
+        for filename in os.listdir("PyProma_GUI/PyProma_dir_view/menus"):
             if filename.endswith("_menu.py"):
                 module_name = filename[:-3]
                 try:
                     module = importlib.import_module(
-                        f"PyProma_dirview.menus.{module_name}")
+                        f"PyProma_dir_view.menus.{module_name}")
                 except ImportError as e:
                     message = f"Failed to import module '{module_name}': {e}"
                     messagebox.showerror(title="ImportError", message=message)
