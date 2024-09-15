@@ -17,6 +17,7 @@ from PyProma_common.show_version import ShowVersion
 # TODO Add code formatter function. e.g. Flake8, isort, pylint.
 # TODO Add builder function. e.g. pyinstaller, nuitka.
 # TODO Add Poetry support.
+# TODO Add plugin manager and make two menus tabs directories to one directory.
 
 
 class DirView(tk.Tk):
