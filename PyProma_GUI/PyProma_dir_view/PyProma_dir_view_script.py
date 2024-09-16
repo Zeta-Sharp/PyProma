@@ -181,21 +181,21 @@ class DirView(tk.Tk):
         """
         if os.path.exists(path):
             dirs = os.listdir(path)
-            for d in dirs:
-                full_path = os.path.join(path, d)
+            for dir in dirs:
+                full_path = os.path.join(path, dir)
                 full_path = os.path.normpath(full_path)
                 if os.path.isfile(full_path):
                     self.dir_tree.insert(
                         "" if parent_tree is None else parent_tree,
                         tk.END,
-                        text=d)
+                        text=dir)
                     if os.path.splitext(full_path)[1] == ".py":
                         self.tabs["ToDo"].find_todo(full_path)
                 else:
                     child = self.dir_tree.insert(
                         "" if parent_tree is None else parent_tree,
                         tk.END,
-                        text=d)
+                        text=dir)
                     self.make_dir_tree(full_path, child)
 
     def getpath(self, target_path: str) -> str:
