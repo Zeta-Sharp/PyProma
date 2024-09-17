@@ -13,6 +13,12 @@ import pyperclip
 from PyProma_common.PyProma_templates import tab_template
 from PyProma_common.show_version import ShowVersion
 
+# TODO Add Double-click to open file function.
+# TODO Add code formatter function. e.g. Flake8, isort, pylint.
+# TODO Add builder function. e.g. pyinstaller, nuitka.
+# TODO Add Poetry support.
+# TODO Add plugin manager and make two menus tabs directories to one directory.
+
 
 class DirView(tk.Tk):
 
@@ -85,12 +91,12 @@ class DirView(tk.Tk):
     def add_tabs(self):
         """this func loads and adds tabs from tabs directory.
         """
-        for filename in os.listdir("PyProma_GUI/PyProma_dirview/tabs"):
+        for filename in os.listdir("PyProma_GUI/PyProma_dir_view/tabs"):
             if filename.endswith("_tab.py"):
                 module_name = filename[:-3]
                 try:
                     module = importlib.import_module(
-                        f"PyProma_dirview.tabs.{module_name}")
+                        f"PyProma_dir_view.tabs.{module_name}")
                 except ImportError as e:
                     message = f"Failed to import module '{module_name}': {e}"
                     messagebox.showerror(title="ImportError", message=message)
@@ -107,8 +113,8 @@ class DirView(tk.Tk):
                         tab = tab_class(self.tab)
                         tab_name = getattr(tab_class, "NAME", class_name)
                         message = f"""\
-                        {tab_name} is a tkinter frame but might not a tab.
-                        do you want to load anyway?"""
+                            {tab_name} is a tkinter frame but might not a tab.
+                            do you want to load anyway?"""
                         confirm = messagebox.askyesno(
                             title="confirm", message=dedent(message))
                         if confirm:
@@ -125,12 +131,12 @@ class DirView(tk.Tk):
     def add_menus(self):
         """this func loads and adds menus from menus directory.
         """
-        for filename in os.listdir("PyProma_GUI/PyProma_dirview/menus"):
+        for filename in os.listdir("PyProma_GUI/PyProma_dir_view/menus"):
             if filename.endswith("_menu.py"):
                 module_name = filename[:-3]
                 try:
                     module = importlib.import_module(
-                        f"PyProma_dirview.menus.{module_name}")
+                        f"PyProma_dir_view.menus.{module_name}")
                 except ImportError as e:
                     message = f"Failed to import module '{module_name}': {e}"
                     messagebox.showerror(title="ImportError", message=message)
@@ -175,24 +181,24 @@ class DirView(tk.Tk):
         """
         if os.path.exists(path):
             dirs = os.listdir(path)
-            for d in dirs:
-                full_path = os.path.join(path, d)
+            for dir in dirs:
+                full_path = os.path.join(path, dir)
                 full_path = os.path.normpath(full_path)
                 if os.path.isfile(full_path):
                     self.dir_tree.insert(
                         "" if parent_tree is None else parent_tree,
                         tk.END,
-                        text=d)
+                        text=dir)
                     if os.path.splitext(full_path)[1] == ".py":
                         self.tabs["ToDo"].find_todo(full_path)
                 else:
                     child = self.dir_tree.insert(
                         "" if parent_tree is None else parent_tree,
                         tk.END,
-                        text=d)
+                        text=dir)
                     self.make_dir_tree(full_path, child)
 
-    def getpath(self, target_path: str):
+    def getpath(self, target_path: str) -> str:
         """this func generates path from treeview node.
 
         Args:
@@ -207,7 +213,7 @@ class DirView(tk.Tk):
             while item_id:
                 path_list.insert(0, self.dir_tree.item(item_id, "text"))
                 item_id = self.dir_tree.parent(item_id)
-            path = "\\".join(path_list)
+            path = "/".join(path_list)
             return path
 
     def open_directory(self, target_path: str):

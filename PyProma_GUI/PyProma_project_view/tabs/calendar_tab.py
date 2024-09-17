@@ -6,7 +6,7 @@ from datetime import datetime
 
 from PyProma_common.PyProma_templates import tab_template
 
-json_path = "PyProm_settings.json"
+json_path = "PyProma_settings.json"
 
 
 class CalendarTab(tab_template.TabTemplate):

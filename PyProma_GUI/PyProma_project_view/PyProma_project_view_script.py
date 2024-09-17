@@ -14,7 +14,7 @@ from cookiecutter.exceptions import CookiecutterException
 from cookiecutter.main import cookiecutter
 from PyProma_common.PyProma_templates import tab_template
 from PyProma_common.show_version import ShowVersion
-from PyProma_dirview import pyproma_dirview
+from PyProma_dir_view import PyProma_dir_view_script
 
 json_path = "PyProma_settings.json"
 
@@ -86,12 +86,12 @@ class ProjectView(tk.Tk):
     def add_tabs(self):
         """this func loads and adds tabs from tabs directory.
         """
-        for filename in os.listdir("PyProma_GUI/PyProma_projectview/tabs"):
+        for filename in os.listdir("PyProma_GUI/PyProma_project_view/tabs"):
             if filename.endswith("_tab.py"):
                 module_name = filename[:-3]
                 try:
                     module = importlib.import_module(
-                        f"PyProma_projectview.tabs.{module_name}")
+                        f"PyProma_project_view.tabs.{module_name}")
                 except ImportError as e:
                     message = f"Failed to import module '{module_name}': {e}"
                     messagebox.showerror(title="ImportError", message=message)
@@ -126,12 +126,12 @@ class ProjectView(tk.Tk):
     def add_menus(self):
         """this func loads and adds menus from menus directory.
         """
-        for filename in os.listdir("PyProma_GUI/PyProma_projectview/menus"):
+        for filename in os.listdir("PyProma_GUI/PyProma_project_view/menus"):
             if filename.endswith("_menu.py"):
                 module_name = filename[:-3]
                 try:
                     module = importlib.import_module(
-                        f"PyProma_projectview.menus.{module_name}")
+                        f"PyProma_project_view.menus.{module_name}")
                 except ImportError as e:
                     message = f"Failed to import module '{module_name}': {e}"
                     messagebox.showerror(title="ImportError", message=message)
@@ -321,7 +321,7 @@ class ProjectView(tk.Tk):
         project_name = self.projects["projects"]["project_names"][index]
         dir_path = self.projects["projects"]["dir_paths"][index]
         self.destroy()
-        pyproma_dirview.DirView(project_name, dir_path)
+        PyProma_dir_view_script.DirView(project_name, dir_path)
 
     def remove_project(self):
         """this func removes selected project.

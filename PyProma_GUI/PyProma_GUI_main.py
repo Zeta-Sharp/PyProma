@@ -1,9 +1,9 @@
 import os
 from pathlib import Path
 
-from PyProma_projectview import pyproma_projectview
+from PyProma_project_view import PyProma_project_view_script
 
 if __name__ == "__main__":
     script_path = Path(__file__).resolve().parent.parent
     os.chdir(script_path)
-    pyproma_projectview.ProjectView()
+    PyProma_project_view_script.ProjectView()
