@@ -191,6 +191,7 @@ class DirView(tk.Tk):
                         text=dir)
                     if os.path.splitext(full_path)[1] == ".py":
                         self.tabs["ToDo"].find_todo(full_path)
+                        self.tabs["Linter"].run_pylint(full_path)
                 else:
                     child = self.dir_tree.insert(
                         "" if parent_tree is None else parent_tree,
