@@ -260,6 +260,8 @@ class DirView(tk.Tk):
                         title="TrashPermissionError", message=str(e))
                 except OSError as e:
                     messagebox.showerror(title="OSError", message=str(e))
+                finally:
+                    self.refresh_trees()
 
     def copy_path(self, target_path: str):
         """this func copies path.
