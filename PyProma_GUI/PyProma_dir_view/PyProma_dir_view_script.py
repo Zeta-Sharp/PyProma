@@ -1,6 +1,5 @@
 import importlib
 import os
-import shutil
 import subprocess
 import tkinter as tk
 import tkinter.ttk as ttk
@@ -10,6 +9,7 @@ from tkinter import messagebox
 
 import inflection
 import pyperclip
+import send2trash
 from PyProma_common.PyProma_templates import tab_template
 from PyProma_common.show_version import ShowVersion
 
@@ -58,7 +58,7 @@ class DirView(tk.Tk):
             label="Open File",
             command=lambda: self.open_directory(self.dir_tree.selection()[0]))
         self.dir_menu.add_command(
-            label="Remove",
+            label="Move to trash",
             command=lambda:
                 self.remove_directory(self.dir_tree.selection()[0]))
         self.dir_menu.add_command(
@@ -191,6 +191,7 @@ class DirView(tk.Tk):
                         text=dir)
                     if os.path.splitext(full_path)[1] == ".py":
                         self.tabs["ToDo"].find_todo(full_path)
+                        self.tabs["Linter"].run_linter(full_path)
                 else:
                     child = self.dir_tree.insert(
                         "" if parent_tree is None else parent_tree,
@@ -247,16 +248,20 @@ class DirView(tk.Tk):
                 self.dir_tree.item(target_path, "text"))
             path = os.path.normpath(path)
             message = f"""\
-            Remove {path} ?
-            This action cannot be undone!"""
+            Move {path} to trash?
+            """
             if messagebox.askokcancel(
                     "Confirm",
                     dedent(message)):
-                if os.path.isfile(path):
-                    os.remove(path)
-                else:
-                    shutil.rmtree(path)
-                self.dir_tree.delete(target_path)
+                try:
+                    send2trash.send2trash(path)
+                except send2trash.TrashPermissionError as e:
+                    messagebox.showerror(
+                        title="TrashPermissionError", message=str(e))
+                except OSError as e:
+                    messagebox.showerror(title="OSError", message=str(e))
+                finally:
+                    self.refresh_trees()
 
     def copy_path(self, target_path: str):
         """this func copies path.
@@ -296,7 +301,7 @@ class DirView(tk.Tk):
             "Open File",
             state=tk.NORMAL if flag else tk.DISABLED)
         self.dir_menu.entryconfig(
-            "Remove",
+            "Move to trash",
             state=tk.NORMAL if flag else tk.DISABLED)
         self.dir_menu.entryconfig(
             "Copy path",
