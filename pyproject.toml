@@ -44,6 +44,7 @@ inflection = "^0.5.1"
 flake8 = "^7.1.1"
 isort = "^5.13.2"
 pylint = "^3.2.7"
+send2trash = "^1.8.3"
 
 [build-system]
 requires = ["poetry-core"]
