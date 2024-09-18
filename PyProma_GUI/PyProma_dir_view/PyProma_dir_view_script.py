@@ -299,7 +299,7 @@ class DirView(tk.Tk):
             "Open File",
             state=tk.NORMAL if flag else tk.DISABLED)
         self.dir_menu.entryconfig(
-            "Remove",
+            "Move to trash",
             state=tk.NORMAL if flag else tk.DISABLED)
         self.dir_menu.entryconfig(
             "Copy path",
