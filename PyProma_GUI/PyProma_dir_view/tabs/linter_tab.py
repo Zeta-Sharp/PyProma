@@ -1,5 +1,6 @@
 import os
 import subprocess
+import threading
 import tkinter as tk
 from tkinter import ttk
 
@@ -22,14 +23,24 @@ class LinterTab(tab_template.TabTemplate):
         self.result_tree.delete(
             *self.result_tree.get_children())
 
-    def run_pylint(self, target_path):
+    def start_linter(self, target_path):
+        result = subprocess.run(
+            ["pylint", target_path], capture_output=True, text=True)
+        pylint_results = result.stdout.splitlines()[1:-4]
+        result = subprocess.run(
+            ["flake8", target_path], capture_output=True, text=True)
+        flake8_results = result.stdout.splitlines()
+        if len(pylint_results) > 0 or len(flake8_results) > 0:
+            parent = self.result_tree.insert(
+                "", tk.END, text=target_path)
+            for result in flake8_results:
+                self.result_tree.insert(parent, tk.END, text=result)
+            for result in pylint_results:
+                self.result_tree.insert(parent, tk.END, text=result)
+
+    def run_linter(self, target_path):
         if "venv" not in target_path:
             if os.path.isfile(target_path):
-                result = subprocess.run(
-                    ["pylint", target_path], capture_output=True, text=True)
-                pylint_results = result.stdout.splitlines()[1:-4]
-                if len(pylint_results) > 0:
-                    parent = self.result_tree.insert(
-                        "", tk.END, text=target_path)
-                    for result in pylint_results:
-                        self.result_tree.insert(parent, tk.END, text=result)
+                thread = threading.Thread(
+                    target=lambda: self.start_linter(target_path))
+                thread.start()
