@@ -254,7 +254,7 @@ class DirView(tk.Tk):
                     "Confirm",
                     dedent(message)):
                 try:
-                    send2trash.send2trash(target_path)
+                    send2trash.send2trash(path)
                 except send2trash.TrashPermissionError as e:
                     messagebox.showerror(
                         title="TrashPermissionError", message=str(e))
