@@ -13,8 +13,6 @@ import send2trash
 from PyProma_common.PyProma_templates import tab_template
 from PyProma_common.show_version import ShowVersion
 
-# TODO Add Double-click to open file function.
-# TODO Add code formatter function. e.g. Flake8, isort, pylint.
 # TODO Add builder function. e.g. pyinstaller, nuitka.
 # TODO Add Poetry support.
 # TODO Add plugin manager and make two menus tabs directories to one directory.
@@ -69,6 +67,9 @@ class DirView(tk.Tk):
             command=lambda:
                 self.copy_relative_path(self.dir_tree.selection()[0]))
         self.dir_tree.bind("<Button-3>", self.dir_menu_on_right_click)
+        self.dir_tree.bind(
+            "<Double-1>",
+            lambda _: self.open_directory(self.dir_tree.selection()[0]))
         self.dir_tree.pack(fill=tk.BOTH, expand=True)
         self.dir_frame.grid(row=0, column=0, sticky=tk.NSEW)
 

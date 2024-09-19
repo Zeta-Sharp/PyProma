@@ -71,6 +71,8 @@ class ProjectView(tk.Tk):
             label="Remove Project", command=self.remove_project)
         self.project_tree.bind(
             "<Button-3>", self.project_tree_on_right_click)
+        self.project_tree.bind(
+            "<Double-1>", self.open_project)
 
         self.tab_frame = tk.Frame(
             self, width=800, height=600)
@@ -282,9 +284,7 @@ class ProjectView(tk.Tk):
             command=add_project_window.destroy)
         btn2.place(x=150, y=85)
         btn3 = tk.Button(
-            add_project_window,
-            text="save",
-            command=save)
+            add_project_window, text="save", command=save)
         btn3.place(x=200, y=85)
 
         clone_git_repository_frame = tk.Frame(
@@ -312,7 +312,7 @@ class ProjectView(tk.Tk):
 
         add_project_window.mainloop()
 
-    def open_project(self):
+    def open_project(self, _=None):
         """this func opens selected project_view.
         """
         selected_project = self.project_tree.selection()[0]
