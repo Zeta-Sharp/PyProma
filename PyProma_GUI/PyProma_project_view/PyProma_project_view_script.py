@@ -284,9 +284,7 @@ class ProjectView(tk.Tk):
             command=add_project_window.destroy)
         btn2.place(x=150, y=85)
         btn3 = tk.Button(
-            add_project_window,
-            text="save",
-            command=save)
+            add_project_window, text="save", command=save)
         btn3.place(x=200, y=85)
 
         clone_git_repository_frame = tk.Frame(

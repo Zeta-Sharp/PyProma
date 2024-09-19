@@ -13,7 +13,6 @@ import send2trash
 from PyProma_common.PyProma_templates import tab_template
 from PyProma_common.show_version import ShowVersion
 
-# TODO Add Double-click to open file function.
 # TODO Add code formatter function. e.g. Flake8, isort, pylint.
 # TODO Add builder function. e.g. pyinstaller, nuitka.
 # TODO Add Poetry support.
