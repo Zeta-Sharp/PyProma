@@ -315,13 +315,14 @@ class ProjectView(tk.Tk):
     def open_project(self, _=None):
         """this func opens selected project_view.
         """
-        selected_project = self.project_tree.selection()[0]
-        index = self.projects["projects"]["project_names"].index(
-            self.project_tree.item(selected_project, "text"))
-        project_name = self.projects["projects"]["project_names"][index]
-        dir_path = self.projects["projects"]["dir_paths"][index]
-        self.destroy()
-        PyProma_dir_view_script.DirView(project_name, dir_path)
+        if self.project_tree.selection():
+            selected_project = self.project_tree.selection()[0]
+            index = self.projects["projects"]["project_names"].index(
+                self.project_tree.item(selected_project, "text"))
+            project_name = self.projects["projects"]["project_names"][index]
+            dir_path = self.projects["projects"]["dir_paths"][index]
+            self.destroy()
+            PyProma_dir_view_script.DirView(project_name, dir_path)
 
     def remove_project(self):
         """this func removes selected project.
