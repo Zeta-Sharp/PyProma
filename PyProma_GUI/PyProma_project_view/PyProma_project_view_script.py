@@ -1,4 +1,3 @@
-import importlib
 import json
 import os
 import shutil
@@ -9,12 +8,11 @@ from textwrap import dedent
 from tkinter import filedialog, messagebox
 
 import git
-import inflection
 from cookiecutter.exceptions import CookiecutterException
 from cookiecutter.main import cookiecutter
-from PyProma_common.PyProma_templates import tab_template
 from PyProma_common.show_version import ShowVersion
 from PyProma_dir_view import PyProma_dir_view_script
+from PyProma_project_view.plugins import plugin_manager
 
 json_path = "PyProma_settings.json"
 
@@ -45,7 +43,6 @@ class ProjectView(tk.Tk):
         self.main_menu.add_cascade(label="Projects", menu=self.project_menu)
         self.project_menu.add_command(
             label="Add Project", command=self.add_project)
-        self.add_menus()
         self.help_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="Help", menu=self.help_menu)
         self.help_menu.add_command(
@@ -79,79 +76,10 @@ class ProjectView(tk.Tk):
         self.tab_frame.propagate(False)
         self.tab_frame.grid(row=0, column=1, sticky=tk.NSEW)
         self.tab = ttk.Notebook(self.tab_frame)
-        self.tabs = {}
-        self.add_tabs()
         self.tab.pack(anchor=tk.NW)
+        self.plugins = plugin_manager.PluginManager(self)
         self.refresh_trees()
         self.mainloop()
-
-    def add_tabs(self):
-        """this func loads and adds tabs from tabs directory.
-        """
-        for filename in os.listdir("PyProma_GUI/PyProma_project_view/tabs"):
-            if filename.endswith("_tab.py"):
-                module_name = filename[:-3]
-                try:
-                    module = importlib.import_module(
-                        f"PyProma_project_view.tabs.{module_name}")
-                except ImportError as e:
-                    message = f"Failed to import module '{module_name}': {e}"
-                    messagebox.showerror(title="ImportError", message=message)
-                    continue
-                class_name = inflection.camelize(module_name)
-                try:
-                    tab_class = getattr(module, class_name)
-                    if issubclass(tab_class, tab_template.TabTemplate):
-                        tab = tab_class(self.tab, self)
-                        tab_name = getattr(tab_class, "NAME", class_name)
-                        self.tab.add(tab, text=tab_name, padding=3)
-                        self.tabs[tab_name] = tab
-                    elif issubclass(tab_class, tk.Frame):
-                        tab = tab_class(self.tab)
-                        tab_name = getattr(tab_class, "NAME", class_name)
-                        message = f"""\
-                        {tab_name} is a tkinter frame but might not a tab.
-                        do you want to load anyway?"""
-                        confirm = messagebox.askyesno(
-                            title="confirm", message=dedent(message))
-                        if confirm:
-                            self.tab.add(tab, text=tab_name, padding=3)
-                            self.tabs[tab_name] = tab
-
-                except AttributeError as e:
-                    message = (
-                        f"class {class_name} is not in module {module_name}"
-                        f": {e}")
-                    messagebox.showerror(
-                        title="AttributeError", message=message)
-
-    def add_menus(self):
-        """this func loads and adds menus from menus directory.
-        """
-        for filename in os.listdir("PyProma_GUI/PyProma_project_view/menus"):
-            if filename.endswith("_menu.py"):
-                module_name = filename[:-3]
-                try:
-                    module = importlib.import_module(
-                        f"PyProma_project_view.menus.{module_name}")
-                except ImportError as e:
-                    message = f"Failed to import module '{module_name}': {e}"
-                    messagebox.showerror(title="ImportError", message=message)
-                    continue
-                class_name = inflection.camelize(module_name)
-                try:
-                    menu_class = getattr(module, class_name)
-                    if issubclass(menu_class, tk.Menu):
-                        menu = menu_class(self.main_menu, self)
-                        menu_name = getattr(menu_class, "NAME", class_name)
-                        self.main_menu.add_cascade(label=menu_name, menu=menu)
-
-                except AttributeError as e:
-                    message = (
-                        f"class {class_name} is not in module {module_name}"
-                        f": {e}")
-                    messagebox.showerror(
-                        title="AttributeError", message=message)
 
     def refresh_trees(self):
         """this func refresh trees.
@@ -160,8 +88,7 @@ class ProjectView(tk.Tk):
         for project in self.projects["projects"]["project_names"]:
             self.project_tree.insert(
                 "", tk.END, text=project)
-        for instance in self.tabs.values():
-            instance.refresh()
+        self.plugins.refresh_plugins()
 
     def add_project(self):
         """This func makes add_project_window.
