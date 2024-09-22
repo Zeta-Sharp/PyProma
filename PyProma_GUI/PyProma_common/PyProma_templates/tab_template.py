@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from tkinter import Frame
 
 
@@ -7,7 +7,3 @@ class TabTemplate(ABC, Frame):
         self.main = main
         super().__init__(master, width=800, height=575)
         self.propagate(False)
-
-    @abstractmethod
-    def refresh(self):
-        pass

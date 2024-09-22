@@ -5,6 +5,7 @@ from calendar import monthrange
 from datetime import datetime
 
 from PyProma_common.PyProma_templates import tab_template
+from PyProma_project_view.plugins.plugin_manager import RefreshMethod
 
 json_path = "PyProma_settings.json"
 
@@ -14,6 +15,8 @@ class CalendarTab(tab_template.TabTemplate):
 
     def __init__(self, master=None, main=None):
         super().__init__(master, main)
+        with open(json_path) as f:
+            self.projects = json.load(f)
         self.calender_tree = ttk.Treeview(
             self,
             show="headings",
@@ -38,9 +41,10 @@ class CalendarTab(tab_template.TabTemplate):
         self.calender_tree.bind(
             "<Button-3>", self.calendar_tree_on_right_click)
 
+    @RefreshMethod
     def refresh(self):
         self.calender_tree.delete(*self.calender_tree.get_children())
-        for schedule in self.main.projects["schedule"]:
+        for schedule in self.projects["schedule"]:
             self.calender_tree.insert(
                 "", tk.END,
                 values=schedule)
@@ -57,14 +61,14 @@ class CalendarTab(tab_template.TabTemplate):
                 date = date.strftime("%Y-%m-%d")
                 detail = add_schedule_text4.get()
                 schedule = [date, project, subject, detail]
-                projects = self.main.projects["schedule"]
+                projects = self.projects["schedule"]
                 projects.append(schedule)
                 projects = sorted(projects, key=sort_by_date, reverse=True)
-                self.main.projects["schedule"] = projects
+                self.projects["schedule"] = projects
                 with open(json_path, "w") as f:
-                    json.dump(self.main.projects, f, indent=4)
+                    json.dump(self.projects, f, indent=4)
                 add_schedule_window.destroy()
-                self.main.refresh_trees()
+                self.main.refresh_main()
             else:
                 return
 
@@ -122,7 +126,7 @@ class CalendarTab(tab_template.TabTemplate):
             add_schedule_window,
             width=5,
             state="readonly",
-            values=self.main.projects["projects"]["project_names"])
+            values=self.projects["projects"]["project_names"])
         add_schedule_combobox2.set("None")
         add_schedule_combobox2.place(x=10, y=70)
         add_schedule_label3 = tk.Label(
@@ -152,11 +156,11 @@ class CalendarTab(tab_template.TabTemplate):
         """this func removes selected schedule.
         """
         selected_schedule = self.calender_tree.selection()[0]
-        self.main.projects["schedule"].remove(
+        self.projects["schedule"].remove(
             list(self.calender_tree.item(selected_schedule, "values")))
         with open(json_path, "w") as f:
-            json.dump(self.main.projects, f, indent=4)
-        self.main.refresh_trees()
+            json.dump(self.projects, f, indent=4)
+        self.main.refresh_main()
 
     def calendar_tree_on_right_click(self, event: tk.Event):
         """this func shows right-clicked menu.

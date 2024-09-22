@@ -1,21 +1,20 @@
-import importlib
 import os
 import subprocess
 import tkinter as tk
 import tkinter.ttk as ttk
 from pathlib import Path
 from textwrap import dedent
-from tkinter import messagebox
+from tkinter import filedialog, messagebox
 
-import inflection
+# import inflection
 import pyperclip
 import send2trash
-from PyProma_common.PyProma_templates import tab_template
+# from PyProma_common.PyProma_templates import tab_template
 from PyProma_common.show_version import ShowVersion
+from PyProma_dir_view.plugins import plugin_manager
 
 # TODO Add builder function. e.g. pyinstaller, nuitka.
 # TODO Add Poetry support.
-# TODO Add plugin manager and make two menus tabs directories to one directory.
 
 
 class DirView(tk.Tk):
@@ -34,9 +33,15 @@ class DirView(tk.Tk):
             + (f" - {project_name}" if project_name else ""))
         self.title(title)
 
+        self.dir_path = (
+            os.path.normpath(dir_path.replace("\\", "/"))
+            if os.path.isdir(dir_path) else "")
         self.main_menu = tk.Menu(self)
         self.config(menu=self.main_menu)
-        self.add_menus()
+        self.file_menu = tk.Menu(self.main_menu, tearoff=False)
+        self.main_menu.add_cascade(label="File", menu=self.file_menu)
+        self.file_menu.add_command(
+            label="Open directory", command=self.set_dir_path)
         self.help_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="Help", menu=self.help_menu)
         self.help_menu.add_command(
@@ -80,85 +85,20 @@ class DirView(tk.Tk):
         self.tab_frame.propagate(False)
         self.tab_frame.grid(row=0, column=1, sticky=tk.NSEW)
         self.tab = ttk.Notebook(self.tab_frame)
-        self.tabs = {}
-        self.add_tabs()
         self.tab.pack(anchor=tk.NW)
-
-        if os.path.isdir(dir_path):
-            self.dir_path = os.path.normpath(dir_path.replace("\\", "/"))
-            self.refresh_trees()
-        else:
-            self.dir_path = ""
-
+        self.plugins = plugin_manager.PluginManager(self)
+        self.refresh_trees()
         self.mainloop()
 
-    def add_tabs(self):
-        """this func loads and adds tabs from tabs directory.
+    def set_dir_path(self):
+        """this func asks directory and sets dir_path.
+        after this func -> refresh_trees().
         """
-        for filename in os.listdir("PyProma_GUI/PyProma_dir_view/tabs"):
-            if filename.endswith("_tab.py"):
-                module_name = filename[:-3]
-                try:
-                    module = importlib.import_module(
-                        f"PyProma_dir_view.tabs.{module_name}")
-                except ImportError as e:
-                    message = f"Failed to import module '{module_name}': {e}"
-                    messagebox.showerror(title="ImportError", message=message)
-                    continue
-                class_name = inflection.camelize(module_name)
-                try:
-                    tab_class = getattr(module, class_name)
-                    if issubclass(tab_class, tab_template.TabTemplate):
-                        tab = tab_class(self.tab, self)
-                        tab_name = getattr(tab_class, "NAME", class_name)
-                        self.tab.add(tab, text=tab_name, padding=3)
-                        self.tabs[tab_name] = tab
-                    elif issubclass(tab_class, tk.Frame):
-                        tab = tab_class(self.tab)
-                        tab_name = getattr(tab_class, "NAME", class_name)
-                        message = f"""\
-                            {tab_name} is a tkinter frame but might not a tab.
-                            do you want to load anyway?"""
-                        confirm = messagebox.askyesno(
-                            title="confirm", message=dedent(message))
-                        if confirm:
-                            self.tab.add(tab, text=tab_name, padding=3)
-                            self.tabs[tab_name] = tab
-
-                except AttributeError as e:
-                    message = (
-                        f"class {class_name} is not in module {module_name}"
-                        f": {e}")
-                    messagebox.showerror(
-                        title="AttributeError", message=message)
-
-    def add_menus(self):
-        """this func loads and adds menus from menus directory.
-        """
-        for filename in os.listdir("PyProma_GUI/PyProma_dir_view/menus"):
-            if filename.endswith("_menu.py"):
-                module_name = filename[:-3]
-                try:
-                    module = importlib.import_module(
-                        f"PyProma_dir_view.menus.{module_name}")
-                except ImportError as e:
-                    message = f"Failed to import module '{module_name}': {e}"
-                    messagebox.showerror(title="ImportError", message=message)
-                    continue
-                class_name = inflection.camelize(module_name)
-                try:
-                    menu_class = getattr(module, class_name)
-                    if issubclass(menu_class, tk.Menu):
-                        menu = menu_class(self.main_menu, self)
-                        menu_name = getattr(menu_class, "NAME", class_name)
-                        self.main_menu.add_cascade(label=menu_name, menu=menu)
-
-                except AttributeError as e:
-                    message = (
-                        f"class {class_name} is not in module {module_name}"
-                        f": {e}")
-                    messagebox.showerror(
-                        title="AttributeError", message=message)
+        path = os.path.normpath(
+            filedialog.askdirectory().replace("\\", "/"))
+        if os.path.isdir(path) and path != ".":
+            self.dir_path = path
+            self.refresh_trees()
 
     def refresh_trees(self):
         """this func initialize tree.
@@ -166,8 +106,7 @@ class DirView(tk.Tk):
         -> make_dir_tree(dir_path)
         """
         if os.path.isdir(self.dir_path):
-            for instance in self.tabs.values():
-                instance.refresh()
+            self.plugins.refresh_plugins()
             self.dir_tree.delete(*self.dir_tree.get_children())
             self.dir_tree.heading(
                 "#0",
@@ -194,8 +133,7 @@ class DirView(tk.Tk):
                         tk.END,
                         text=directory)
                     if os.path.splitext(full_path)[1] == ".py":
-                        self.tabs["ToDo"].find_todo(full_path)
-                        self.tabs["Linter"].run_linter(full_path)
+                        self.plugins.run_pyfile_plugin(full_path)
                 else:
                     child = self.dir_tree.insert(
                         "" if parent_tree is None else parent_tree,

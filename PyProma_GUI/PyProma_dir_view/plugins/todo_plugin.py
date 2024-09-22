@@ -3,6 +3,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 
 from PyProma_common.PyProma_templates import tab_template
+from PyProma_dir_view.plugins.plugin_manager import PyFileMethod, RefreshMethod
 
 
 class TodoTab(tab_template.TabTemplate):
@@ -14,9 +15,11 @@ class TodoTab(tab_template.TabTemplate):
         self.todo_tree.heading("#0", text="ToDo", anchor=tk.CENTER)
         self.todo_tree.pack(fill=tk.BOTH, expand=True)
 
+    @RefreshMethod
     def refresh(self):
         self.todo_tree.delete(*self.todo_tree.get_children())
 
+    @PyFileMethod
     def find_todo(self, filename: str):
         """this func finds todos and add node to todo_tree.
         this finds "# TODO", "# BUG", "# FIXME", "# HACK".

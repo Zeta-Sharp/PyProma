@@ -6,6 +6,7 @@ from tkinter import messagebox
 
 import git
 from PyProma_common.PyProma_templates import tab_template
+from PyProma_dir_view.plugins.plugin_manager import RefreshMethod
 
 
 class GitTab(tab_template.TabTemplate):
@@ -66,6 +67,7 @@ class GitTab(tab_template.TabTemplate):
         self.commit_button.place(x=250, y=535)
         self.git_staging_frame.grid(row=0, column=1)
 
+    @RefreshMethod
     def refresh(self):
         self.git_commit_tree.delete(*self.git_commit_tree.get_children())
         self.git_staged_changes.delete(
@@ -144,7 +146,7 @@ class GitTab(tab_template.TabTemplate):
                 messagebox.showerror(
                     title="git.exc.GitCommandError", message=str(e))
             else:
-                self.main.refresh_trees()
+                self.main.refresh_main()
             finally:
                 self.git_branches.set(repo.active_branch)
 
@@ -214,11 +216,33 @@ class GitTab(tab_template.TabTemplate):
                         title="git.exc.CommandError",
                         message=str(e))
                 finally:
-                    self.main.refresh_trees()
+                    self.main.refresh_main()
             else:
                 messagebox.showerror(
                     title="Commit message is Empty",
                     message="Please write commit message in entry box.")
+
+
+class GitMenu(tk.Menu):
+    NAME = "Git"
+
+    def __init__(self, master=None, main=None):
+        self.main = main
+        super().__init__(master, tearoff=False)
+        self.add_command(
+            label="Git Init", command=self.git_init)
+
+    def git_init(self):
+        """this func runs git init
+        """
+        if os.path.isdir(self.main.dir_path):
+            git_path = os.path.join(self.main.dir_path, ".git")
+            if not os.path.isdir(git_path):
+                try:
+                    git.Repo.init(self.main.dir_path)
+                except git.exc.GitCommandError as e:
+                    messagebox.showerror(
+                        title="git.exc.GitError", message=str(e))
 
 
 if __name__ == "__main__":

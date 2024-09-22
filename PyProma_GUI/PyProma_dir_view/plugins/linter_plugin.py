@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from PyProma_common.PyProma_templates import tab_template
+from PyProma_dir_view.plugins.plugin_manager import PyFileMethod, RefreshMethod
 
 
 class LinterTab(tab_template.TabTemplate):
@@ -19,6 +20,7 @@ class LinterTab(tab_template.TabTemplate):
             anchor=tk.CENTER)
         self.result_tree.pack(fill=tk.BOTH, expand=True)
 
+    @RefreshMethod
     def refresh(self):
         self.result_tree.delete(
             *self.result_tree.get_children())
@@ -38,6 +40,7 @@ class LinterTab(tab_template.TabTemplate):
             for result in pylint_results:
                 self.result_tree.insert(parent, tk.END, text=result)
 
+    @PyFileMethod
     def run_linter(self, target_path):
         if "venv" not in target_path:
             if os.path.isfile(target_path):
