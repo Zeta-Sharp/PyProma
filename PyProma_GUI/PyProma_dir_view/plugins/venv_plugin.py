@@ -24,4 +24,4 @@ class VenvMenu(Menu):
             except OSError as e:
                 messagebox.showerror(
                     title="OSError", message=str(e))
-            self.main.refresh_trees()
+            self.main.refresh_main()

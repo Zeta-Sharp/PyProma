@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import scrolledtext
 
 from PyProma_common.PyProma_templates import tab_template
+from PyProma_dir_view.plugins.plugin_manager import RefreshMethod
 
 
 class ReadmeTab(tab_template.TabTemplate):
@@ -15,6 +16,7 @@ class ReadmeTab(tab_template.TabTemplate):
         self.readme_text.insert(tk.END, text)
         self.readme_text.pack(fill=tk.BOTH, expand=True)
 
+    @RefreshMethod
     def refresh(self):
         """this func reads README.md and writes on readme_text.
         """

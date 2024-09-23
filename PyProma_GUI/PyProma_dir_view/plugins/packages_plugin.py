@@ -6,6 +6,7 @@ import tkinter.ttk as ttk
 from tkinter import messagebox
 
 from PyProma_common.PyProma_templates import tab_template
+from PyProma_dir_view.plugins.plugin_manager import RefreshMethod
 
 
 class PackagesTab(tab_template.TabTemplate):
@@ -41,6 +42,7 @@ class PackagesTab(tab_template.TabTemplate):
         self.run_command_button.place(x=350, y=297)
         self.install_frame.grid(row=0, column=1, sticky=tk.NSEW)
 
+    @RefreshMethod
     def refresh(self):
         """this func gets python packages in environment.
         """
@@ -104,7 +106,7 @@ class PackagesTab(tab_template.TabTemplate):
                 title="OSError",
                 message=str(e))
         finally:
-            self.main.refresh_trees()
+            self.main.refresh_main()
 
 
 if __name__ == "__main__":

@@ -18,13 +18,17 @@ We follow the [PEP 8 style guide for Python code](https://peps.python.org/pep-00
 
 ### Extensibility
 This project offers extension points for customization:  
+directories: `PyProma_GUI/PyProma_dirview/plugins`, `PyProma_GUI/PyProma_projectview/plugins`  
 #### Adding tabs:  
-directories: `PyProma_GUI/PyProma_dirview/tabs`, `PyProma_GUI/PyProma_projectview/tabs`  
 Create a Python module within these directories.  
 Inherit the TabTemplate class from `PyProma_GUI/PyProma_common/PyProma_templates/tab_template.py`.  
-Ensure your file name ends with _tab.py, and the class name matches the filename in PascalCase (e.g., example_tab.py -> ExampleTab).  
+Ensure your file name ends with `_plugin.py`, and the class name matches the filename in PascalCase (e.g., `example_plugin.py` -> `ExampleTab`).  
+You can define method used to refresh GUI with `RefreshMethod` decorator.  
+Only in dir view, you can define method used to do something to `.py` file with `PyFileMethod` decorator. Method with this decorator will be called with path to `.py` file.  
 ```Python
 from PyProma_common.PyProma_templates import tab_template
+from PyProma_dir_view.plugins.plugin_manager import PyFileMethod, RefreshMethod
+
 
 Class CustomTab(tab_template.TabTemplate):
     # Set the tab name (defaults to the class name if not defined)
@@ -33,16 +37,21 @@ Class CustomTab(tab_template.TabTemplate):
     def __init__(self, master=None, main=None):
         # master is master frame. main is main instance.
         super().__init__(master, main)
-  
+
+    # Method decorated by RefreshMethod will be called in refresh sequence.
+    @RefreshMethod
     def refresh(self):
-        # Implement your refresh logic here
+        pass
+
+    # Method with this decorator will be called with path to `.py` file.
+    @PyFileMethod
+    def do_something(self, path):
         pass
 ```
 #### Adding menus:
-directories: `PyProma_GUI/PyProma_dirview/menus`, `PyProma_GUI/PyProma_projectview/menus`  
 Create a Python module within these directories.  
 Inherit the menu class from tkinter.  
-Ensure your file name ends with _menu.py, and the class name matches the filename in PascalCase (e.g., example_menu.py -> ExampleMenu).  
+Ensure your file name ends with `_plugin.py`, and the class name matches the filename in PascalCase (e.g., `example_plugin.py` -> `ExampleMenu`).  
 ```Python
 from tkinter import Menu
 

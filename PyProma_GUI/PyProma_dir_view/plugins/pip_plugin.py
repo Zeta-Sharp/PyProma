@@ -30,6 +30,7 @@ class PipMenu(tk.Menu):
                     venv_path if os.path.isfile(venv_path) else "python",
                     "-m", "pip", "install", package]
                 CodeRunner.code_runner(command)
+                self.main.refresh_main()
 
     def upgrade_pip(self):
         if os.path.isdir(self.main.dir_path):
@@ -54,3 +55,5 @@ class PipMenu(tk.Menu):
             except subprocess.CalledProcessError as e:
                 messagebox.showerror(
                     title="subprocess.CalledProcessError", message=str(e))
+            finally:
+                self.main.refresh_main()

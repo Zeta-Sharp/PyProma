@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyprom"
-version = "0.1.0.beta"
+version = "0.2.0"
 description = "This is a package of project manager"
 authors = ["rikeidanshi <rikeidanshi@duck.com>"]
 readme = "README.md"
