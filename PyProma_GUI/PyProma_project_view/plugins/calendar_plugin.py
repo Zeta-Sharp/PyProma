@@ -43,7 +43,6 @@ class CalendarTab(tab_template.TabTemplate):
 
     @RefreshMethod
     def refresh(self):
-        print("refreshed")
         self.calender_tree.delete(*self.calender_tree.get_children())
         for schedule in self.projects["schedule"]:
             self.calender_tree.insert(
