@@ -65,3 +65,5 @@ class CustomMenu(Menu):
         super().__init__(master, tearoff=False)
         self.add_command(label="Custom Menu")
 ```
+
+We look forward to your contributions! If you have any questions or need further assistance, feel free to reach out.

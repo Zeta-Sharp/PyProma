@@ -2,6 +2,7 @@ import importlib
 import inspect
 import os
 import tkinter as tk
+from functools import wraps
 from textwrap import dedent
 from tkinter import messagebox
 
@@ -11,12 +12,20 @@ from PyProma_common.PyProma_templates import tab_template
 
 def RefreshMethod(method):
     method.__is_refresh_method__ = True
-    return method
+
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        return method(self, *args, **kwargs)
+    return wrapper
 
 
 def PyFileMethod(method):
     method.__is_pyfile_method__ = True
-    return method
+
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        return method(self, *args, **kwargs)
+    return wrapper
 
 
 class PluginManager:

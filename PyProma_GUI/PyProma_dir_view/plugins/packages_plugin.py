@@ -37,6 +37,7 @@ class PackagesTab(tab_template.TabTemplate):
         self.command_combo.current(0)
         self.command_text = tk.Entry(self.install_frame, width=30)
         self.command_text.place(x=155, y=301)
+        self.command_text.bind("<Return>", self.install_package)
         self.run_command_button = tk.Button(
             self.install_frame, text="run", command=self.install_package)
         self.run_command_button.place(x=350, y=297)
@@ -66,7 +67,7 @@ class PackagesTab(tab_template.TabTemplate):
                     self.command_combo["values"] = ["pip install"]
                 self.command_combo.current(0)
 
-    def install_package(self):
+    def install_package(self, _=None):
         if os.path.isdir(self.main.dir_path) and self.command_text.get():
             venv_path = os.path.join(
                 self.main.dir_path, ".venv", "Scripts", "python.exe")
