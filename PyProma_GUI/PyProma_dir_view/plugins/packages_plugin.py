@@ -4,6 +4,7 @@ import subprocess
 import threading
 import tkinter as tk
 import tkinter.ttk as ttk
+import webbrowser
 from tkinter import messagebox
 
 from PyProma_common.PyProma_templates import tab_template
@@ -43,6 +44,14 @@ class PackagesTab(tab_template.TabTemplate):
             self.install_frame, text="run", command=self.install_package)
         self.run_command_button.place(x=350, y=297)
         self.install_frame.grid(row=0, column=1, sticky=tk.NSEW)
+        self.search_label = tk.Label(self.install_frame, text="Search on PyPI")
+        self.search_label.place(x=5, y=350)
+        self.search_text = tk.Entry(self.install_frame, width=50)
+        self.search_text.bind("<Return>", self.search_package)
+        self.search_text.place(x=10, y=370)
+        self.search_button = tk.Button(
+            self.install_frame, text="search", command=self.search_package)
+        self.search_button.place(x=320, y=364)
 
     @RefreshMethod
     def refresh(self):
@@ -119,6 +128,12 @@ class PackagesTab(tab_template.TabTemplate):
             self.run_command_button.config(state=tk.ACTIVE)
             self.command_text.bind("<Return>", self.install_package)
             self.main.refresh_main()
+
+    def search_package(self, event: tk.Event):
+        package = self.search_text.get()
+        if package:
+            package = package.replace(" ", "+")
+            webbrowser.open(f"https://pypi.org/search/?q={package}", new=2)
 
 
 if __name__ == "__main__":
