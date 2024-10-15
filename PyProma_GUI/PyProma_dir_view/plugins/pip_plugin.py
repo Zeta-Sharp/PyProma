@@ -29,7 +29,7 @@ class PipMenu(tk.Menu):
                 command = [
                     venv_path if os.path.isfile(venv_path) else "python",
                     "-m", "pip", "install", package]
-                CodeRunner.code_runner(command)
+                CodeRunner.code_runner(command, cwd=self.main.dir_path)
                 self.main.refresh_main()
 
     def upgrade_pip(self):
@@ -39,7 +39,7 @@ class PipMenu(tk.Menu):
             command = [
                 venv_path if os.path.isfile(venv_path) else "python",
                 "-m", "pip", "install", "--upgrade pip"]
-            CodeRunner.code_runner(command)
+            CodeRunner.code_runner(command, cwd=self.main.dir_path)
 
     def pip_freeze(self):
         """this func generates requirements.txt.
@@ -51,7 +51,7 @@ class PipMenu(tk.Menu):
                 venv_path if os.path.isfile(venv_path) else "python",
                 "-m", "pip", "freeze", ">", "requirements.txt"]
             try:
-                subprocess.run(command, shell=True)
+                subprocess.run(command, shell=True, cwd=self.main.dir_path)
             except subprocess.CalledProcessError as e:
                 messagebox.showerror(
                     title="subprocess.CalledProcessError", message=str(e))
