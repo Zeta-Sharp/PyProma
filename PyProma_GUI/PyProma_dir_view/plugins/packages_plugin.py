@@ -4,6 +4,8 @@ import subprocess
 import threading
 import tkinter as tk
 import tkinter.ttk as ttk
+import urllib
+import urllib.parse
 import webbrowser
 from tkinter import messagebox
 
@@ -129,10 +131,9 @@ class PackagesTab(tab_template.TabTemplate):
             self.command_text.bind("<Return>", self.install_package)
             self.main.refresh_main()
 
-    def search_package(self, event: tk.Event):
-        package = self.search_text.get()
+    def search_package(self, event: tk.Event = None):
+        package = urllib.parse.quote_plus(self.search_text.get())
         if package:
-            package = package.replace(" ", "+")
             webbrowser.open(f"https://pypi.org/search/?q={package}", new=2)
 
 
