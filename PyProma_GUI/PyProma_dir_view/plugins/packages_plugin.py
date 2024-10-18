@@ -1,7 +1,6 @@
 import importlib.metadata
 import os
 import subprocess
-import threading
 import tkinter as tk
 import tkinter.ttk as ttk
 import urllib
@@ -102,18 +101,13 @@ class PackagesTab(tab_template.TabTemplate):
                 args=command, shell=True, text=True, cwd=self.main.dir_path,
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-            def read_line():
-                while True:
-                    output = process.stdout.readline()
-                    if output == "":
-                        self.run_command_button.config(state=tk.ACTIVE)
-                        self.command_text.bind(
-                            "<Return>", self.install_package)
-                        break
-                    self.command_output.insert(tk.END, output)
-                    self.command_output.see(tk.END)
-            thread = threading.Thread(target=read_line)
-            thread.start()
+            while True:
+                output = process.stdout.readline()
+                if output == '':
+                    break
+                self.command_output.insert(tk.END, output)
+                self.command_output.see(tk.END)
+
         except subprocess.CalledProcessError as e:
             messagebox.showerror(
                 parent=self.master,
@@ -125,8 +119,6 @@ class PackagesTab(tab_template.TabTemplate):
                 title="OSError",
                 message=str(e))
         finally:
-            self.run_command_button.config(state=tk.DISABLED)
-            self.command_text.unbind_all("<Return>")
             self.run_command_button.config(state=tk.ACTIVE)
             self.command_text.bind("<Return>", self.install_package)
             self.main.refresh_main()
