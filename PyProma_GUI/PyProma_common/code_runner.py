@@ -1,11 +1,11 @@
+import subprocess
 import tkinter as tk
 from tkinter import messagebox
-import subprocess
 
 
 class CodeRunner:
     @staticmethod
-    def code_runner(command: str | list):
+    def code_runner(command: str | list, cwd: str = None):
         """this func runs bash command and shows outputs to textbox.
 
         Args:
@@ -17,7 +17,7 @@ class CodeRunner:
         text.pack()
         try:
             process = subprocess.Popen(
-                command, shell=False, text=True,
+                command, shell=False, text=True, cwd=cwd,
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
             while True:

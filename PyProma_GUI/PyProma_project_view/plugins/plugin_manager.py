@@ -29,9 +29,12 @@ class PluginManager:
         for filename in os.listdir(os.path.dirname(__file__)):
             if filename.endswith("_plugin.py"):
                 module_name = filename[:-3]
+                module_path = os.path.join(os.path.dirname(__file__), filename)
+                spec = importlib.util.spec_from_file_location(
+                    module_name, module_path)
+                module = importlib.util.module_from_spec(spec)
                 try:
-                    module = importlib.import_module(
-                        f"PyProma_project_view.plugins.{module_name}")
+                    spec.loader.exec_module(module)
                 except ImportError as e:
                     message = f"Failed to import module '{module_name}': {e}"
                     messagebox.showerror(title="ImportError", message=message)

@@ -6,10 +6,8 @@ from pathlib import Path
 from textwrap import dedent
 from tkinter import filedialog, messagebox
 
-# import inflection
 import pyperclip
 import send2trash
-# from PyProma_common.PyProma_templates import tab_template
 from PyProma_common.show_version import ShowVersion
 from PyProma_dir_view.plugins import plugin_manager
 
