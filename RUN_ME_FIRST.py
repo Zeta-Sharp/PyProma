@@ -7,7 +7,8 @@ def create_virtual_environment(package_path):
     if not os.path.isdir(venv_path := os.path.join(package_path, ".venv")):
         venv.create(venv_path)
         subprocess.run(
-            [os.path.join(venv_path, "Scripts/python"), "-m", "ensurepip"])
+            [os.path.join(venv_path, "Scripts/python"), "-m", "ensurepip"],
+            cwd=os.path.dirname(__file__))
 
 
 def install_poetry(package_path, install_poetry=True):
@@ -16,14 +17,14 @@ def install_poetry(package_path, install_poetry=True):
             os.path.join(package_path, ".venv/Scripts/python"), "-m",
             "pip", "install", "poetry"
         ]
-        subprocess.run(command)
+        subprocess.run(command, cwd=os.path.dirname(__file__))
 
 
 def poetry_install(package_path):
     command = [
         os.path.join(package_path, ".venv/Scripts/python"), "-m",
         "poetry", "install"]
-    subprocess.run(command)
+    subprocess.run(command, cwd=os.path.dirname(__file__))
 
 
 def add_to_site_packages(package_path):
