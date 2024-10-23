@@ -9,7 +9,7 @@ Before diving in, please familiarize yourself with our guidelines for respectful
 
 #### Local Development Environment Setup:
 1. Fork the Repository: Create your own copy ("fork") of this repository on GitHub.
-2. Set Up Development Environment: `Run RUN_ME_FIRST.py` to configure your local environment for development.
+2. Set Up Development Environment: Run `RUN_ME_FIRST.py` to configure your local environment for development.
 3. Make Changes: Edit the code locally according to your contributions.
 4. Submit a Pull Request: Once your changes are ready, submit a PR with clear descriptions and adhere to the formatting guidelines below.
 
