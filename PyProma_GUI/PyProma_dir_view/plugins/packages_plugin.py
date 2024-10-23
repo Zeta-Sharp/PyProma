@@ -1,12 +1,13 @@
 import importlib.metadata
 import os
+import queue
 import subprocess
+import threading
 import tkinter as tk
 import tkinter.ttk as ttk
 import urllib
 import urllib.parse
 import webbrowser
-from tkinter import messagebox
 
 from PyProma_common.PyProma_templates import tab_template
 from PyProma_dir_view.plugins.plugin_manager import RefreshMethod
@@ -94,34 +95,51 @@ class PackagesTab(tab_template.TabTemplate):
         Args:
             command (str | list): Command what you want to run.
         """
-        try:
-            self.run_command_button.config(state=tk.DISABLED)
-            self.command_text.unbind_all("<Return>")
-            process = subprocess.Popen(
-                args=command, shell=True, text=True, cwd=self.main.dir_path,
-                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
+        def _run_command():
+            _output_queue.put(" ".join(command)+"\n")
+            try:
+                self.run_command_button.config(state=tk.DISABLED)
+                self.command_text.unbind_all("<Return>")
+                process = subprocess.Popen(
+                    args=command,
+                    shell=True,
+                    text=True,
+                    cwd=self.main.dir_path,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT)
+
+                while True:
+                    output = process.stdout.readline()
+                    if output == "":
+                        break
+                    _output_queue.put(output)
+
+            except subprocess.CalledProcessError as e:
+                _output_queue.put(f"subprocess.CalledProcessError: {e}")
+            except OSError as e:
+                _output_queue.put(f"OSError: {e}")
+            except Exception as e:
+                _output_queue.put(f"ERROR: {e}")
+            finally:
+                _output_queue.put("DONE")
+                self.run_command_button.config(state=tk.ACTIVE)
+                self.command_text.bind("<Return>", self.install_package)
+                self.main.refresh_main()
+
+        def _update_output():
             while True:
-                output = process.stdout.readline()
-                if output == '':
+                output = _output_queue.get()
+                if output == "DONE":
                     break
                 self.command_output.insert(tk.END, output)
                 self.command_output.see(tk.END)
 
-        except subprocess.CalledProcessError as e:
-            messagebox.showerror(
-                parent=self.master,
-                title="subprocess.CalledProcessError",
-                message=str(e))
-        except OSError as e:
-            messagebox.showerror(
-                parent=self.master,
-                title="OSError",
-                message=str(e))
-        finally:
-            self.run_command_button.config(state=tk.ACTIVE)
-            self.command_text.bind("<Return>", self.install_package)
-            self.main.refresh_main()
+        _output_queue = queue.Queue()
+        command_thread = threading.Thread(target=_run_command)
+        command_thread.start()
+        update_thread = threading.Thread(target=_update_output)
+        update_thread.start()
 
     def search_package(self, event: tk.Event = None):
         package = urllib.parse.quote_plus(self.search_text.get())
