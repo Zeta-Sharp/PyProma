@@ -83,8 +83,10 @@ class DirView(tk.Tk):
         self.tab_frame.propagate(False)
         self.tab_frame.grid(row=0, column=1, sticky=tk.NSEW)
         self.tab = ttk.Notebook(self.tab_frame)
+        self.tab.enable_traversal()
         self.tab.pack(anchor=tk.NW)
         self.plugins = plugin_manager.PluginManager(self)
+        self.bind("<Control-r>", lambda event: self.refresh_trees())
         self.refresh_trees()
         self.mainloop()
 
