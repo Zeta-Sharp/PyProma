@@ -1,3 +1,13 @@
+"""
+name: Packages
+version: "1.3.0"
+author: rikeidanshi <rikeidanshi@duck.com>
+type: Tab
+description: Supports packages, dependences management.
+dependencies: null
+settings: null
+"""
+
 import importlib.metadata
 import os
 import queue

@@ -1,3 +1,13 @@
+"""
+name: pip
+version: "1.0.0"
+author: rikeidanshi <rikeidanshi@duck.com>
+type: Menu
+description: Supports pip operations.
+dependencies: null
+settings: null
+"""
+
 import os
 import subprocess
 import tkinter as tk

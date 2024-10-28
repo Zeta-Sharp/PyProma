@@ -1,3 +1,15 @@
+"""
+name: Linter
+version: "1.0.0"
+author: rikeidanshi <rikeidanshi@duck.com>
+type: Tab
+description: Supports automatic execution of linters.
+dependencies:
+    - flake8: "^7.1.1"
+    - pylint: "^3.2.7"
+settings: null
+"""
+
 import os
 import subprocess
 import threading

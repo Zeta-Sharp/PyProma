@@ -1,3 +1,13 @@
+"""
+name: Calendar
+version: "1.0.0"
+author: rikeidanshi <rikeidanshi@duck.com>
+type: Tab
+description: Supports schedule management related to projects.
+dependencies: null
+settings: null
+"""
+
 import json
 import tkinter as tk
 import tkinter.ttk as ttk
