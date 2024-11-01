@@ -1,6 +1,6 @@
 """
 name: Packages
-version: "1.4.0"
+version: "1.5.0"
 author: rikeidanshi <rikeidanshi@duck.com>
 type: Tab
 description: Supports packages, dependences management.
@@ -73,6 +73,7 @@ class PackagesTab(tab_template.TabTemplate):
             self.install_frame, text="search", command=self.search_package)
         self.search_button.place(x=320, y=364)
         self.is_poetry_in = False
+        self.is_command_running = False
 
     @RefreshMethod
     def refresh(self):
@@ -118,8 +119,7 @@ class PackagesTab(tab_template.TabTemplate):
         def _run_command():
             _output_queue.put(" ".join(command)+"\n")
             try:
-                self.run_command_button.config(state=tk.DISABLED)
-                self.command_text.unbind_all("<Return>")
+                self.is_command_running = True
                 process = subprocess.Popen(
                     args=command,
                     shell=True,
@@ -142,8 +142,7 @@ class PackagesTab(tab_template.TabTemplate):
                 _output_queue.put(f"ERROR: {e}")
             finally:
                 _output_queue.put("DONE")
-                self.run_command_button.config(state=tk.ACTIVE)
-                self.command_text.bind("<Return>", self.install_package)
+                self.is_command_running = False
                 self.main.refresh_main()
 
         def _update_output():
@@ -154,11 +153,12 @@ class PackagesTab(tab_template.TabTemplate):
                 self.command_output.insert(tk.END, output)
                 self.command_output.see(tk.END)
 
-        _output_queue = queue.Queue()
-        command_thread = threading.Thread(target=_run_command)
-        command_thread.start()
-        update_thread = threading.Thread(target=_update_output)
-        update_thread.start()
+        if not self.is_command_running:
+            _output_queue = queue.Queue()
+            command_thread = threading.Thread(target=_run_command)
+            command_thread.start()
+            update_thread = threading.Thread(target=_update_output)
+            update_thread.start()
 
     def search_package(self, event: tk.Event = None):
         package = urllib.parse.quote_plus(self.search_text.get())
@@ -193,6 +193,17 @@ class PackagesTab(tab_template.TabTemplate):
             info_text.insert(tk.END, message)
             package_info_viewer.mainloop()
 
+    def remove_package(self):
+        if len(self.packages_tree.selection()) > 0:
+            selected_package = self.packages_tree.item(
+                self.packages_tree.selection()[0], "values")[0]
+            venv_path = os.path.normpath(
+                os.path.join(self.main.dir_path, self.get_venv_path()))
+            tool = (
+                ["poetry", "remove"] if self.is_poetry_in
+                else ["pip", "uninstall"])
+            self.run_command([venv_path, "-m", *tool, selected_package])
+
     def packages_tree_on_right_click(self, event: tk.Event):
         flag = len(self.packages_tree.selection()) > 0
         self.packages_tree_menu.entryconfig(
@@ -200,7 +211,7 @@ class PackagesTab(tab_template.TabTemplate):
             state=tk.NORMAL if flag else tk.DISABLED)
         self.packages_tree_menu.entryconfig(
             "Remove package",
-            state=tk.NORMAL if flag and False else tk.DISABLED)
+            state=tk.NORMAL if flag else tk.DISABLED)
         self.packages_tree_menu.post(event.x_root, event.y_root)
 
     @staticmethod
