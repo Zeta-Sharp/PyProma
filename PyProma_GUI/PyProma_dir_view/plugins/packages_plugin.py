@@ -42,7 +42,8 @@ class PackagesTab(tab_template.TabTemplate):
         self.packages_tree_menu.add_command(
             label="Show package information",
             command=self.get_package_information)
-        self.packages_tree_menu.add_command(label="Remove package")
+        self.packages_tree_menu.add_command(
+            label="Remove package", command=self.remove_package)
         self.packages_tree.bind(
             "<Button-3>", self.packages_tree_on_right_click)
 
