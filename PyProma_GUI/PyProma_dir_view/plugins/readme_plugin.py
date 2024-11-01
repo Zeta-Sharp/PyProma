@@ -1,3 +1,15 @@
+"""
+name: README
+version: "1.2.0"
+author: rikeidanshi <rikeidanshi@duck.com>
+type: Tab
+description: README viewer.
+dependencies:
+    - markdown: "^3.7"
+    - tkhtmlview: "^0.3.1"
+settings: null
+"""
+
 import os
 import tkinter as tk
 

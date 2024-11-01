@@ -11,8 +11,11 @@ import send2trash
 from PyProma_common.show_version import ShowVersion
 from PyProma_dir_view.plugins import plugin_manager
 
-# TODO Add builder function. e.g. pyinstaller, nuitka.
-# TODO Add Poetry support.
+# IDEA Add builder function. e.g. pyinstaller, nuitka.
+# IDEA Add Poetry support.
+# IDEA Add Git remotes support.
+# IDEA Add Docker support.
+# IDEA divide this repository into main repository and plugins repository.
 
 
 class DirView(tk.Tk):

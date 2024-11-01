@@ -7,6 +7,7 @@ import tkinter as tk
 import traceback
 
 import inflection
+import yaml
 from PyProma_common.PyProma_templates import tab_template
 
 
@@ -32,6 +33,14 @@ class TestTab:
                 print(f"INFO: Tab class {tab_class_name} is loaded successly.")
                 print(
                     f"Tab Name is {getattr(self.tab, 'NAME', tab_class_name)}")
+                try:
+                    metadata = yaml.safe_load(module.__doc__)
+                    print("metadata:")
+                    print(metadata)
+                except AttributeError:
+                    print("WARNING: This tab module doesn't have docstrings.")
+                except yaml.YAMLError as e:
+                    print(f"WARNING: Can't load metadata: {e}")
             else:
                 print(
                     f"ERROR: Class {tab_class_name} ",

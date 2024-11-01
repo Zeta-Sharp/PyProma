@@ -137,28 +137,29 @@ class ProjectView(tk.Tk):
                             os.mkdir(target_dir)
                         else:
                             return
-                if combobox_state == "Clone github repository":
-                    if git_url := git_txt1.get():
-                        try:
-                            git.Repo.clone_from(git_url, target_dir)
-                        except git.exc.GitError as e:
-                            messagebox.showerror(
-                                parent=add_project_window, message=str(e))
+                match combobox_state:
+                    case "Clone GitHub repository":
+                        if git_url := git_txt1.get():
+                            try:
+                                git.Repo.clone_from(git_url, target_dir)
+                            except git.exc.GitError as e:
+                                messagebox.showerror(
+                                    parent=add_project_window, message=str(e))
+                                return
+                        else:
                             return
-                    else:
-                        return
-                elif combobox_state == "Use CookieCutter template":
-                    if cookiecutter_url := cookiecutter_txt1.get():
-                        try:
-                            cookiecutter(
-                                cookiecutter_url,
-                                output_dir=target_dir,
-                                skip_if_file_exists=True)
-                        except CookiecutterException as e:
-                            messagebox.showerror(
-                                parent=add_project_window, message=str(e))
-                            return
-                    else:
+                    case "Use CookieCutter template":
+                        if cookiecutter_url := cookiecutter_txt1.get():
+                            try:
+                                cookiecutter(
+                                    cookiecutter_url,
+                                    output_dir=target_dir,
+                                    skip_if_file_exists=True)
+                            except CookiecutterException as e:
+                                messagebox.showerror(
+                                    parent=add_project_window, message=str(e))
+                                return
+                    case _:
                         return
                 self.projects["projects"]["project_names"].append(txt1.get())
                 self.projects["projects"]["dir_paths"].append(target_dir)
@@ -167,21 +168,22 @@ class ProjectView(tk.Tk):
                 add_project_window.destroy()
                 self.refresh_trees()
 
-        def switch_frame(_: tk.Event):
+        def switch_frame(event: tk.Event):
             combobox_state = add_project_combobox1.get()
-            if combobox_state == "Add from directory":
-                clone_git_repository_frame.place_forget()
-                cookiecutter_template_frame.place_forget()
-            elif combobox_state == "Clone github repository":
-                clone_git_repository_frame.place(x=0, y=120)
-                cookiecutter_template_frame.place_forget()
-            elif combobox_state == "Use CookieCutter template":
-                clone_git_repository_frame.place_forget()
-                cookiecutter_template_frame.place(x=0, y=120)
+            match combobox_state:
+                case "Add from directory":
+                    clone_git_repository_frame.place_forget()
+                    cookiecutter_template_frame.place_forget()
+                case "Clone GitHub repository":
+                    clone_git_repository_frame.place(x=0, y=120)
+                    cookiecutter_template_frame.place_forget()
+                case "Use CookieCutter template":
+                    clone_git_repository_frame.place_forget()
+                    cookiecutter_template_frame.place(x=0, y=120)
 
         values = [
             "Add from directory",
-            "Clone github repository",
+            "Clone GitHub repository",
             "Use CookieCutter template"]
         add_project_combobox1 = ttk.Combobox(
             add_project_window, state="readonly",
@@ -220,7 +222,7 @@ class ProjectView(tk.Tk):
             add_project_window, width=300, height=90)
         clone_git_repository_frame.propagate(False)
         git_label1 = tk.Label(
-            clone_git_repository_frame, text="URL to github repository:")
+            clone_git_repository_frame, text="URL to GitHub repository:")
         git_label1.place(x=0, y=0)
         git_txt1 = tk.Entry(clone_git_repository_frame, width=40)
         git_txt1.place(x=40, y=20)
@@ -232,7 +234,7 @@ class ProjectView(tk.Tk):
         cookiecutter_template_frame.propagate(False)
         cookiecutter_label1 = tk.Label(
             cookiecutter_template_frame,
-            text="URL to github template repository or template file:")
+            text="URL to GitHub template repository or template file:")
         cookiecutter_label1.place(x=0, y=0)
         cookiecutter_txt1 = tk.Entry(cookiecutter_template_frame, width=40)
         cookiecutter_txt1.place(x=40, y=20)

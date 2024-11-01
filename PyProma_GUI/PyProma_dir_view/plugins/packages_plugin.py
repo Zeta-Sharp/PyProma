@@ -1,3 +1,13 @@
+"""
+name: Packages
+version: "1.5.0"
+author: rikeidanshi <rikeidanshi@duck.com>
+type: Tab
+description: Supports packages, dependences management.
+dependencies: null
+settings: null
+"""
+
 import importlib.metadata
 import os
 import queue
@@ -28,6 +38,14 @@ class PackagesTab(tab_template.TabTemplate):
             "Version", text="Version", anchor=tk.CENTER)
         self.packages_tree.pack(fill=tk.BOTH, expand=True)
         self.tree_frame.grid(row=0, column=0, sticky=tk.NSEW)
+        self.packages_tree_menu = tk.Menu(self.tree_frame, tearoff=False)
+        self.packages_tree_menu.add_command(
+            label="Show package information",
+            command=self.get_package_information)
+        self.packages_tree_menu.add_command(label="Remove package")
+        self.packages_tree.bind(
+            "<Button-3>", self.packages_tree_on_right_click)
+
         self.install_frame = tk.Frame(self, width=400, height=575)
         self.install_frame.propagate(False)
         self.output_label = tk.Label(self.install_frame, text="Outputs")
@@ -54,6 +72,8 @@ class PackagesTab(tab_template.TabTemplate):
         self.search_button = tk.Button(
             self.install_frame, text="search", command=self.search_package)
         self.search_button.place(x=320, y=364)
+        self.is_poetry_in = False
+        self.is_command_running = False
 
     @RefreshMethod
     def refresh(self):
@@ -70,19 +90,19 @@ class PackagesTab(tab_template.TabTemplate):
                     packages.append((dist.name, dist.version))
                 for package in packages:
                     self.packages_tree.insert("", tk.END, values=package)
-                is_poetry_in = any(
+                self.is_poetry_in = any(
                     package[0] == "poetry" for package in packages)
-                if is_poetry_in:
+                if self.is_poetry_in:
                     self.command_combo["values"] = [
                         "poetry add", "pip install"]
                 else:
                     self.command_combo["values"] = ["pip install"]
                 self.command_combo.current(0)
 
-    def install_package(self, _=None):
+    def install_package(self, event: tk.Event = None):
         if os.path.isdir(self.main.dir_path) and self.command_text.get():
-            venv_path = os.path.join(
-                self.main.dir_path, ".venv", "Scripts", "python.exe")
+            venv_path = os.path.normpath(
+                os.path.join(self.main.dir_path, self.get_venv_path()))
             if os.path.isfile(venv_path):
                 tool = self.command_combo.get().split(" ")
                 package = self.command_text.get()
@@ -99,8 +119,7 @@ class PackagesTab(tab_template.TabTemplate):
         def _run_command():
             _output_queue.put(" ".join(command)+"\n")
             try:
-                self.run_command_button.config(state=tk.DISABLED)
-                self.command_text.unbind_all("<Return>")
+                self.is_command_running = True
                 process = subprocess.Popen(
                     args=command,
                     shell=True,
@@ -123,8 +142,7 @@ class PackagesTab(tab_template.TabTemplate):
                 _output_queue.put(f"ERROR: {e}")
             finally:
                 _output_queue.put("DONE")
-                self.run_command_button.config(state=tk.ACTIVE)
-                self.command_text.bind("<Return>", self.install_package)
+                self.is_command_running = False
                 self.main.refresh_main()
 
         def _update_output():
@@ -135,16 +153,74 @@ class PackagesTab(tab_template.TabTemplate):
                 self.command_output.insert(tk.END, output)
                 self.command_output.see(tk.END)
 
-        _output_queue = queue.Queue()
-        command_thread = threading.Thread(target=_run_command)
-        command_thread.start()
-        update_thread = threading.Thread(target=_update_output)
-        update_thread.start()
+        if not self.is_command_running:
+            _output_queue = queue.Queue()
+            command_thread = threading.Thread(target=_run_command)
+            command_thread.start()
+            update_thread = threading.Thread(target=_update_output)
+            update_thread.start()
 
     def search_package(self, event: tk.Event = None):
         package = urllib.parse.quote_plus(self.search_text.get())
         if package:
             webbrowser.open(f"https://pypi.org/search/?q={package}", new=2)
+
+    def get_package_information(self):
+        if len(self.packages_tree.selection()) > 0:
+            selected_package = self.packages_tree.item(
+                self.packages_tree.selection()[0], "values")[0]
+            package_info_viewer = tk.Toplevel()
+            package_info_viewer.title(f"{selected_package} - info")
+            info_text = tk.Text(package_info_viewer)
+            info_text.pack(fill=tk.BOTH, expand=True)
+            venv_path = os.path.normpath(
+                os.path.join(self.main.dir_path, self.get_venv_path()))
+            result = subprocess.run(
+                [
+                    venv_path if os.path.isfile(venv_path) else "python",
+                    "-m",
+                    "poetry" if self.is_poetry_in else "pip",
+                    "show",
+                    selected_package],
+                capture_output=True, text=True, cwd=self.main.dir_path)
+            if result.returncode != 0:
+                message =\
+                    "Unknown error occurred while getting package information."
+            elif len(result.stdout) == 0:
+                message = "This package doesn't have package information."
+            else:
+                message = result.stdout
+            info_text.insert(tk.END, message)
+            package_info_viewer.mainloop()
+
+    def remove_package(self):
+        if len(self.packages_tree.selection()) > 0:
+            selected_package = self.packages_tree.item(
+                self.packages_tree.selection()[0], "values")[0]
+            venv_path = os.path.normpath(
+                os.path.join(self.main.dir_path, self.get_venv_path()))
+            tool = (
+                ["poetry", "remove"] if self.is_poetry_in
+                else ["pip", "uninstall"])
+            self.run_command([venv_path, "-m", *tool, selected_package])
+
+    def packages_tree_on_right_click(self, event: tk.Event):
+        flag = len(self.packages_tree.selection()) > 0
+        self.packages_tree_menu.entryconfig(
+            "Show package information",
+            state=tk.NORMAL if flag else tk.DISABLED)
+        self.packages_tree_menu.entryconfig(
+            "Remove package",
+            state=tk.NORMAL if flag else tk.DISABLED)
+        self.packages_tree_menu.post(event.x_root, event.y_root)
+
+    @staticmethod
+    def get_venv_path() -> str:
+        match os.name:
+            case "nt":
+                return ".venv/Scripts/python.exe"
+            case "posix":
+                return ".venv/bin/python.exe"
 
 
 if __name__ == "__main__":

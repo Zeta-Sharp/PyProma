@@ -1,3 +1,13 @@
+"""
+name: venv
+version: "1.1.0"
+author: rikeidanshi <rikeidanshi@duck.com>
+type: Menu
+description: Supports venv operations.
+dependencies: null
+settings: null
+"""
+
 import os
 import subprocess
 import venv

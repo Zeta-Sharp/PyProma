@@ -1,3 +1,13 @@
+"""
+name: IDE
+version: "1.0.0"
+author: rikeidanshi <rikeidanshi@duck.com>
+type: Menu
+description: Supports cooperation with IDE.
+dependencies: null
+settings: null
+"""
+
 import os
 import subprocess
 import tkinter as tk

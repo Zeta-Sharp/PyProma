@@ -1,3 +1,14 @@
+"""
+name: Git
+version: "1.0.0"
+author: rikeidanshi <rikeidanshi@duck.com>
+type: Tab Menu
+description: Supports Git operations.
+dependencies:
+    - gitpython: "3.1.43"
+settings: null
+"""
+
 import os
 import tkinter as tk
 import tkinter.ttk as ttk

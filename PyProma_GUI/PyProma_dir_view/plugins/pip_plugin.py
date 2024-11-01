@@ -1,3 +1,13 @@
+"""
+name: pip
+version: "1.1.0"
+author: rikeidanshi <rikeidanshi@duck.com>
+type: Menu
+description: Supports pip operations.
+dependencies: null
+settings: null
+"""
+
 import os
 import subprocess
 import tkinter as tk
@@ -25,7 +35,9 @@ class PipMenu(tk.Menu):
                 "install package", "type pip package name here")
             if package:
                 venv_path = os.path.join(
-                    self.main.dir_path, ".venv/Scripts/python.exe")
+                    self.main.dir_path,
+                    ".venv/Scripts/python.exe" if os.name == "nt"
+                    else ".venv/bin/activate")
                 command = [
                     venv_path if os.path.isfile(venv_path) else "python",
                     "-m", "pip", "install", package]
@@ -35,7 +47,7 @@ class PipMenu(tk.Menu):
     def upgrade_pip(self):
         if os.path.isdir(self.main.dir_path):
             venv_path = os.path.join(
-                self.main.dir_path, ".venv/Scripts/python.exe")
+                self.main.dir_path, self.get_venv_path())
             command = [
                 venv_path if os.path.isfile(venv_path) else "python",
                 "-m", "pip", "install", "--upgrade pip"]
@@ -46,7 +58,7 @@ class PipMenu(tk.Menu):
         """
         if os.path.isdir(self.main.dir_path):
             venv_path = os.path.join(
-                self.main.dir_path, ".venv/Scripts/python.exe")
+                self.main.dir_path, self.get_venv_path())
             command = [
                 venv_path if os.path.isfile(venv_path) else "python",
                 "-m", "pip", "freeze", ">", "requirements.txt"]
@@ -57,3 +69,11 @@ class PipMenu(tk.Menu):
                     title="subprocess.CalledProcessError", message=str(e))
             finally:
                 self.main.refresh_main()
+
+    @staticmethod
+    def get_venv_path():
+        match os.name:
+            case "nt":
+                return ".venv/Scripts/python.exe"
+            case "posix":
+                return ".venv/bin/python.exe"
