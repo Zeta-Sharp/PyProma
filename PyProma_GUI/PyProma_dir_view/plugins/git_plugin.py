@@ -24,8 +24,26 @@ class GitTab(tab_template.TabTemplate):
     NAME = "Git"
 
     def __init__(self, master=None, main=None):
-        super().__init__(master, main)
-        self.git_log_frame = tk.Frame(self, width=400, height=600)
+        super().__init__(master, self)
+        self.git_tabs = ttk.Notebook(self)
+        self.git_tabs.enable_traversal()
+        self.local = GitLocalTab(self, main)
+        self.git_tabs.add(self.local, text="Local", padding=3)
+        self.remote = GitRemoteTab(self, main)
+        self.git_tabs.add(self.remote, text="Remote", padding=3)
+        self.git_tabs.pack(anchor=tk.NW)
+
+    @RefreshMethod
+    def refresh(self):
+        self.local.refresh()
+
+
+class GitLocalTab(tk.Frame):
+    def __init__(self, master=None, main=None):
+        self.master, self.main = master, main
+        super().__init__(master, width=800, height=550)
+        self.propagate(False)
+        self.git_log_frame = tk.Frame(self, width=400, height=550)
         self.git_log_frame.propagate(False)
         self.git_commit_tree = ttk.Treeview(
             self.git_log_frame, show="headings",
@@ -37,13 +55,13 @@ class GitTab(tab_template.TabTemplate):
             "message", text="message", anchor=tk.CENTER)
         self.git_commit_tree.pack(fill=tk.BOTH, expand=True)
         self.git_log_frame.grid(row=0, column=0)
-        self.git_staging_frame = tk.Frame(self, width=400, height=600)
+        self.git_staging_frame = tk.Frame(self, width=400, height=550)
         self.git_staging_frame.propagate(False)
         self.git_staged_txt = tk.Label(
             self.git_staging_frame, text="Staged Changes")
         self.git_staged_txt.place(x=5, y=0)
         self.git_staged_changes = ttk.Treeview(
-            self.git_staging_frame, show="headings", height=9,
+            self.git_staging_frame, show="headings", height=8,
             columns=("file", "changes"))
         self.git_staged_changes.heading(
             "file", text="file", anchor=tk.CENTER)
@@ -53,32 +71,31 @@ class GitTab(tab_template.TabTemplate):
         self.git_staged_changes.bind("<<TreeviewSelect>>", self.git_stage)
         self.git_unstaged_txt = tk.Label(
             self.git_staging_frame, text="Changes")
-        self.git_unstaged_txt.place(x=5, y=230)
+        self.git_unstaged_txt.place(x=5, y=210)
         self.git_unstaged_changes = ttk.Treeview(
-            self.git_staging_frame, show="headings", height=9,
+            self.git_staging_frame, show="headings", height=8,
             columns=("file", "changes"))
         self.git_unstaged_changes.heading(
             "file", text="file", anchor=tk.CENTER)
         self.git_unstaged_changes.heading(
             "changes", text="changes", anchor=tk.CENTER)
-        self.git_unstaged_changes.place(x=0, y=250)
+        self.git_unstaged_changes.place(x=0, y=230)
         self.git_unstaged_changes.bind("<<TreeviewSelect>>", self.git_stage)
         self.commit_message = tk.Text(
             self.git_staging_frame, height=5)
         self.commit_message.insert(tk.END, "Commit message")
-        self.commit_message.place(x=0, y=460)
+        self.commit_message.place(x=0, y=420)
         self.git_branches = ttk.Combobox(
             self.git_staging_frame, state=tk.DISABLED)
-        self.git_branches.place(x=5, y=535)
+        self.git_branches.place(x=5, y=500)
         self.commit_button = tk.Button(
             self.git_staging_frame,
             text="Commit",
             command=self.git_commit,
             state=tk.DISABLED)
-        self.commit_button.place(x=250, y=535)
+        self.commit_button.place(x=250, y=500)
         self.git_staging_frame.grid(row=0, column=1)
 
-    @RefreshMethod
     def refresh(self):
         self.git_commit_tree.delete(*self.git_commit_tree.get_children())
         self.git_staged_changes.delete(
@@ -166,8 +183,6 @@ class GitTab(tab_template.TabTemplate):
 
         Args:
             e (tk.Event): tkinter event object
-
-        IMPORTANT: this func has a risk to destroy index file.
         """
         if os.path.isdir(git_path := os.path.join(self.main.dir_path, ".git")):
             repo = git.Repo(git_path)
@@ -232,6 +247,13 @@ class GitTab(tab_template.TabTemplate):
                 messagebox.showerror(
                     title="Commit message is Empty",
                     message="Please write commit message in entry box.")
+
+
+class GitRemoteTab(tk.Frame):
+    def __init__(self, master=None, main=None):
+        self.master, self.main = master, main
+        super().__init__(master, width=800, height=550)
+        self.propagate(False)
 
 
 class GitMenu(tk.Menu):

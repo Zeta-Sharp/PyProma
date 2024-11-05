@@ -46,6 +46,9 @@ class DirView(tk.Tk):
         self.help_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="Help", menu=self.help_menu)
         self.help_menu.add_command(
+            label="Refresh window  (Ctrl + R)", command=self.refresh_trees)
+        # self.help_menu.add_command(label="Settings", command=PyPromaSettings)
+        self.help_menu.add_command(
             label="Version information",
             command=lambda: ShowVersion(self))
 
@@ -256,6 +259,15 @@ class DirView(tk.Tk):
             state=tk.NORMAL if flag else tk.DISABLED)
         self.dir_menu.post(event.x_root, event.y_root)
 
+
+"""
+class PyPromaSettings(tk.Toplevel):
+    def __init__(self):
+        super().__init__()
+        self.title("PyProma - Settings")
+        self.geometry("500x500")
+        self.mainloop()
+"""
 
 if __name__ == "__main__":
     script_path = Path(__file__).resolve().parent.parent.parent
