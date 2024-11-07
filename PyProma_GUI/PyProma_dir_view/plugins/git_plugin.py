@@ -36,6 +36,7 @@ class GitTab(tab_template.TabTemplate):
     @RefreshMethod
     def refresh(self):
         self.local.refresh()
+        self.remote.refresh()
 
 
 class GitLocalTab(tk.Frame):
@@ -254,6 +255,55 @@ class GitRemoteTab(tk.Frame):
         self.master, self.main = master, main
         super().__init__(master, width=800, height=550)
         self.propagate(False)
+        self.remotes_label = tk.Label(self, text="remote:")
+        self.remotes_label.pack()
+        self.remotes_combo = ttk.Combobox(self, state=tk.DISABLED)
+        self.remotes_combo.pack()
+        self.branches_label = tk.Label(self, text="branch:")
+        self.branches_label.pack()
+        self.local_branches_combo = ttk.Combobox(self, state=tk.DISABLED)
+        self.local_branches_combo.pack()
+        self.pull_button = tk.Button(
+            self, text="pull", state=tk.DISABLED, command=self.remote_pull)
+        self.pull_button.pack()
+        self.push_button = tk.Button(
+            self, text="push", state=tk.DISABLED, command=self.remote_push)
+        self.push_button.pack()
+
+    def refresh(self):
+        self.remotes_combo["values"] = []
+        self.remotes_combo["state"] = tk.DISABLED
+        self.local_branches_combo["values"] = []
+        self.local_branches_combo["state"] = tk.DISABLED
+        self.pull_button["state"] = tk.DISABLED
+        self.push_button["state"] = tk.DISABLED
+        if os.path.isdir(git_path := os.path.join(self.main.dir_path, ".git")):
+            repo = git.Repo(git_path)
+            branches = [branch.name for branch in repo.branches]
+            self.local_branches_combo["values"] = branches
+            self.local_branches_combo.set(repo.active_branch)
+            remote_name = [remote.name for remote in repo.remotes]
+            if remote_name:
+                if len(remote_name) > 1:
+                    remote_name.append("ALL")
+                self.remotes_combo["values"] = remote_name
+                self.remotes_combo.set(remote_name[0])
+                self.remotes_combo["state"] = "readonly"
+                self.pull_button["state"] = tk.ACTIVE
+                self.push_button["state"] = tk.ACTIVE
+            self.local_branches_combo["state"] = tk.ACTIVE
+
+    def remote_pull(self):
+        if os.path.isdir(git_path := os.path.join(self.main.dir_path, ".git")):
+            repo = git.Repo(git_path)
+            remote = repo.remote(self.remotes_combo.get())
+            remote.pull(self.local_branches_combo.get())
+
+    def remote_push(self):
+        if os.path.isdir(git_path := os.path.join(self.main.dir_path, ".git")):
+            repo = git.Repo(git_path)
+            remote = repo.remote(self.remotes_combo.get())
+            remote.push(self.local_branches_combo.get())
 
 
 class GitMenu(tk.Menu):
