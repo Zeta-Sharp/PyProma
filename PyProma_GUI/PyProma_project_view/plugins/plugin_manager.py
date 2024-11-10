@@ -5,17 +5,28 @@ import tkinter as tk
 from functools import wraps
 from textwrap import dedent
 from tkinter import messagebox
+from typing import Any, Callable
 
 import inflection
 from PyProma_common.PyProma_templates import tab_template
 
 
-def RefreshMethod(method):
+def RefreshMethod(method: Callable[..., Any]) -> Callable[..., Any]:
+    """This wrapper adds flag "__is_refresh_method__".
+    The method wrapped by this func will be called
+    when "main.refresh_trees()" was called.
+
+    Args:
+        method (Callable[..., Any]): The method you wrapped.
+
+    Returns:
+        Callable[..., Any]: The returns of your method.
+    """
     method.__is_refresh_method__ = True
 
     @wraps(method)
-    def wrapper(self, *args, **kwargs):
-        return method(self, *args, **kwargs)
+    def wrapper(self):
+        return method(self)
     return wrapper
 
 
@@ -71,6 +82,8 @@ class PluginManager:
                         self.menus[menu_name] = menu
 
     def refresh_plugins(self):
+        """This method calls all tab plugin's method wrapped by RefreshMethod.
+        """
         for tab in self.tabs.values():
             for name, method in inspect.getmembers(tab):
                 if (
@@ -86,4 +99,6 @@ class PluginManager:
             return self.menus
 
     def refresh_main(self):
+        """This method calls main loop's refresh method.
+        """
         self.main.refresh_trees()
