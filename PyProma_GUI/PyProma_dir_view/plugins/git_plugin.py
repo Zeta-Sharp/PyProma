@@ -276,6 +276,9 @@ class GitRemoteTab(tk.Frame):
         self.push_button = tk.Button(
             self, text="push", state=tk.DISABLED, command=self.remote_push)
         self.push_button.pack()
+        self.fetch_button = tk.Button(
+            self, text="fetch", state=tk.DISABLED, command=self.remote_fetch)
+        self.fetch_button.pack()
 
     def refresh(self):
         self.remotes_combo["values"] = []
@@ -336,6 +339,19 @@ class GitRemoteTab(tk.Frame):
                 case _ as remote_name:
                     remote = repo.remote(remote_name)
                     remote.push(self.local_branches_combo.get())
+
+    def remote_fetch(self):
+        if os.path.isdir(git_path := os.path.join(self.main.dir_path, ".git")):
+            repo = git.Repo(git_path)
+            match self.remotes_combo.get():
+                case "ALL":
+                    remotes = [remote.name for remote in repo.remotes]
+                    for remote_name in remotes:
+                        remote = repo.remote(remote_name)
+                        remote.fetch()
+                case _ as remote_name:
+                    remote = repo.remote(remote_name)
+                    remote.fetch()
 
 
 class GitMenu(tk.Menu):
