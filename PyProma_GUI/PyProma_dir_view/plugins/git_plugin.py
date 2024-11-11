@@ -9,15 +9,20 @@ dependencies:
 settings: null
 """
 
+import json
 import os
+import re
 import tkinter as tk
 import tkinter.ttk as ttk
 from textwrap import dedent
 from tkinter import messagebox
 
 import git
+from github import Github
 from PyProma_common.PyProma_templates import tab_template
 from PyProma_dir_view.plugins.plugin_manager import RefreshMethod
+
+json_path = "PyProma_settings.json"
 
 
 class GitTab(tab_template.TabTemplate):
@@ -252,6 +257,8 @@ class GitLocalTab(tk.Frame):
 
 class GitRemoteTab(tk.Frame):
     def __init__(self, master=None, main=None):
+        with open(json_path) as file:
+            self.access_tokens = json.load(file)["tokens"]
         self.master, self.main = master, main
         super().__init__(master, width=800, height=550)
         self.propagate(False)
@@ -277,6 +284,7 @@ class GitRemoteTab(tk.Frame):
         self.local_branches_combo["state"] = tk.DISABLED
         self.pull_button["state"] = tk.DISABLED
         self.push_button["state"] = tk.DISABLED
+
         if os.path.isdir(git_path := os.path.join(self.main.dir_path, ".git")):
             repo = git.Repo(git_path)
             branches = [branch.name for branch in repo.branches]
@@ -291,6 +299,16 @@ class GitRemoteTab(tk.Frame):
                 self.remotes_combo["state"] = "readonly"
                 self.pull_button["state"] = tk.ACTIVE
                 self.push_button["state"] = tk.ACTIVE
+                remotes = repo.remote().urls
+                github_pattern = r"https://github\.com/[^/]+/[^/]"
+                github_remotes = [
+                    url.removeprefix("https://github.com/")
+                    for url in remotes if re.match(github_pattern, url)]
+                if github_remotes and self.access_tokens["github"]:
+                    github = Github(self.access_tokens["github"])
+                    self.github_remotes = [
+                        github.get_repo(remote_name)
+                        for remote_name in github_remotes]
             self.local_branches_combo["state"] = tk.ACTIVE
 
     def remote_pull(self):
