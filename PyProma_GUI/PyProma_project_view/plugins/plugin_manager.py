@@ -38,48 +38,53 @@ class PluginManager:
         self.menus = {}
         self.main = main
         for filename in os.listdir(os.path.dirname(__file__)):
-            if filename.endswith("_plugin.py"):
-                module_name = filename[:-3]
-                module_path = os.path.join(os.path.dirname(__file__), filename)
-                spec = importlib.util.spec_from_file_location(
-                    module_name, module_path)
-                module = importlib.util.module_from_spec(spec)
-                try:
-                    spec.loader.exec_module(module)
-                except ImportError as e:
-                    message = f"Failed to import module '{module_name}': {e}"
-                    messagebox.showerror(title="ImportError", message=message)
-                    continue
+            if not filename.endswith("_plugin.py"):
+                continue
+            module_name = filename[:-3]
+            module_path = os.path.join(os.path.dirname(__file__), filename)
+            spec = importlib.util.spec_from_file_location(
+                module_name, module_path)
+            module = importlib.util.module_from_spec(spec)
+            try:
+                spec.loader.exec_module(module)
+            except ImportError as e:
+                message = f"Failed to import module '{module_name}': {e}"
+                messagebox.showerror(title="ImportError", message=message)
+                continue
+            self._load_tab(module_name, module)
+            self._load_menu(module_name, module)
 
-                tab_class_name = inflection.camelize(module_name[:-7])+"Tab"
-                if hasattr(module, tab_class_name):
-                    tab_class = getattr(module, tab_class_name)
-                    if issubclass(tab_class, tab_template.TabTemplate):
-                        tab = tab_class(main.tab, self)
-                        tab_name = getattr(tab_class, "NAME", tab_class_name)
-                        main.tab.add(tab, text=tab_name, padding=3)
-                        self.tabs[tab_name] = tab
-                    elif issubclass(tab_class, tk.Frame):
-                        tab = tab_class(main.tab)
-                        tab_name = getattr(tab_class, "NAME", tab_class_name)
-                        message = f"""\
-                        {tab_name} is a tkinter frame but might not a tab.
-                        do you want to load anyway?"""
-                        confirm = messagebox.askyesno(
-                            title="confirm", message=dedent(message))
-                        if confirm:
-                            main.tab.add(tab, text=tab_name, padding=3)
-                            self.tabs[tab_name] = tab
+    def _load_tab(self, module_name, module):
+        tab_class_name = inflection.camelize(module_name[:-7])+"Tab"
+        if hasattr(module, tab_class_name):
+            tab_class = getattr(module, tab_class_name)
+            if issubclass(tab_class, tab_template.TabTemplate):
+                tab = tab_class(main.tab, self)
+                tab_name = getattr(tab_class, "NAME", tab_class_name)
+                main.tab.add(tab, text=tab_name, padding=3)
+                self.tabs[tab_name] = tab
+            elif issubclass(tab_class, tk.Frame):
+                tab = tab_class(main.tab)
+                tab_name = getattr(tab_class, "NAME", tab_class_name)
+                message = f"""\
+                {tab_name} is a tkinter frame but might not a tab.
+                do you want to load anyway?"""
+                confirm = messagebox.askyesno(
+                    title="confirm", message=dedent(message))
+                if confirm:
+                    main.tab.add(tab, text=tab_name, padding=3)
+                    self.tabs[tab_name] = tab
 
-                menu_class_name = inflection.camelize(module_name[:-7])+"Menu"
-                if hasattr(module, menu_class_name):
-                    menu_class = getattr(module, menu_class_name)
-                    if issubclass(menu_class, tk.Menu):
-                        menu = menu_class(main.main_menu, self)
-                        menu_name = getattr(
-                            menu_class, "NAME", menu_class_name)
-                        main.main_menu.add_cascade(label=menu_name, menu=menu)
-                        self.menus[menu_name] = menu
+    def _load_menu(self, module_name, module):
+        menu_class_name = inflection.camelize(module_name[:-7])+"Menu"
+        if hasattr(module, menu_class_name):
+            menu_class = getattr(module, menu_class_name)
+            if issubclass(menu_class, tk.Menu):
+                menu = menu_class(main.main_menu, self)
+                menu_name = getattr(
+                    menu_class, "NAME", menu_class_name)
+                main.main_menu.add_cascade(label=menu_name, menu=menu)
+                self.menus[menu_name] = menu
 
     def refresh_plugins(self):
         """This method calls all tab plugin's method wrapped by RefreshMethod.
