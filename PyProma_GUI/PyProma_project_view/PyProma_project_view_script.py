@@ -108,7 +108,7 @@ class ProjectView(tk.Tk):
                 sv.set(path)
 
         def _save():
-            if txt1.get() and txt2.get():
+            if not (txt1.get() and txt2.get()):
                 return
             target_dir = os.path.normpath(txt2.get().replace("\\", "/"))
             combobox_state = add_project_combobox1.get()
