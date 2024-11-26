@@ -102,76 +102,79 @@ class ProjectView(tk.Tk):
         add_project_window.title("Add project")
         add_project_window.geometry("300x175")
 
-        def insert_path():
+        def _insert_path():
             path = filedialog.askdirectory(parent=add_project_window)
             if path:
                 sv.set(path)
 
-        def save():
+        def _save():
             if txt1.get() and txt2.get():
-                target_dir = os.path.normpath(txt2.get().replace("\\", "/"))
-                combobox_state = add_project_combobox1.get()
-                if not os.path.isdir(target_dir):
+                return
+            target_dir = os.path.normpath(txt2.get().replace("\\", "/"))
+            combobox_state = add_project_combobox1.get()
+            if not os.path.isdir(target_dir):
+                message = f"""\
+                    The directory {target_dir} does not exist.
+                    Make directory and start new project?
+                    """
+                if messagebox.askokcancel(
+                        parent=add_project_window,
+                        message=dedent(message)):
+                    try:
+                        os.mkdir(target_dir)
+                    except OSError as e:
+                        messagebox.showerror(
+                            parent=add_project_window, message=str(e))
+                        return
+                else:
+                    return
+            elif combobox_state != "Add from directory":
+                if len(os.listdir(target_dir)) > 0:
                     message = f"""\
-                        The directory {target_dir} not exist.
-                        Make directory and Start Project?
+                        The directory {target_dir} is not empty.
+                        clear directory and start new project?
                         """
                     if messagebox.askokcancel(
                             parent=add_project_window,
                             message=dedent(message)):
-                        try:
-                            os.mkdir(target_dir)
-                        except OSError as e:
-                            messagebox.showerror(
-                                parent=add_project_window, message=str(e))
-                            return
+                        shutil.rmtree(target_dir)
+                        os.mkdir(target_dir)
                     else:
                         return
-                elif combobox_state != "Add from directory":
-                    if len(os.listdir(target_dir)) > 0:
-                        message = f"""\
-                            The directory {target_dir} is not empty.
-                            clear directory and Start Project?
-                            """
-                        if messagebox.askokcancel(
-                                parent=add_project_window,
-                                message=dedent(message)):
-                            shutil.rmtree(target_dir)
-                            os.mkdir(target_dir)
-                        else:
-                            return
-                match combobox_state:
-                    case "Clone GitHub repository":
-                        if git_url := git_txt1.get():
-                            try:
-                                git.Repo.clone_from(git_url, target_dir)
-                            except git.exc.GitError as e:
-                                messagebox.showerror(
-                                    parent=add_project_window, message=str(e))
-                                return
-                        else:
-                            return
-                    case "Use CookieCutter template":
-                        if cookiecutter_url := cookiecutter_txt1.get():
-                            try:
-                                cookiecutter(
-                                    cookiecutter_url,
-                                    output_dir=target_dir,
-                                    skip_if_file_exists=True)
-                            except CookiecutterException as e:
-                                messagebox.showerror(
-                                    parent=add_project_window, message=str(e))
-                                return
-                    case _:
+            match combobox_state:
+                case "Clone GitHub repository":
+                    if not git_txt1.get():
                         return
-                self.projects["projects"]["project_names"].append(txt1.get())
-                self.projects["projects"]["dir_paths"].append(target_dir)
-                with open(json_path, "w") as f:
-                    json.dump(self.projects, f, indent=4)
-                add_project_window.destroy()
-                self.refresh_trees()
+                    git_url = git_txt1.get()
+                    try:
+                        git.Repo.clone_from(git_url, target_dir)
+                    except git.exc.GitError as e:
+                        messagebox.showerror(
+                            parent=add_project_window, message=str(e))
+                        return
+                case "Use CookieCutter template":
+                    if not cookiecutter_txt1.get():
+                        return
+                    cookiecutter_url = cookiecutter_txt1.get()
+                    try:
+                        cookiecutter(
+                            cookiecutter_url,
+                            output_dir=target_dir,
+                            skip_if_file_exists=True)
+                    except CookiecutterException as e:
+                        messagebox.showerror(
+                            parent=add_project_window, message=str(e))
+                        return
+                case _:
+                    return
+            self.projects["projects"]["project_names"].append(txt1.get())
+            self.projects["projects"]["dir_paths"].append(target_dir)
+            with open(json_path, "w") as f:
+                json.dump(self.projects, f, indent=4)
+            add_project_window.destroy()
+            self.refresh_trees()
 
-        def switch_frame(event: tk.Event):
+        def _switch_frame(event: tk.Event):
             combobox_state = add_project_combobox1.get()
             match combobox_state:
                 case "Add from directory":
@@ -184,15 +187,15 @@ class ProjectView(tk.Tk):
                     clone_git_repository_frame.place_forget()
                     cookiecutter_template_frame.place(x=0, y=120)
 
-        values = [
+        options = [
             "Add from directory",
             "Clone GitHub repository",
             "Use CookieCutter template"]
         add_project_combobox1 = ttk.Combobox(
             add_project_window, state="readonly",
-            values=values)
+            values=options)
         add_project_combobox1.set("Add from directory")
-        add_project_combobox1.bind("<<ComboboxSelected>>", switch_frame)
+        add_project_combobox1.bind("<<ComboboxSelected>>", _switch_frame)
         add_project_combobox1.place(x=10, y=5)
         directory_frame = tk.Frame(
             add_project_window, width=300, height=60)
@@ -210,7 +213,7 @@ class ProjectView(tk.Tk):
         btn1 = tk.Button(
             add_project_window,
             text="View in Explorer",
-            command=insert_path)
+            command=_insert_path)
         btn1.place(x=40, y=85)
         btn2 = tk.Button(
             add_project_window,
@@ -218,7 +221,7 @@ class ProjectView(tk.Tk):
             command=add_project_window.destroy)
         btn2.place(x=150, y=85)
         btn3 = tk.Button(
-            add_project_window, text="save", command=save)
+            add_project_window, text="save", command=_save)
         btn3.place(x=200, y=85)
 
         clone_git_repository_frame = tk.Frame(

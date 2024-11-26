@@ -128,24 +128,24 @@ class DirView(tk.Tk):
             path (str): path which you want to make tree from
             parent_tree (str, optional): parent tree. Defaults to None.
         """
-        if os.path.exists(path):
-            dirs = os.listdir(path)
-            for directory in dirs:
-                full_path = os.path.join(path, directory)
-                full_path = os.path.normpath(full_path)
-                if os.path.isfile(full_path):
-                    self.dir_tree.insert(
-                        "" if parent_tree is None else parent_tree,
-                        tk.END,
-                        text=directory)
-                    if os.path.splitext(full_path)[1] == ".py":
-                        self.plugins.run_pyfile_plugin(full_path)
-                else:
-                    child = self.dir_tree.insert(
-                        "" if parent_tree is None else parent_tree,
-                        tk.END,
-                        text=directory)
-                    self.make_dir_tree(full_path, child)
+        if not os.path.exists(path):
+            return
+        for directory in os.listdir(path):
+            full_path = os.path.join(path, directory)
+            full_path = os.path.normpath(full_path)
+            if os.path.isfile(full_path):
+                self.dir_tree.insert(
+                    "" if parent_tree is None else parent_tree,
+                    tk.END,
+                    text=directory)
+                if os.path.splitext(full_path)[1] == ".py":
+                    self.plugins.run_pyfile_plugin(full_path)
+            else:
+                child = self.dir_tree.insert(
+                    "" if parent_tree is None else parent_tree,
+                    tk.END,
+                    text=directory)
+                self.make_dir_tree(full_path, child)
 
     def getpath(self, target_path: str) -> str:
         """this func generates path from treeview node.
@@ -172,12 +172,11 @@ class DirView(tk.Tk):
             target_path (string): target node
         """
         path = target_path
-        if path != self.dir_path:
-            if path:
-                path = os.path.join(
-                    self.dir_path,
-                    self.getpath(target_path),
-                    self.dir_tree.item(target_path, "text"))
+        if path != self.dir_path and path:
+            path = os.path.join(
+                self.dir_path,
+                self.getpath(target_path),
+                self.dir_tree.item(target_path, "text"))
         path = os.path.normpath(path)
         subprocess.Popen(
             ["explorer", f"/select,{path}"] if target_path else ["explorer"],
