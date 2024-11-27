@@ -11,16 +11,16 @@ import inflection
 from PyProma_common.PyProma_templates import tab_template
 
 
-def RefreshMethod(method: Callable[..., Any]) -> Callable[..., Any]:
+def RefreshMethod(method: Callable[None, Any]) -> Callable[None, Any]:
     """This wrapper adds flag "__is_refresh_method__".
     The method wrapped by this func will be called
     when "main.refresh_trees()" was called.
 
     Args:
-        method (Callable[..., Any]): The method you wrapped.
+        method (Callable[None, Any]): The method you wrapped.
 
     Returns:
-        Callable[..., Any]: The returns of your method.
+        Callable[None, Any]: The returns of your method.
     """
     method.__is_refresh_method__ = True
 
@@ -30,16 +30,16 @@ def RefreshMethod(method: Callable[..., Any]) -> Callable[..., Any]:
     return wrapper
 
 
-def PyFileMethod(method: Callable[[str, Any], Any]) -> Callable[..., Any]:
+def PyFileMethod(method: Callable[str, Any]) -> Callable[str, Any]:
     """This wrapper adds flag "__is_pyfile_method__".
     The method wrapped by this func will be called
     when ".py" file was found in project directory.
 
     Args:
-        method (Callable[[str, Any], Any]): The method you wrapped.
+        method (Callable[str, Any]): The method you wrapped.
 
     Returns:
-        Callable[..., Any]: The returns of your method.
+        Callable[str, Any]: The returns of your method.
     """
     method.__is_pyfile_method__ = True
 
