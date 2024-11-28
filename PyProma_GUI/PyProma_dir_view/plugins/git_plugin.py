@@ -317,41 +317,35 @@ class GitRemoteTab(tk.Frame):
     def remote_pull(self):
         if os.path.isdir(git_path := os.path.join(self.main.dir_path, ".git")):
             repo = git.Repo(git_path)
-            match self.remotes_combo.get():
-                case "ALL":
-                    remotes = [remote.name for remote in repo.remotes]
-                    for remote_name in remotes:
-                        remote = repo.remote(remote_name)
-                        remote.pull(self.local_branches_combo.get())
-                case _ as remote_name:
-                    remote = repo.remote(remote_name)
-                    remote.pull(self.local_branches_combo.get())
+            if self.remotes_combo.get() == "ALL":
+                remote_names = [remote.name for remote in repo.remotes]
+            else:
+                remote_names = [self.remotes_combo.get()]
+            for remote_name in remote_names:
+                remote = repo.remote(remote_name)
+                remote.pull(self.local_branches_combo.get())
 
     def remote_push(self):
         if os.path.isdir(git_path := os.path.join(self.main.dir_path, ".git")):
             repo = git.Repo(git_path)
-            match self.remotes_combo.get():
-                case "ALL":
-                    remotes = [remote.name for remote in repo.remotes]
-                    for remote_name in remotes:
-                        remote = repo.remote(remote_name)
-                        remote.push(self.local_branches_combo.get())
-                case _ as remote_name:
-                    remote = repo.remote(remote_name)
-                    remote.push(self.local_branches_combo.get())
+            if self.remotes_combo.get() == "ALL":
+                remote_names = [remote.name for remote in repo.remotes]
+            else:
+                remote_names = [self.remotes_combo.get()]
+            for remote_name in remote_names:
+                remote = repo.remote(remote_name)
+                remote.push(self.local_branches_combo.get())
 
     def remote_fetch(self):
         if os.path.isdir(git_path := os.path.join(self.main.dir_path, ".git")):
             repo = git.Repo(git_path)
-            match self.remotes_combo.get():
-                case "ALL":
-                    remotes = [remote.name for remote in repo.remotes]
-                    for remote_name in remotes:
-                        remote = repo.remote(remote_name)
-                        remote.fetch()
-                case _ as remote_name:
-                    remote = repo.remote(remote_name)
-                    remote.fetch()
+            if self.remotes_combo.get() == "ALL":
+                remote_names = [remote.name for remote in repo.remotes]
+            else:
+                remote_names = [self.remotes_combo.get()]
+            for remote_name in remote_names:
+                remote = repo.remote(remote_name)
+                remote.fetch()
 
 
 class GitMenu(tk.Menu):
