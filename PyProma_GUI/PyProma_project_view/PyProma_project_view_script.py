@@ -160,7 +160,8 @@ class AddProjectWindow(tk.Toplevel):
             self, state="readonly",
             values=options)
         self.add_project_combobox1.set("Add from directory")
-        self.add_project_combobox1.bind("<<ComboboxSelected>>", self._switch_frame)
+        self.add_project_combobox1.bind(
+            "<<ComboboxSelected>>", self._switch_frame)
         self.add_project_combobox1.place(x=10, y=5)
         self.directory_frame = tk.Frame(
             self, width=300, height=60)
@@ -172,7 +173,8 @@ class AddProjectWindow(tk.Toplevel):
         self.label2 = tk.Label(self.directory_frame, text="path:")
         self.label2.place(x=10, y=30)
         self.sv = tk.StringVar()
-        self.txt2 = tk.Entry(self.directory_frame, width=40, textvariable=sv)
+        self.txt2 = tk.Entry(
+            self.directory_frame, width=40, textvariable=self.sv)
         self.txt2.place(x=40, y=30)
         self.directory_frame.place(x=0, y=25)
         self.btn1 = tk.Button(
@@ -220,7 +222,7 @@ class AddProjectWindow(tk.Toplevel):
             self.sv.set(path)
 
     def _save(self):
-        if not (self.txt1.get() and self.txt2.get()):
+        if not self.txt1.get() or not self.txt2.get():
             return
         target_dir = os.path.normpath(self.txt2.get().replace("\\", "/"))
         combobox_state = self.add_project_combobox1.get()
@@ -254,6 +256,8 @@ class AddProjectWindow(tk.Toplevel):
                 else:
                     return
         match combobox_state:
+            case "Add from directory":
+                pass
             case "Clone GitHub repository":
                 if not self.git_txt1.get():
                     return

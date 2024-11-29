@@ -11,7 +11,7 @@ import inflection
 from PyProma_common.PyProma_templates import tab_template
 
 
-def RefreshMethod(method: Callable[None, Any]) -> Callable[None, Any]:
+def RefreshMethod(method: Callable[[None], Any]) -> Callable[[None], Any]:
     """This wrapper adds flag "__is_refresh_method__".
     The method wrapped by this func will be called
     when "main.refresh_trees()" was called.
@@ -59,12 +59,12 @@ class PluginManager:
         if hasattr(module, tab_class_name):
             tab_class = getattr(module, tab_class_name)
             if issubclass(tab_class, tab_template.TabTemplate):
-                tab = tab_class(main.tab, self)
+                tab = tab_class(self.main.tab, self)
                 tab_name = getattr(tab_class, "NAME", tab_class_name)
-                main.tab.add(tab, text=tab_name, padding=3)
+                self.main.tab.add(tab, text=tab_name, padding=3)
                 self.tabs[tab_name] = tab
             elif issubclass(tab_class, tk.Frame):
-                tab = tab_class(main.tab)
+                tab = tab_class(self.main.tab)
                 tab_name = getattr(tab_class, "NAME", tab_class_name)
                 message = f"""\
                 {tab_name} is a tkinter frame but might not a tab.
@@ -72,7 +72,7 @@ class PluginManager:
                 confirm = messagebox.askyesno(
                     title="confirm", message=dedent(message))
                 if confirm:
-                    main.tab.add(tab, text=tab_name, padding=3)
+                    self.main.tab.add(tab, text=tab_name, padding=3)
                     self.tabs[tab_name] = tab
 
     def _load_menu(self, module_name, module):
@@ -80,10 +80,10 @@ class PluginManager:
         if hasattr(module, menu_class_name):
             menu_class = getattr(module, menu_class_name)
             if issubclass(menu_class, tk.Menu):
-                menu = menu_class(main.main_menu, self)
+                menu = menu_class(self.main.main_menu, self)
                 menu_name = getattr(
                     menu_class, "NAME", menu_class_name)
-                main.main_menu.add_cascade(label=menu_name, menu=menu)
+                self.main.main_menu.add_cascade(label=menu_name, menu=menu)
                 self.menus[menu_name] = menu
 
     def refresh_plugins(self):
