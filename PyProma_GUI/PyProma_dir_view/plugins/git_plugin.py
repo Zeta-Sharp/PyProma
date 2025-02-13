@@ -200,7 +200,7 @@ class GitLocalTab(tk.Frame):
             return
         git_path = os.path.join(self.main.dir_path, ".git")
         repo = git.Repo(git_path)
-        widget = e.widget
+        widget = event.widget
         selected_item = widget.selection()
         if len(selected_item) <= 0:
             return
