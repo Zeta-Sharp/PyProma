@@ -114,15 +114,17 @@ class GitLocalTab(tk.Frame):
         self.commit_button["state"] = tk.DISABLED
         self.git_read_commits()
         self.git_read_diffs()
-        if os.path.isdir(git_path := os.path.join(self.main.dir_path, ".git")):
-            repo = git.Repo(git_path)
-            branches = [branch.name for branch in repo.branches]
-            self.git_branches["values"] = branches
-            self.git_branches["state"] = "readonly"
-            self.git_branches.set(repo.active_branch)
-            self.git_branches.bind(
-                "<<ComboboxSelected>>", self.git_switch_branch)
-            self.commit_button["state"] = tk.ACTIVE
+        if not os.path.isdir(os.path.join(self.main.dir_path, ".git")):
+            return
+        git_path = os.path.join(self.main.dir_path, ".git")
+        repo = git.Repo(git_path)
+        branches = [branch.name for branch in repo.branches]
+        self.git_branches["values"] = branches
+        self.git_branches["state"] = "readonly"
+        self.git_branches.set(repo.active_branch)
+        self.git_branches.bind(
+            "<<ComboboxSelected>>", self.git_switch_branch)
+        self.commit_button["state"] = tk.ACTIVE
 
     def git_read_commits(self):
         """this func reads git commit log and makes git tree.
@@ -151,20 +153,22 @@ class GitLocalTab(tk.Frame):
     def git_read_diffs(self):
         """this func reads git diffs and inserts into git_unstaged_changes.
         """
-        if os.path.isdir(git_path := os.path.join(self.main.dir_path, ".git")):
-            repo = git.Repo(git_path)
-            diffs = repo.index.diff(None)
-            for diff in diffs:
-                a = diff.a_path
-                change_type = diff.change_type
-                self.git_unstaged_changes.insert(
-                    "", tk.END, values=(a, change_type))
-            diffs = repo.index.diff("HEAD")
-            for diff in diffs:
-                a = diff.a_path
-                change_type = diff.change_type
-                self.git_staged_changes.insert(
-                    "", tk.END, values=(a, change_type))
+        if not os.path.isdir(os.path.join(self.main.dir_path, ".git")):
+            return
+        git_path = os.path.join(self.main.dir_path, ".git")
+        repo = git.Repo(git_path)
+        diffs = repo.index.diff(None)
+        for diff in diffs:
+            a = diff.a_path
+            change_type = diff.change_type
+            self.git_unstaged_changes.insert(
+                "", tk.END, values=(a, change_type))
+        diffs = repo.index.diff("HEAD")
+        for diff in diffs:
+            a = diff.a_path
+            change_type = diff.change_type
+            self.git_staged_changes.insert(
+                "", tk.END, values=(a, change_type))
 
     def git_switch_branch(self, _: tk.Event):
         """this func switches local git branch
@@ -172,17 +176,19 @@ class GitLocalTab(tk.Frame):
         Args:
             _ (tk.Event): tk.Event(ignored)
         """
-        if os.path.isdir(git_path := os.path.join(self.main.dir_path, ".git")):
-            repo = git.Repo(git_path)
-            try:
-                repo.git.checkout(self.git_branches.get())
-            except git.exc.GitCommandError as e:
-                messagebox.showerror(
-                    title="git.exc.GitCommandError", message=str(e))
-            else:
-                self.main.refresh_main()
-            finally:
-                self.git_branches.set(repo.active_branch)
+        if not os.path.isdir(os.path.join(self.main.dir_path, ".git")):
+            return
+        git_path = os.path.join(self.main.dir_path, ".git")
+        repo = git.Repo(git_path)
+        try:
+            repo.git.checkout(self.git_branches.get())
+        except git.exc.GitCommandError as e:
+            messagebox.showerror(
+                title="git.exc.GitCommandError", message=str(e))
+        else:
+            self.main.refresh_main()
+        finally:
+            self.git_branches.set(repo.active_branch)
 
     def git_stage(self, e: tk.Event):
         """this func stage(unstage)s files.
@@ -190,69 +196,74 @@ class GitLocalTab(tk.Frame):
         Args:
             e (tk.Event): tkinter event object
         """
-        if os.path.isdir(git_path := os.path.join(self.main.dir_path, ".git")):
-            repo = git.Repo(git_path)
-            widget = e.widget
-            selected_item = widget.selection()
-            if len(selected_item) > 0:
-                if widget == self.git_staged_changes:
-                    try:
-                        repo.index.reset(
-                            paths=[widget.item(selected_item)["values"][0]])
-                    except git.exc.GitCommandError as e:
-                        messagebox.showerror(
-                            title="git.exc.GitCommandError",
-                            message=str(e))
-                    else:
-                        self.git_unstaged_changes.insert(
-                            "", tk.END,
-                            values=widget.item(selected_item)["values"])
-                        widget.delete(selected_item)
-                elif widget == self.git_unstaged_changes:
-                    try:
-                        repo.git.add(widget.item(selected_item)["values"][0])
-                    except git.exc.GitCommandError as e:
-                        messagebox.showerror(
-                            title="git.exc.GitCommandError",
-                            message=str(e))
-                    else:
-                        self.git_staged_changes.insert(
-                            "", tk.END,
-                            values=widget.item(selected_item)["values"])
-                        widget.delete(selected_item)
+        if not os.path.isdir(os.path.join(self.main.dir_path, ".git")):
+            return
+        git_path = os.path.join(self.main.dir_path, ".git")
+        repo = git.Repo(git_path)
+        widget = e.widget
+        selected_item = widget.selection()
+        if len(selected_item) <= 0:
+            return
+        if widget == self.git_staged_changes:
+            try:
+                repo.index.reset(
+                    paths=[widget.item(selected_item)["values"][0]])
+            except git.exc.GitCommandError as e:
+                messagebox.showerror(
+                    title="git.exc.GitCommandError",
+                    message=str(e))
+            else:
+                self.git_unstaged_changes.insert(
+                    "", tk.END,
+                    values=widget.item(selected_item)["values"])
+                widget.delete(selected_item)
+        elif widget == self.git_unstaged_changes:
+            try:
+                repo.git.add(widget.item(selected_item)["values"][0])
+            except git.exc.GitCommandError as e:
+                messagebox.showerror(
+                    title="git.exc.GitCommandError",
+                    message=str(e))
+            else:
+                self.git_staged_changes.insert(
+                    "", tk.END,
+                    values=widget.item(selected_item)["values"])
+                widget.delete(selected_item)
 
     def git_commit(self):
         """this func commits staged diffs
         """
-        if os.path.isdir(git_path := os.path.join(self.main.dir_path, ".git")):
-            repo = git.Repo(git_path)
-            commit_message = self.commit_message.get(1., tk.END)
-            staged_changes = repo.index.diff("HEAD")
-            literal_message = commit_message.replace(" ", "").replace("\n", "")
-            if (len(literal_message) > 0
-                    and commit_message != "Commit message\n"):
-                if len(staged_changes) == 0:
-                    message = """\
-                    There are no staged changes and so you cannot commit.
-                    Would you like to stage all changes and commit directly?
-                    """
-                    if messagebox.askokcancel(
-                            title="Confirm", message=dedent(message)):
-                        repo.git.add(".")
-                    else:
-                        return
-                try:
-                    repo.index.commit(message=commit_message)
-                except git.exc.CommandError as e:
-                    messagebox.showerror(
-                        title="git.exc.CommandError",
-                        message=str(e))
-                finally:
-                    self.main.refresh_main()
-            else:
+        if not os.path.isdir(os.path.join(self.main.dir_path, ".git")):
+            return
+        git_path = os.path.join(self.main.dir_path, ".git")
+        repo = git.Repo(git_path)
+        commit_message = self.commit_message.get(1., tk.END)
+        staged_changes = repo.index.diff("HEAD")
+        literal_message = commit_message.replace(" ", "").replace("\n", "")
+        if (len(literal_message) > 0
+                and commit_message != "Commit message\n"):
+            if len(staged_changes) == 0:
+                message = """\
+                There are no staged changes and so you cannot commit.
+                Would you like to stage all changes and commit directly?
+                """
+                if messagebox.askokcancel(
+                        title="Confirm", message=dedent(message)):
+                    repo.git.add(".")
+                else:
+                    return
+            try:
+                repo.index.commit(message=commit_message)
+            except git.exc.CommandError as e:
                 messagebox.showerror(
-                    title="Commit message is Empty",
-                    message="Please write commit message in entry box.")
+                    title="git.exc.CommandError",
+                    message=str(e))
+            finally:
+                self.main.refresh_main()
+        else:
+            messagebox.showerror(
+                title="Commit message is Empty",
+                message="Please write commit message in entry box.")
 
 
 class GitRemoteTab(tk.Frame):
@@ -288,64 +299,72 @@ class GitRemoteTab(tk.Frame):
         self.pull_button["state"] = tk.DISABLED
         self.push_button["state"] = tk.DISABLED
 
-        if os.path.isdir(git_path := os.path.join(self.main.dir_path, ".git")):
-            repo = git.Repo(git_path)
-            branches = [branch.name for branch in repo.branches]
-            self.local_branches_combo["values"] = branches
-            self.local_branches_combo.set(repo.active_branch)
-            remote_name = [remote.name for remote in repo.remotes]
-            if remote_name:
-                if len(remote_name) > 1:
-                    remote_name.append("ALL")
-                self.remotes_combo["values"] = remote_name
-                self.remotes_combo.set(remote_name[0])
-                self.remotes_combo["state"] = "readonly"
-                self.pull_button["state"] = tk.ACTIVE
-                self.push_button["state"] = tk.ACTIVE
-                remotes = repo.remote().urls
-                github_pattern = r"https://github\.com/[^/]+/[^/]"
-                github_remotes = [
-                    url.removeprefix("https://github.com/")
-                    for url in remotes if re.match(github_pattern, url)]
-                if github_remotes and self.access_tokens["github"]:
-                    github = Github(self.access_tokens["github"])
-                    self.github_remotes = [
-                        github.get_repo(remote_name)
-                        for remote_name in github_remotes]
-            self.local_branches_combo["state"] = tk.ACTIVE
+        if not os.path.isdir(os.path.join(self.main.dir_path, ".git")):
+            return
+        git_path = os.path.join(self.main.dir_path, ".git")
+        repo = git.Repo(git_path)
+        branches = [branch.name for branch in repo.branches]
+        self.local_branches_combo["values"] = branches
+        self.local_branches_combo.set(repo.active_branch)
+        self.local_branches_combo["state"] = tk.ACTIVE
+        remote_name = [remote.name for remote in repo.remotes]
+        if remote_name:
+            if len(remote_name) > 1:
+                remote_name.append("ALL")
+            self.remotes_combo["values"] = remote_name
+            self.remotes_combo.set(remote_name[0])
+            self.remotes_combo["state"] = "readonly"
+            self.pull_button["state"] = tk.ACTIVE
+            self.push_button["state"] = tk.ACTIVE
+            remotes = repo.remote().urls
+            github_pattern = r"https://github\.com/[^/]+/[^/]"
+            github_remotes = [
+                url.removeprefix("https://github.com/")
+                for url in remotes if re.match(github_pattern, url)]
+            if github_remotes and self.access_tokens["github"]:
+                github = Github(self.access_tokens["github"])
+                self.github_remotes = [
+                    github.get_repo(remote_name)
+                    for remote_name in github_remotes]
 
     def remote_pull(self):
-        if os.path.isdir(git_path := os.path.join(self.main.dir_path, ".git")):
-            repo = git.Repo(git_path)
-            if self.remotes_combo.get() == "ALL":
-                remote_names = [remote.name for remote in repo.remotes]
-            else:
-                remote_names = [self.remotes_combo.get()]
-            for remote_name in remote_names:
-                remote = repo.remote(remote_name)
-                remote.pull(self.local_branches_combo.get())
+        if not os.path.isdir(os.path.join(self.main.dir_path, ".git")):
+            return
+        git_path = os.path.join(self.main.dir_path, ".git")
+        repo = git.Repo(git_path)
+        if self.remotes_combo.get() == "ALL":
+            remote_names = [remote.name for remote in repo.remotes]
+        else:
+            remote_names = [self.remotes_combo.get()]
+        for remote_name in remote_names:
+            remote = repo.remote(remote_name)
+            remote.pull(self.local_branches_combo.get())
 
     def remote_push(self):
-        if os.path.isdir(git_path := os.path.join(self.main.dir_path, ".git")):
-            repo = git.Repo(git_path)
-            if self.remotes_combo.get() == "ALL":
-                remote_names = [remote.name for remote in repo.remotes]
-            else:
-                remote_names = [self.remotes_combo.get()]
-            for remote_name in remote_names:
-                remote = repo.remote(remote_name)
-                remote.push(self.local_branches_combo.get())
+        if not os.path.isdir(os.path.join(self.main.dir_path, ".git")):
+            return
+        git_path = os.path.join(self.main.dir_path, ".git")
+        repo = git.Repo(git_path)
+        if self.remotes_combo.get() == "ALL":
+            remote_names = [remote.name for remote in repo.remotes]
+        else:
+            remote_names = [self.remotes_combo.get()]
+        for remote_name in remote_names:
+            remote = repo.remote(remote_name)
+            remote.push(self.local_branches_combo.get())
 
     def remote_fetch(self):
-        if os.path.isdir(git_path := os.path.join(self.main.dir_path, ".git")):
-            repo = git.Repo(git_path)
-            if self.remotes_combo.get() == "ALL":
-                remote_names = [remote.name for remote in repo.remotes]
-            else:
-                remote_names = [self.remotes_combo.get()]
-            for remote_name in remote_names:
-                remote = repo.remote(remote_name)
-                remote.fetch()
+        if not os.path.isdir(os.path.join(self.main.dir_path, ".git")):
+            return
+        git_path = os.path.join(self.main.dir_path, ".git")
+        repo = git.Repo(git_path)
+        if self.remotes_combo.get() == "ALL":
+            remote_names = [remote.name for remote in repo.remotes]
+        else:
+            remote_names = [self.remotes_combo.get()]
+        for remote_name in remote_names:
+            remote = repo.remote(remote_name)
+            remote.fetch()
 
 
 class GitMenu(tk.Menu):
