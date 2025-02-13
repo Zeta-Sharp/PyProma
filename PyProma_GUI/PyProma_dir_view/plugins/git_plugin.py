@@ -190,11 +190,11 @@ class GitLocalTab(tk.Frame):
         finally:
             self.git_branches.set(repo.active_branch)
 
-    def git_stage(self, e: tk.Event):
+    def git_stage(self, event: tk.Event):
         """this func stage(unstage)s files.
 
         Args:
-            e (tk.Event): tkinter event object
+            event (tk.Event): tkinter event object
         """
         if not os.path.isdir(os.path.join(self.main.dir_path, ".git")):
             return

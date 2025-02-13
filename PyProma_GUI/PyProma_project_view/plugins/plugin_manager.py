@@ -90,11 +90,8 @@ class PluginManager:
         """This method calls all tab plugin's method wrapped by RefreshMethod.
         """
         for tab in self.tabs.values():
-            for name, method in inspect.getmembers(tab):
-                if (
-                        inspect.ismethod(method)
-                        and hasattr(method, "__is_refresh_method__")
-                        and method.__is_refresh_method__):
+            for name, method in inspect.getmembers(tab, predicate=inspect.ismethod):
+                if getattr(method, "__is_refresh_method__", False):
                     method()
 
     def __getitem__(self, key: str) -> dict:
