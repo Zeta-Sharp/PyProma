@@ -59,6 +59,20 @@ class GitLocalTab(tk.Frame):
         self.git_commit_tree.heading("date", text="date", anchor=tk.CENTER)
         self.git_commit_tree.heading(
             "message", text="message", anchor=tk.CENTER)
+        self.git_commit_tree_vsb = ttk.Scrollbar(
+            self.git_log_frame,
+            orient="vertical",
+            command=self.git_commit_tree.yview)
+        self.git_commit_tree.configure(
+            yscrollcommand=self.git_commit_tree_vsb.set)
+        self.git_commit_tree_vsb.pack(side="right", fill="y")
+        self.git_commit_tree_hsb = ttk.Scrollbar(
+            self.git_log_frame,
+            orient="horizontal",
+            command=self.git_commit_tree.xview)
+        self.git_commit_tree.configure(
+            xscrollcommand=self.git_commit_tree_hsb.set)
+        self.git_commit_tree_hsb.pack(side="bottom", fill="x")
         self.git_commit_tree.pack(fill=tk.BOTH, expand=True)
         self.git_log_frame.grid(row=0, column=0)
         self.git_staging_frame = tk.Frame(self, width=400, height=550)
@@ -142,13 +156,13 @@ class GitLocalTab(tk.Frame):
                         commit.message))
         else:
             self.git_commit_tree.insert(
-                    "",
-                    tk.END,
-                    values=(
-                        "this directory",
-                        "is not",
-                        "a git",
-                        "repository"))
+                "",
+                tk.END,
+                values=(
+                    "this directory",
+                    "is not",
+                    "a git",
+                    "repository"))
 
     def git_read_diffs(self):
         """this func reads git diffs and inserts into git_unstaged_changes.
@@ -306,7 +320,7 @@ class GitRemoteTab(tk.Frame):
         branches = [branch.name for branch in repo.branches]
         self.local_branches_combo["values"] = branches
         self.local_branches_combo.set(repo.active_branch)
-        self.local_branches_combo["state"] = tk.ACTIVE
+        self.local_branches_combo["state"] = "readonly"
         remote_name = [remote.name for remote in repo.remotes]
         if remote_name:
             if len(remote_name) > 1:
