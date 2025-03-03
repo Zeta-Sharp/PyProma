@@ -109,7 +109,8 @@ class PluginManager:
         """This method calls all tab plugin's method wrapped by RefreshMethod.
         """
         for plugin in self.tabs.values():
-            for name, method in inspect.getmembers(plugin, predicate=inspect.ismethod):
+            members = inspect.getmembers(plugin, predicate=inspect.ismethod)
+            for name, method in members:
                 if getattr(method, "__is_refresh_method__", False):
                     method()
 
@@ -119,11 +120,13 @@ class PluginManager:
         Args:
             path (str): Path to ".py" file.
         """
-        if os.path.isfile(path) and path.endswith(".py"):
-            for tab in self.tabs.values():
-                for name, method in inspect.getmembers(tab, predicate=inspect.ismethod):
-                    if getattr(method, "__is_pyfile_method__", False):
-                        method(path)
+        if not os.path.isfile(path) and path.endswith(".py"):
+            return
+        for plugin in self.tabs.values():
+            members = inspect.getmembers(plugin, predicate=inspect.ismethod)
+            for name, method in members:
+                if getattr(method, "__is_pyfile_method__", False):
+                    method(path)
 
     def __getitem__(self, key: str) -> dict:
         if key == "tab":
