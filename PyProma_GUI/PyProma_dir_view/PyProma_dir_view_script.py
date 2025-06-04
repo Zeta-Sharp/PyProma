@@ -121,7 +121,7 @@ class DirView(tk.Tk):
                 command=lambda: self.open_directory(self.dir_path))
             self.make_dir_tree(self.dir_path)
 
-    def make_dir_tree(self, path: str, parent_tree: str = None):
+    def make_dir_tree(self, path: str, parent_tree: str = ""):
         """this func makes directory tree.
 
         Args:
@@ -164,6 +164,7 @@ class DirView(tk.Tk):
                 item_id = self.dir_tree.parent(item_id)
             path = "/".join(path_list)
             return path
+        return ""
 
     def open_directory(self, target_path: str):
         """this func opens selected file or directory in explorer.

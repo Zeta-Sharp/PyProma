@@ -8,6 +8,7 @@ from textwrap import dedent
 from tkinter import filedialog, messagebox
 
 import git
+import git.exc
 from cookiecutter.exceptions import CookiecutterException
 from cookiecutter.main import cookiecutter
 from PyProma_common.show_version import ShowVersion

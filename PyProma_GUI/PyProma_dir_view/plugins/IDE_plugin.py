@@ -12,13 +12,16 @@ import os
 import subprocess
 import tkinter as tk
 
+from PyProma_common.PyProma_templates.menu_template import MenuTemplate
+from PyProma_project_view.plugins.plugin_manager import PluginManager
 
-class IDEMenu(tk.Menu):
+
+class IDEMenu(MenuTemplate):
     NAME = "IDE"
 
-    def __init__(self, master=None, main=None):
+    def __init__(self, master: tk.Tk, main: PluginManager):
         self.main = main
-        super().__init__(master, tearoff=False)
+        super().__init__(master)
         self.add_command(
             label="Open Visual Studio Code",
             command=self.open_vscode,

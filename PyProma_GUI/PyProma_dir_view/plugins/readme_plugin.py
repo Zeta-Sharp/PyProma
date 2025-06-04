@@ -15,14 +15,15 @@ import tkinter as tk
 
 import markdown
 from PyProma_common.PyProma_templates import tab_template
-from PyProma_dir_view.plugins.plugin_manager import RefreshMethod
+from PyProma_dir_view.plugins.plugin_manager import (PluginManager,
+                                                     RefreshMethod)
 from tkhtmlview import HTMLLabel
 
 
 class ReadmeTab(tab_template.TabTemplate):
     NAME = "README"
 
-    def __init__(self, master=None, main=None):
+    def __init__(self, master: tk.Tk, main: PluginManager):
         super().__init__(master, main)
         self.readme_htmlview = HTMLLabel(self)
         self.readme_htmlview.set_html(
@@ -46,6 +47,6 @@ class ReadmeTab(tab_template.TabTemplate):
 if __name__ == "__main__":
     root = tk.Tk()
     root.geometry("800x575")
-    readme_tab = ReadmeTab(root)
+    readme_tab = ReadmeTab(root, None)
     readme_tab.pack()
     root.mainloop()

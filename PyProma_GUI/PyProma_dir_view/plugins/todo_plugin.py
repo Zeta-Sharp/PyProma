@@ -13,13 +13,15 @@ import tkinter as tk
 import tkinter.ttk as ttk
 
 from PyProma_common.PyProma_templates import tab_template
-from PyProma_dir_view.plugins.plugin_manager import PyFileMethod, RefreshMethod
+from PyProma_dir_view.plugins.plugin_manager import (PluginManager,
+                                                     PyFileMethod,
+                                                     RefreshMethod)
 
 
 class TodoTab(tab_template.TabTemplate):
     NAME = "ToDo"
 
-    def __init__(self, master=None, main=None):
+    def __init__(self, master: tk.Tk, main: PluginManager):
         super().__init__(master, main)
         self.todo_tree = ttk.Treeview(self, show=["tree", "headings"])
         self.todo_tree.heading("#0", text="ToDo", anchor=tk.CENTER)
@@ -63,6 +65,6 @@ class TodoTab(tab_template.TabTemplate):
 if __name__ == "__main__":
     root = tk.Tk()
     root.geometry("800x575")
-    todo_tab = TodoTab(root)
+    todo_tab = TodoTab(root, None)
     todo_tab.pack()
     root.mainloop()

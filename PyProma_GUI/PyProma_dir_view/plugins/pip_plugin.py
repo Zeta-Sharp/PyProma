@@ -14,12 +14,13 @@ import tkinter as tk
 from tkinter import messagebox, simpledialog
 
 from PyProma_common.code_runner import CodeRunner
+from PyProma_project_view.plugins.plugin_manager import PluginManager
 
 
 class PipMenu(tk.Menu):
     NAME = "pip"
 
-    def __init__(self, master=None, main=None):
+    def __init__(self, master: tk.Tk, main: PluginManager):
         self.main = main
         super().__init__(master, tearoff=False)
         self.add_command(
@@ -71,9 +72,15 @@ class PipMenu(tk.Menu):
                 self.main.refresh_main()
 
     @staticmethod
-    def get_venv_path():
+    def get_venv_path() -> str:
         match os.name:
             case "nt":
                 return ".venv/Scripts/python.exe"
             case "posix":
                 return ".venv/bin/python.exe"
+            case _:
+                messagebox.showerror(
+                    title="OS Error",
+                    message="This OS is not supported.")
+                raise OSError(
+                    "This OS is not supported.")

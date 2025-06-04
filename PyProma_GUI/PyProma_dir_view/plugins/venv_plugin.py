@@ -10,16 +10,20 @@ settings: null
 
 import os
 import subprocess
+import tkinter as tk
 import venv
-from tkinter import Menu, messagebox
+from tkinter import messagebox
+
+from PyProma_common.PyProma_templates.menu_template import MenuTemplate
+from PyProma_project_view.plugins.plugin_manager import PluginManager
 
 
-class VenvMenu(Menu):
+class VenvMenu(MenuTemplate):
     NAME = "venv"
 
-    def __init__(self, master=None, main=None):
+    def __init__(self, master: tk.Tk, main: PluginManager):
         self.main = main
-        super().__init__(master, tearoff=False)
+        super().__init__(master)
         self.add_command(label="create", command=self.venv_create)
 
     def venv_create(self):

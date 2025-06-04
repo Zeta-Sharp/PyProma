@@ -15,7 +15,8 @@ from calendar import monthrange
 from datetime import datetime
 
 from PyProma_common.PyProma_templates import tab_template
-from PyProma_project_view.plugins.plugin_manager import RefreshMethod
+from PyProma_project_view.plugins.plugin_manager import (PluginManager,
+                                                         RefreshMethod)
 
 json_path = "PyProma_settings.json"
 
@@ -23,7 +24,7 @@ json_path = "PyProma_settings.json"
 class CalendarTab(tab_template.TabTemplate):
     NAME = "Calendar"
 
-    def __init__(self, master=None, main=None):
+    def __init__(self, master: tk.Tk, main: PluginManager):
         super().__init__(master, main)
         with open(json_path) as f:
             self.projects = json.load(f)
@@ -86,7 +87,7 @@ class CalendarTab(tab_template.TabTemplate):
         add_schedule_window.title("Add Schedule")
         add_schedule_window.geometry("150x220")
 
-        def update_max_day(_: tk.Event):
+        def update_max_day():
             year = int(year_combobox.get())
             month = int(month_combobox.get())
             max_day = monthrange(year, month)[1]
@@ -113,21 +114,23 @@ class CalendarTab(tab_template.TabTemplate):
         add_schedule_label1.place(x=10, y=0)
         year_combobox = ttk.Combobox(
             add_schedule_window, width=4,
-            values=tuple(range(2020, 2031)), state="readonly")
+            values=tuple(map(str, range(2020, 2031))), state="readonly")
         year_combobox.current(0)
         year_combobox.place(x=10, y=20)
         month_combobox = ttk.Combobox(
             add_schedule_window, width=2,
-            values=tuple(range(1, 13)), state="readonly")
+            values=tuple(map(str, range(1, 13))), state="readonly")
         month_combobox.current(0)
         month_combobox.place(x=60, y=20)
         day_combobox = ttk.Combobox(
             add_schedule_window, width=2,
-            values=tuple(range(1, 32)), state="readonly")
+            values=tuple(map(str, range(1, 32))), state="readonly")
         day_combobox.current(0)
         day_combobox.place(x=100, y=20)
-        year_combobox.bind("<<ComboboxSelected>>", update_max_day)
-        month_combobox.bind("<<ComboboxSelected>>", update_max_day)
+        year_combobox.bind(
+            "<<ComboboxSelected>>", lambda event: update_max_day())
+        month_combobox.bind(
+            "<<ComboboxSelected>>", lambda event: update_max_day())
 
         add_schedule_label2 = tk.Label(
             add_schedule_window, text="project")
@@ -191,6 +194,6 @@ class CalendarTab(tab_template.TabTemplate):
 if __name__ == "__main__":
     root = tk.Tk()
     root.geometry("800x575")
-    calendar_tab = CalendarTab(root)
+    calendar_tab = CalendarTab(root, None)
     calendar_tab.pack()
     root.mainloop()

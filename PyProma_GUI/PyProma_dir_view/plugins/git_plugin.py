@@ -18,9 +18,11 @@ from textwrap import dedent
 from tkinter import messagebox
 
 import git
+import git.exc
 from github import Github
-from PyProma_common.PyProma_templates import tab_template
-from PyProma_dir_view.plugins.plugin_manager import RefreshMethod
+from PyProma_common.PyProma_templates import menu_template, tab_template
+from PyProma_dir_view.plugins.plugin_manager import (PluginManager,
+                                                     RefreshMethod)
 
 json_path = "PyProma_settings.json"
 
@@ -28,7 +30,7 @@ json_path = "PyProma_settings.json"
 class GitTab(tab_template.TabTemplate):
     NAME = "Git"
 
-    def __init__(self, master=None, main=None):
+    def __init__(self, master: tk.Tk, main: PluginManager):
         super().__init__(master, self)
         self.git_tabs = ttk.Notebook(self)
         self.git_tabs.enable_traversal()
@@ -45,7 +47,7 @@ class GitTab(tab_template.TabTemplate):
 
 
 class GitLocalTab(tk.Frame):
-    def __init__(self, master=None, main=None):
+    def __init__(self, master: tk.Frame, main):
         self.master, self.main = master, main
         super().__init__(master, width=800, height=550)
         self.propagate(False)
@@ -281,7 +283,7 @@ class GitLocalTab(tk.Frame):
 
 
 class GitRemoteTab(tk.Frame):
-    def __init__(self, master=None, main=None):
+    def __init__(self, master: tk.Frame, main):
         with open(json_path) as file:
             self.access_tokens = json.load(file)["tokens"]
         self.master, self.main = master, main
@@ -381,12 +383,12 @@ class GitRemoteTab(tk.Frame):
             remote.fetch()
 
 
-class GitMenu(tk.Menu):
+class GitMenu(menu_template.MenuTemplate):
     NAME = "Git"
 
-    def __init__(self, master=None, main=None):
+    def __init__(self, master: tk.Tk, main: PluginManager):
         self.main = main
-        super().__init__(master, tearoff=False)
+        super().__init__(master)
         self.add_command(
             label="Git Init", command=self.git_init)
 
@@ -406,6 +408,6 @@ class GitMenu(tk.Menu):
 if __name__ == "__main__":
     root = tk.Tk()
     root.geometry("800x575")
-    git_tab = GitTab(root)
+    git_tab = GitTab(root, None)
     git_tab.pack()
     root.mainloop()

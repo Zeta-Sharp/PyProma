@@ -18,15 +18,17 @@ import tkinter.ttk as ttk
 import urllib
 import urllib.parse
 import webbrowser
+from tkinter import messagebox
 
 from PyProma_common.PyProma_templates import tab_template
 from PyProma_dir_view.plugins.plugin_manager import RefreshMethod
+from PyProma_project_view.plugins.plugin_manager import PluginManager
 
 
 class PackagesTab(tab_template.TabTemplate):
     NAME = "Packages"
 
-    def __init__(self, master=None, main=None):
+    def __init__(self, master: tk.Tk, main: PluginManager):
         super().__init__(master, main)
         self.tree_frame = tk.Frame(self, width=400, height=575)
         self.tree_frame.propagate(False)
@@ -60,7 +62,8 @@ class PackagesTab(tab_template.TabTemplate):
         self.command_combo.current(0)
         self.command_text = tk.Entry(self.install_frame, width=30)
         self.command_text.place(x=155, y=301)
-        self.command_text.bind("<Return>", self.install_package)
+        self.command_text.bind(
+            "<Return>", lambda event: self.install_package())
         self.run_command_button = tk.Button(
             self.install_frame, text="run", command=self.install_package)
         self.run_command_button.place(x=350, y=297)
@@ -68,10 +71,11 @@ class PackagesTab(tab_template.TabTemplate):
         self.search_label = tk.Label(self.install_frame, text="Search on PyPI")
         self.search_label.place(x=5, y=350)
         self.search_text = tk.Entry(self.install_frame, width=50)
-        self.search_text.bind("<Return>", self.search_package)
+        self.search_text.bind("<Return>", lambda event: self.search_package())
         self.search_text.place(x=10, y=370)
         self.search_button = tk.Button(
-            self.install_frame, text="search", command=self.search_package)
+            self.install_frame, text="search",
+            command=self.search_package)
         self.search_button.place(x=320, y=364)
         self.is_poetry_in = False
         self.is_command_running = False
@@ -100,7 +104,7 @@ class PackagesTab(tab_template.TabTemplate):
                     self.command_combo["values"] = ["pip install"]
                 self.command_combo.current(0)
 
-    def install_package(self, event: tk.Event = None):
+    def install_package(self):
         if os.path.isdir(self.main.dir_path) and self.command_text.get():
             venv_path = os.path.normpath(
                 os.path.join(self.main.dir_path, self.get_venv_path()))
@@ -161,7 +165,7 @@ class PackagesTab(tab_template.TabTemplate):
             update_thread = threading.Thread(target=_update_output)
             update_thread.start()
 
-    def search_package(self, event: tk.Event = None):
+    def search_package(self):
         package = urllib.parse.quote_plus(self.search_text.get())
         if package:
             webbrowser.open(f"https://pypi.org/search/?q={package}", new=2)
@@ -222,11 +226,17 @@ class PackagesTab(tab_template.TabTemplate):
                 return ".venv/Scripts/python.exe"
             case "posix":
                 return ".venv/bin/python.exe"
+            case _:
+                messagebox.showerror(
+                    title="OS Error",
+                    message="This OS is not supported.")
+                raise OSError(
+                    "This OS is not supported.")
 
 
 if __name__ == "__main__":
     root = tk.Tk()
     root.geometry("800x575")
-    packages_tab = PackagesTab(root)
+    packages_tab = PackagesTab(root, None)
     packages_tab.pack()
     root.mainloop()
