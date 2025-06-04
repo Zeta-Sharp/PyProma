@@ -13,7 +13,7 @@ import subprocess
 import tkinter as tk
 
 from PyProma_common.PyProma_templates.menu_template import MenuTemplate
-from PyProma_project_view.plugins.plugin_manager import PluginManager
+from PyProma_dir_view.plugins.plugin_manager import PluginManager
 
 
 class IDEMenu(MenuTemplate):

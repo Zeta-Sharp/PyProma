@@ -10,6 +10,7 @@ from typing import Any, Callable, TypeVar
 import inflection
 from PyProma_common.PyProma_templates.menu_template import MenuTemplate
 from PyProma_common.PyProma_templates.tab_template import TabTemplate
+from PyProma_project_view.PyProma_project_view_script import ProjectView
 
 SelfType = TypeVar("SelfType", bound=TabTemplate)
 
@@ -35,7 +36,7 @@ def RefreshMethod(
 
 
 class PluginManager:
-    def __init__(self, main):
+    def __init__(self, main: ProjectView):
         """this func loads and adds tabs, menus from tabs directory.
         """
         self.tabs = {}

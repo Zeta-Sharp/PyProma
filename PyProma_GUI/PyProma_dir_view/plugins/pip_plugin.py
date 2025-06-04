@@ -14,7 +14,7 @@ import tkinter as tk
 from tkinter import messagebox, simpledialog
 
 from PyProma_common.code_runner import CodeRunner
-from PyProma_project_view.plugins.plugin_manager import PluginManager
+from PyProma_dir_view.plugins.plugin_manager import PluginManager
 
 
 class PipMenu(tk.Menu):

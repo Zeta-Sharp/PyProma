@@ -10,6 +10,7 @@ from typing import Any, Callable, TypeVar
 import inflection
 from PyProma_common.PyProma_templates.menu_template import MenuTemplate
 from PyProma_common.PyProma_templates.tab_template import TabTemplate
+from PyProma_dir_view.PyProma_dir_view_script import DirView
 
 SelfType = TypeVar("SelfType", bound=TabTemplate)
 
@@ -55,7 +56,7 @@ def PyFileMethod(method: Callable[[SelfType, str], Any]) \
 
 
 class PluginManager:
-    def __init__(self, main):
+    def __init__(self, main: DirView):
         """this func loads and adds tabs, menus from tabs directory.
         """
         self.tabs = {}
