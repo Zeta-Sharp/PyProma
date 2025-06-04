@@ -5,12 +5,14 @@ import tkinter as tk
 from functools import wraps
 from textwrap import dedent
 from tkinter import messagebox
-from typing import Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
 import inflection
 from PyProma_common.PyProma_templates.menu_template import MenuTemplate
 from PyProma_common.PyProma_templates.tab_template import TabTemplate
-from PyProma_dir_view.PyProma_dir_view_script import DirView
+
+if TYPE_CHECKING:
+    from PyProma_dir_view.PyProma_dir_view_script import DirView
 
 SelfType = TypeVar("SelfType", bound=TabTemplate)
 
@@ -56,7 +58,7 @@ def PyFileMethod(method: Callable[[SelfType, str], Any]) \
 
 
 class PluginManager:
-    def __init__(self, main: DirView):
+    def __init__(self, main: "DirView"):
         """this func loads and adds tabs, menus from tabs directory.
         """
         self.tabs = {}

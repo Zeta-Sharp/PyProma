@@ -13,10 +13,13 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from calendar import monthrange
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from PyProma_common.PyProma_templates import tab_template
-from PyProma_project_view.plugins.plugin_manager import (PluginManager,
-                                                         RefreshMethod)
+from PyProma_project_view.plugins.plugin_manager import RefreshMethod
+
+if TYPE_CHECKING:
+    from PyProma_project_view.plugins.plugin_manager import PluginManager
 
 json_path = "PyProma_settings.json"
 
@@ -24,7 +27,7 @@ json_path = "PyProma_settings.json"
 class CalendarTab(tab_template.TabTemplate):
     NAME = "Calendar"
 
-    def __init__(self, master: tk.Tk, main: PluginManager):
+    def __init__(self, master: tk.Tk, main: "PluginManager"):
         super().__init__(master, main)
         with open(json_path) as f:
             self.projects = json.load(f)

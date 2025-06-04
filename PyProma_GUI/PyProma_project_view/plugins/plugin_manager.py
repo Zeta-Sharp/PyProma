@@ -5,12 +5,14 @@ import tkinter as tk
 from functools import wraps
 from textwrap import dedent
 from tkinter import messagebox
-from typing import Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
 import inflection
 from PyProma_common.PyProma_templates.menu_template import MenuTemplate
 from PyProma_common.PyProma_templates.tab_template import TabTemplate
-from PyProma_project_view.PyProma_project_view_script import ProjectView
+
+if TYPE_CHECKING:
+    from PyProma_project_view.PyProma_project_view_script import ProjectView
 
 SelfType = TypeVar("SelfType", bound=TabTemplate)
 
@@ -36,7 +38,7 @@ def RefreshMethod(
 
 
 class PluginManager:
-    def __init__(self, main: ProjectView):
+    def __init__(self, main: "ProjectView"):
         """this func loads and adds tabs, menus from tabs directory.
         """
         self.tabs = {}

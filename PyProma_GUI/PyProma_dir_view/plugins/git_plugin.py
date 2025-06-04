@@ -16,13 +16,16 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from textwrap import dedent
 from tkinter import messagebox
+from typing import TYPE_CHECKING
 
 import git
 import git.exc
 from github import Github
 from PyProma_common.PyProma_templates import menu_template, tab_template
-from PyProma_dir_view.plugins.plugin_manager import (PluginManager,
-                                                     RefreshMethod)
+from PyProma_dir_view.plugins.plugin_manager import RefreshMethod
+
+if TYPE_CHECKING:
+    from PyProma_dir_view.plugins.plugin_manager import PluginManager
 
 json_path = "PyProma_settings.json"
 
@@ -30,7 +33,7 @@ json_path = "PyProma_settings.json"
 class GitTab(tab_template.TabTemplate):
     NAME = "Git"
 
-    def __init__(self, master: tk.Tk, main: PluginManager):
+    def __init__(self, master: tk.Tk, main: "PluginManager"):
         super().__init__(master, self)
         self.git_tabs = ttk.Notebook(self)
         self.git_tabs.enable_traversal()
@@ -386,7 +389,7 @@ class GitRemoteTab(tk.Frame):
 class GitMenu(menu_template.MenuTemplate):
     NAME = "Git"
 
-    def __init__(self, master: tk.Tk, main: PluginManager):
+    def __init__(self, master: tk.Tk, main: "PluginManager"):
         self.main = main
         super().__init__(master)
         self.add_command(

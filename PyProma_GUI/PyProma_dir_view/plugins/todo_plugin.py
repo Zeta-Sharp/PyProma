@@ -11,17 +11,19 @@ settings: null
 import re
 import tkinter as tk
 import tkinter.ttk as ttk
+from typing import TYPE_CHECKING
 
 from PyProma_common.PyProma_templates import tab_template
-from PyProma_dir_view.plugins.plugin_manager import (PluginManager,
-                                                     PyFileMethod,
-                                                     RefreshMethod)
+from PyProma_dir_view.plugins.plugin_manager import PyFileMethod, RefreshMethod
+
+if TYPE_CHECKING:
+    from PyProma_dir_view.plugins.plugin_manager import PluginManager
 
 
 class TodoTab(tab_template.TabTemplate):
     NAME = "ToDo"
 
-    def __init__(self, master: tk.Tk, main: PluginManager):
+    def __init__(self, master: tk.Tk, main: "PluginManager"):
         super().__init__(master, main)
         self.todo_tree = ttk.Treeview(self, show=["tree", "headings"])
         self.todo_tree.heading("#0", text="ToDo", anchor=tk.CENTER)

@@ -12,18 +12,21 @@ settings: null
 
 import os
 import tkinter as tk
+from typing import TYPE_CHECKING
 
 import markdown
 from PyProma_common.PyProma_templates import tab_template
-from PyProma_dir_view.plugins.plugin_manager import (PluginManager,
-                                                     RefreshMethod)
+from PyProma_dir_view.plugins.plugin_manager import RefreshMethod
 from tkhtmlview import HTMLLabel
+
+if TYPE_CHECKING:
+    from PyProma_dir_view.plugins.plugin_manager import PluginManager
 
 
 class ReadmeTab(tab_template.TabTemplate):
     NAME = "README"
 
-    def __init__(self, master: tk.Tk, main: PluginManager):
+    def __init__(self, master: tk.Tk, main: "PluginManager"):
         super().__init__(master, main)
         self.readme_htmlview = HTMLLabel(self)
         self.readme_htmlview.set_html(

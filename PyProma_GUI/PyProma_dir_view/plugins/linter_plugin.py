@@ -15,17 +15,19 @@ import subprocess
 import threading
 import tkinter as tk
 from tkinter import ttk
+from typing import TYPE_CHECKING
 
 from PyProma_common.PyProma_templates import tab_template
-from PyProma_dir_view.plugins.plugin_manager import (PluginManager,
-                                                     PyFileMethod,
-                                                     RefreshMethod)
+from PyProma_dir_view.plugins.plugin_manager import PyFileMethod, RefreshMethod
+
+if TYPE_CHECKING:
+    from PyProma_dir_view.plugins.plugin_manager import PluginManager
 
 
 class LinterTab(tab_template.TabTemplate):
     NAME = "Linter"
 
-    def __init__(self, master: tk.Tk, main: PluginManager):
+    def __init__(self, master: tk.Tk, main: "PluginManager"):
         super().__init__(master, main)
         self.result_tree = ttk.Treeview(self, show=["tree", "headings"])
         self.result_tree.heading(

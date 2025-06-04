@@ -21,14 +21,14 @@ import webbrowser
 from tkinter import messagebox
 
 from PyProma_common.PyProma_templates import tab_template
-from PyProma_dir_view.plugins.plugin_manager import RefreshMethod
-from PyProma_project_view.plugins.plugin_manager import PluginManager
+from PyProma_dir_view.plugins.plugin_manager import (PluginManager,
+                                                     RefreshMethod)
 
 
 class PackagesTab(tab_template.TabTemplate):
     NAME = "Packages"
 
-    def __init__(self, master: tk.Tk, main: PluginManager):
+    def __init__(self, master: tk.Tk, main: "PluginManager"):
         super().__init__(master, main)
         self.tree_frame = tk.Frame(self, width=400, height=575)
         self.tree_frame.propagate(False)
