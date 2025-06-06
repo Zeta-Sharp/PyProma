@@ -390,8 +390,7 @@ class GitMenu(menu_template.MenuTemplate):
     NAME = "Git"
 
     def __init__(self, master: tk.Tk, main: "PluginManager"):
-        self.main = main
-        super().__init__(master)
+        super().__init__(master, main)
         self.add_command(
             label="Git Init", command=self.git_init)
 

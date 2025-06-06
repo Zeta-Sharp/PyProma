@@ -15,17 +15,17 @@ from tkinter import messagebox, simpledialog
 from typing import TYPE_CHECKING
 
 from PyProma_common.code_runner import CodeRunner
+from PyProma_common.PyProma_templates.menu_template import MenuTemplate
 
 if TYPE_CHECKING:
     from PyProma_dir_view.plugins.plugin_manager import PluginManager
 
 
-class PipMenu(tk.Menu):
+class PipMenu(MenuTemplate):
     NAME = "pip"
 
     def __init__(self, master: tk.Tk, main: "PluginManager"):
-        self.main = main
-        super().__init__(master, tearoff=False)
+        super().__init__(master, main)
         self.add_command(
             label="install package", command=self.pip_install)
         self.add_command(label="upgrade", command=self.upgrade_pip)

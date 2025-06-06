@@ -24,9 +24,8 @@ if TYPE_CHECKING:
 class VenvMenu(MenuTemplate):
     NAME = "venv"
 
-    def __init__(self, master: tk.Tk, main: "PluginManager"):
-        self.main = main
-        super().__init__(master)
+    def __init__(self, master: tk.Menu, main: "PluginManager"):
+        super().__init__(master, main)
         self.add_command(label="create", command=self.venv_create)
 
     def venv_create(self):

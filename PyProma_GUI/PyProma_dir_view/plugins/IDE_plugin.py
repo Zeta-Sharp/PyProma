@@ -23,8 +23,7 @@ class IDEMenu(MenuTemplate):
     NAME = "IDE"
 
     def __init__(self, master: tk.Tk, main: "PluginManager"):
-        self.main = main
-        super().__init__(master)
+        super().__init__(master, main)
         self.add_command(
             label="Open Visual Studio Code",
             command=self.open_vscode,
