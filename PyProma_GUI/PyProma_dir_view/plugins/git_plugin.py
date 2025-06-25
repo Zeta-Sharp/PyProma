@@ -107,7 +107,7 @@ class GitLocalTab(tk.Frame):
         self.git_unstaged_changes.place(x=0, y=230)
         self.git_unstaged_changes.bind("<<TreeviewSelect>>", self.git_stage)
         self.commit_message = tk.Text(
-            self.git_staging_frame, height=5)
+            self.git_staging_frame, width=55, height=5)
         self.commit_message.insert(tk.END, "Commit message")
         self.commit_message.place(x=0, y=420)
         self.git_branches = ttk.Combobox(
