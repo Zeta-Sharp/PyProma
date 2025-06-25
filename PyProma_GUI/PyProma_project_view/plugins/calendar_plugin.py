@@ -15,8 +15,7 @@ from calendar import monthrange
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from PyProma_common.PyProma_templates import tab_template
-from PyProma_project_view.plugins.plugin_manager import RefreshMethod
+from PyProma_common.PyProma_templates.tab_template import TabTemplate
 
 if TYPE_CHECKING:
     from PyProma_project_view.plugins.plugin_manager import PluginManager
@@ -24,7 +23,7 @@ if TYPE_CHECKING:
 json_path = "PyProma_settings.json"
 
 
-class CalendarTab(tab_template.TabTemplate):
+class CalendarTab(TabTemplate):
     NAME = "Calendar"
 
     def __init__(self, master: tk.Tk, main: "PluginManager"):
@@ -55,7 +54,7 @@ class CalendarTab(tab_template.TabTemplate):
         self.calender_tree.bind(
             "<Button-3>", self.calendar_tree_on_right_click)
 
-    @RefreshMethod
+    @TabTemplate.RefreshMethod
     def refresh(self):
         self.calender_tree.delete(*self.calender_tree.get_children())
         for schedule in self.projects["schedule"]:

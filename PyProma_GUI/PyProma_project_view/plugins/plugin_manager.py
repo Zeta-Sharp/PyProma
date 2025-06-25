@@ -2,10 +2,9 @@ import importlib.util
 import inspect
 import os
 import tkinter as tk
-from functools import wraps
 from textwrap import dedent
 from tkinter import messagebox
-from typing import TYPE_CHECKING, Any, Callable, TypeVar
+from typing import TYPE_CHECKING
 
 import inflection
 from PyProma_common.PyProma_templates.menu_template import MenuTemplate
@@ -13,28 +12,6 @@ from PyProma_common.PyProma_templates.tab_template import TabTemplate
 
 if TYPE_CHECKING:
     from PyProma_project_view.PyProma_project_view_script import ProjectView
-
-SelfType = TypeVar("SelfType", bound=TabTemplate)
-
-
-def RefreshMethod(
-        method: Callable[[SelfType], Any]) -> Callable[[SelfType], Any]:
-    """This wrapper adds flag "__is_refresh_method__".
-    The method wrapped by this func will be called
-    when "main.refresh_trees()" was called.
-
-    Args:
-        method (Callable[[SelfType], Any]): The method you wrapped.
-
-    Returns:
-        Callable[[SelfType], Any]: The returns of your method.
-    """
-    setattr(method, "__is_refresh_method__", True)
-
-    @wraps(method)
-    def wrapper(self: SelfType):
-        return method(self)
-    return wrapper
 
 
 class PluginManager:

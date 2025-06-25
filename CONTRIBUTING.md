@@ -26,11 +26,10 @@ Ensure your file name ends with `_plugin.py`, and the class name matches the fil
 You can define method used to refresh GUI with `RefreshMethod` decorator.  
 Only in dir view, you can define method used to do something to `.py` file with `PyFileMethod` decorator. Method with this decorator will be called with path to `.py` file.  
 ```Python
-from PyProma_common.PyProma_templates import tab_template
-from PyProma_dir_view.plugins.plugin_manager import PyFileMethod, RefreshMethod
+from PyProma_common.PyProma_templates.tab_template import TabTemplate
 
 
-Class CustomTab(tab_template.TabTemplate):
+Class CustomTab(TabTemplate):
     # Set the tab name (defaults to the class name if not defined)
     NAME = "Custom"
 
@@ -39,31 +38,49 @@ Class CustomTab(tab_template.TabTemplate):
         super().__init__(master, main)
 
     # Method decorated by RefreshMethod will be called in refresh sequence.
-    @RefreshMethod
+    @TabTemplate.RefreshMethod
     def refresh(self):
         pass
 
     # Method with this decorator will be called with path to `.py` file.
-    @PyFileMethod
+    @TabTemplate.PyFileMethod
     def do_something(self, path):
         pass
 ```
 #### Adding menus:
 Create a Python module within these directories.  
 Inherit the menu class from tkinter.  
+Inherit the MenuTemplate class from `PyProma_GUI/PyProma_common/PyProma_templates/menu_template.py`.  
 Ensure your file name ends with `_plugin.py`, and the class name matches the filename in PascalCase (e.g., `example_plugin.py` -> `ExampleMenu`).  
 ```Python
-from tkinter import Menu
+from PyProma_common.PyProma_templates.menu_template import MenuTemplate
 
-class CustomMenu(Menu):
+class CustomMenu(MenuTemplate):
     # Set the menu name (defaults to the class name if not defined)
     NAME = "Custom"
 
     def __init__(self, master=None, main=None):
         # master is master frame. main is main instance.
-        self.main = main
-        super().__init__(master, tearoff=False)
+        super().__init__(master, main)
         self.add_command(label="Custom Menu")
 ```
+
+### **Experimental** Plugin Meta Data
+Please write meta data in top of your module on toml format.  
+```TOML
+"""
+name: exampleplugin
+version: "1.0.0"
+author: your_name <your email address>
+type: Please write Tab or Menu or both.
+description: Short description of your plugin.
+dependencies: write your module's dependencies.
+settings: I want to open PyProma_settings.json for everyone to save settings.
+"""
+```
+
+### Test
+You can use `PyProma_GUI\PyProma_common\tests\tab_test.py` to test your tab.  
+This is a virtual testing environment for tabs.  
 
 We look forward to your contributions! If you have any questions or need further assistance, feel free to reach out.

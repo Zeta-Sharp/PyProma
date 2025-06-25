@@ -2,10 +2,9 @@ import importlib.util
 import inspect
 import os
 import tkinter as tk
-from functools import wraps
 from textwrap import dedent
 from tkinter import messagebox
-from typing import TYPE_CHECKING, Any, Callable, TypeVar
+from typing import TYPE_CHECKING
 
 import inflection
 from PyProma_common.PyProma_templates.menu_template import MenuTemplate
@@ -13,48 +12,6 @@ from PyProma_common.PyProma_templates.tab_template import TabTemplate
 
 if TYPE_CHECKING:
     from PyProma_dir_view.PyProma_dir_view_script import DirView
-
-SelfType = TypeVar("SelfType", bound=TabTemplate)
-
-
-def RefreshMethod(
-        method: Callable[[SelfType], Any]) -> Callable[[SelfType], Any]:
-    """This wrapper adds flag "__is_refresh_method__".
-    The method wrapped by this func will be called
-    when "main.refresh_trees()" was called.
-
-    Args:
-        method (Callable[[SelfType], Any]): The method you wrapped.
-
-    Returns:
-        Callable[[SelfType], Any]: The returns of your method.
-    """
-    setattr(method, "__is_refresh_method__", True)
-
-    @wraps(method)
-    def wrapper(self: SelfType):
-        return method(self)
-    return wrapper
-
-
-def PyFileMethod(method: Callable[[SelfType, str], Any]) \
-        -> Callable[[SelfType, str], Any]:
-    """This wrapper adds flag "__is_pyfile_method__".
-    The method wrapped by this func will be called
-    when ".py" file was found in project directory.
-
-    Args:
-        method (Callable[[SelfType, str], Any]): The method you wrapped.
-
-    Returns:
-        Callable[[SelfType, str], Any]: The returns of your method.
-    """
-    setattr(method, "__is_pyfile_method__", True)
-
-    @wraps(method)
-    def wrapper(self: SelfType, path: str):
-        return method(self, path)
-    return wrapper
 
 
 class PluginManager:

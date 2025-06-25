@@ -17,14 +17,13 @@ import tkinter as tk
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
-from PyProma_common.PyProma_templates import tab_template
-from PyProma_dir_view.plugins.plugin_manager import PyFileMethod, RefreshMethod
+from PyProma_common.PyProma_templates.tab_template import TabTemplate
 
 if TYPE_CHECKING:
     from PyProma_dir_view.plugins.plugin_manager import PluginManager
 
 
-class LinterTab(tab_template.TabTemplate):
+class LinterTab(TabTemplate):
     NAME = "Linter"
 
     def __init__(self, master: tk.Tk, main: "PluginManager"):
@@ -36,7 +35,7 @@ class LinterTab(tab_template.TabTemplate):
             anchor=tk.CENTER)
         self.result_tree.pack(fill=tk.BOTH, expand=True)
 
-    @RefreshMethod
+    @TabTemplate.RefreshMethod
     def refresh(self):
         self.result_tree.delete(
             *self.result_tree.get_children())
@@ -56,7 +55,7 @@ class LinterTab(tab_template.TabTemplate):
             for result in pylint_results:
                 self.result_tree.insert(parent, tk.END, text=result)
 
-    @PyFileMethod
+    @TabTemplate.PyFileMethod
     def run_linter(self, target_path):
         if "venv" not in target_path:
             if os.path.isfile(target_path):

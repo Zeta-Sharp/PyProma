@@ -19,13 +19,15 @@ import urllib
 import urllib.parse
 import webbrowser
 from tkinter import messagebox
+from typing import TYPE_CHECKING
 
-from PyProma_common.PyProma_templates import tab_template
-from PyProma_dir_view.plugins.plugin_manager import (PluginManager,
-                                                     RefreshMethod)
+from PyProma_common.PyProma_templates.tab_template import TabTemplate
+
+if TYPE_CHECKING:
+    from PyProma_dir_view.plugins.plugin_manager import PluginManager
 
 
-class PackagesTab(tab_template.TabTemplate):
+class PackagesTab(TabTemplate):
     NAME = "Packages"
 
     def __init__(self, master: tk.Tk, main: "PluginManager"):
@@ -80,7 +82,7 @@ class PackagesTab(tab_template.TabTemplate):
         self.is_poetry_in = False
         self.is_command_running = False
 
-    @RefreshMethod
+    @TabTemplate.RefreshMethod
     def refresh(self):
         """this func gets python packages in environment.
         """

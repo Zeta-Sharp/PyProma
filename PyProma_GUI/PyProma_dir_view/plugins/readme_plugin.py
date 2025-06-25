@@ -15,15 +15,14 @@ import tkinter as tk
 from typing import TYPE_CHECKING
 
 import markdown
-from PyProma_common.PyProma_templates import tab_template
-from PyProma_dir_view.plugins.plugin_manager import RefreshMethod
+from PyProma_common.PyProma_templates.tab_template import TabTemplate
 from tkhtmlview import HTMLLabel
 
 if TYPE_CHECKING:
     from PyProma_dir_view.plugins.plugin_manager import PluginManager
 
 
-class ReadmeTab(tab_template.TabTemplate):
+class ReadmeTab(TabTemplate):
     NAME = "README"
 
     def __init__(self, master: tk.Tk, main: "PluginManager"):
@@ -33,7 +32,7 @@ class ReadmeTab(tab_template.TabTemplate):
             "<p>There is no README.md in this directory.</p>")
         self.readme_htmlview.pack(fill=tk.BOTH, expand=True)
 
-    @RefreshMethod
+    @TabTemplate.RefreshMethod
     def read_readme(self):
         """this func reads README.md and writes on readme_text.
         """

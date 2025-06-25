@@ -16,13 +16,13 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from textwrap import dedent
 from tkinter import messagebox
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import git
 import git.exc
 from github import Github
-from PyProma_common.PyProma_templates import menu_template, tab_template
-from PyProma_dir_view.plugins.plugin_manager import RefreshMethod
+from PyProma_common.PyProma_templates.menu_template import MenuTemplate
+from PyProma_common.PyProma_templates.tab_template import TabTemplate
 
 if TYPE_CHECKING:
     from PyProma_dir_view.plugins.plugin_manager import PluginManager
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 json_path = "PyProma_settings.json"
 
 
-class GitTab(tab_template.TabTemplate):
+class GitTab(TabTemplate):
     NAME = "Git"
 
     def __init__(self, master: tk.Tk, main: "PluginManager"):
@@ -43,7 +43,7 @@ class GitTab(tab_template.TabTemplate):
         self.git_tabs.add(self.remote, text="Remote", padding=3)
         self.git_tabs.pack(anchor=tk.NW)
 
-    @RefreshMethod
+    @TabTemplate.RefreshMethod
     def refresh(self):
         self.local.refresh()
         self.remote.refresh()
@@ -219,14 +219,17 @@ class GitLocalTab(tk.Frame):
             return
         git_path = os.path.join(self.main.dir_path, ".git")
         repo = git.Repo(git_path)
-        widget = event.widget
+        widget: ttk.Treeview = cast(ttk.Treeview, event.widget)
         selected_item = widget.selection()
-        if len(selected_item) <= 0:
+        if not selected_item:
+            return
+        item_values = widget.item(selected_item[0])["values"]
+        if not item_values:
             return
         if widget == self.git_staged_changes:
             try:
                 repo.index.reset(
-                    paths=[widget.item(selected_item)["values"][0]])
+                    paths=[item_values[0]])
             except git.exc.GitCommandError as e:
                 messagebox.showerror(
                     title="git.exc.GitCommandError",
@@ -234,11 +237,11 @@ class GitLocalTab(tk.Frame):
             else:
                 self.git_unstaged_changes.insert(
                     "", tk.END,
-                    values=widget.item(selected_item)["values"])
-                widget.delete(selected_item)
+                    values=item_values)
+                widget.delete(selected_item[0])
         elif widget == self.git_unstaged_changes:
             try:
-                repo.git.add(widget.item(selected_item)["values"][0])
+                repo.git.add(item_values[0])
             except git.exc.GitCommandError as e:
                 messagebox.showerror(
                     title="git.exc.GitCommandError",
@@ -246,8 +249,8 @@ class GitLocalTab(tk.Frame):
             else:
                 self.git_staged_changes.insert(
                     "", tk.END,
-                    values=widget.item(selected_item)["values"])
-                widget.delete(selected_item)
+                    values=item_values)
+                widget.delete(selected_item[0])
 
     def git_commit(self):
         """this func commits staged diffs
@@ -386,7 +389,7 @@ class GitRemoteTab(tk.Frame):
             remote.fetch()
 
 
-class GitMenu(menu_template.MenuTemplate):
+class GitMenu(MenuTemplate):
     NAME = "Git"
 
     def __init__(self, master: tk.Tk, main: "PluginManager"):
