@@ -11,7 +11,7 @@ settings: null
 import re
 import tkinter as tk
 import tkinter.ttk as ttk
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from PyProma_common.PyProma_templates.tab_template import TabTemplate
 
@@ -22,7 +22,8 @@ if TYPE_CHECKING:
 class TodoTab(TabTemplate):
     NAME = "ToDo"
 
-    def __init__(self, master: tk.Tk, main: "PluginManager"):
+    def __init__(
+            self, master: Union[tk.Tk, ttk.Notebook], main: "PluginManager"):
         super().__init__(master, main)
         self.todo_tree = ttk.Treeview(self, show=["tree", "headings"])
         self.todo_tree.heading("#0", text="ToDo", anchor=tk.CENTER)

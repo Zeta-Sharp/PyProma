@@ -16,7 +16,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from textwrap import dedent
 from tkinter import messagebox
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Union, cast
 
 import git
 import git.exc
@@ -33,8 +33,9 @@ json_path = "PyProma_settings.json"
 class GitTab(TabTemplate):
     NAME = "Git"
 
-    def __init__(self, master: tk.Tk, main: "PluginManager"):
-        super().__init__(master, self)
+    def __init__(
+            self, master: Union[tk.Tk, ttk.Notebook], main: "PluginManager"):
+        super().__init__(master, main)
         self.git_tabs = ttk.Notebook(self)
         self.git_tabs.enable_traversal()
         self.local = GitLocalTab(self, main)

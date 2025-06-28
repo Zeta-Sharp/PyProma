@@ -12,7 +12,8 @@ settings: null
 
 import os
 import tkinter as tk
-from typing import TYPE_CHECKING
+import tkinter.ttk as ttk
+from typing import TYPE_CHECKING, Union
 
 import markdown
 from PyProma_common.PyProma_templates.tab_template import TabTemplate
@@ -25,7 +26,8 @@ if TYPE_CHECKING:
 class ReadmeTab(TabTemplate):
     NAME = "README"
 
-    def __init__(self, master: tk.Tk, main: "PluginManager"):
+    def __init__(
+            self, master: Union[tk.Tk, ttk.Notebook], main: "PluginManager"):
         super().__init__(master, main)
         self.readme_htmlview = HTMLLabel(self)
         self.readme_htmlview.set_html(

@@ -49,6 +49,8 @@ class PipMenu(MenuTemplate):
                 self.main.refresh_main()
 
     def upgrade_pip(self):
+        """this func upgrades pip.
+        """
         if os.path.isdir(self.main.dir_path):
             venv_path = os.path.join(
                 self.main.dir_path, self.get_venv_path())

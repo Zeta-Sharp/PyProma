@@ -19,7 +19,7 @@ import urllib
 import urllib.parse
 import webbrowser
 from tkinter import messagebox
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from PyProma_common.PyProma_templates.tab_template import TabTemplate
 
@@ -30,7 +30,8 @@ if TYPE_CHECKING:
 class PackagesTab(TabTemplate):
     NAME = "Packages"
 
-    def __init__(self, master: tk.Tk, main: "PluginManager"):
+    def __init__(
+            self, master: Union[tk.Tk, ttk.Notebook], main: "PluginManager"):
         super().__init__(master, main)
         self.tree_frame = tk.Frame(self, width=400, height=575)
         self.tree_frame.propagate(False)
@@ -80,7 +81,7 @@ class PackagesTab(TabTemplate):
             command=self.search_package)
         self.search_button.place(x=320, y=364)
         self.is_poetry_in = False
-        self.is_command_running = False
+        self._is_command_running = False
 
     @TabTemplate.RefreshMethod
     def refresh(self):
@@ -126,7 +127,7 @@ class PackagesTab(TabTemplate):
         def _run_command():
             _output_queue.put(" ".join(command)+"\n")
             try:
-                self.is_command_running = True
+                self._is_command_running = True
                 process = subprocess.Popen(
                     args=command,
                     shell=True,
@@ -136,6 +137,8 @@ class PackagesTab(TabTemplate):
                     stderr=subprocess.STDOUT)
 
                 while True:
+                    if process.stdout is None:
+                        break
                     output = process.stdout.readline()
                     if output == "":
                         break
@@ -149,7 +152,7 @@ class PackagesTab(TabTemplate):
                 _output_queue.put(f"ERROR: {e}")
             finally:
                 _output_queue.put("DONE")
-                self.is_command_running = False
+                self._is_command_running = False
                 self.main.refresh_main()
 
         def _update_output():
@@ -160,7 +163,7 @@ class PackagesTab(TabTemplate):
                 self.command_output.insert(tk.END, output)
                 self.command_output.see(tk.END)
 
-        if not self.is_command_running:
+        if not self._is_command_running:
             _output_queue = queue.Queue()
             command_thread = threading.Thread(target=_run_command)
             command_thread.start()

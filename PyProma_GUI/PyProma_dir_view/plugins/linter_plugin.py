@@ -15,7 +15,7 @@ import subprocess
 import threading
 import tkinter as tk
 from tkinter import ttk
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from PyProma_common.PyProma_templates.tab_template import TabTemplate
 
@@ -26,7 +26,8 @@ if TYPE_CHECKING:
 class LinterTab(TabTemplate):
     NAME = "Linter"
 
-    def __init__(self, master: tk.Tk, main: "PluginManager"):
+    def __init__(
+            self, master: Union[tk.Tk, ttk.Notebook], main: "PluginManager"):
         super().__init__(master, main)
         self.result_tree = ttk.Treeview(self, show=["tree", "headings"])
         self.result_tree.heading(

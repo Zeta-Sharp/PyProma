@@ -1,13 +1,23 @@
+import tkinter as tk
+import tkinter.ttk as ttk
 from abc import ABC
 from functools import wraps
-from tkinter import Frame
-from typing import Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union
+
+if TYPE_CHECKING:
+    from PyProma_dir_view.plugins.plugin_manager import \
+        PluginManager as DirPluginManager
+    from PyProma_project_view.plugins.plugin_manager import \
+        PluginManager as ProjectPluginManager
 
 SelfType = TypeVar("SelfType", bound="TabTemplate")
 
 
-class TabTemplate(ABC, Frame):
-    def __init__(self, master=None, main=None):
+class TabTemplate(ABC, tk.Frame):
+    def __init__(
+            self,
+            master: Union[tk.Tk, ttk.Notebook],
+            main: Union["DirPluginManager", "ProjectPluginManager"]):
         self.main = main
         super().__init__(master, width=800, height=575)
         self.propagate(False)
@@ -38,6 +48,7 @@ class TabTemplate(ABC, Frame):
         """This wrapper adds flag "__is_pyfile_method__".
         The method wrapped by this func will be called
         when ".py" file was found in project directory.
+        This can't be used for project view plugins.
 
         Args:
             method (Callable[[SelfType, str], Any]): The method you wrapped.
