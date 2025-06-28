@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 class PipMenu(MenuTemplate):
     NAME = "pip"
 
-    def __init__(self, master: tk.Tk, main: "PluginManager"):
+    def __init__(self, master: tk.Menu, main: "PluginManager"):
         super().__init__(master, main)
         self.add_command(
             label="install package", command=self.pip_install)

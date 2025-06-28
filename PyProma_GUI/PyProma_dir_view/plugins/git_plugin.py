@@ -393,7 +393,7 @@ class GitRemoteTab(tk.Frame):
 class GitMenu(MenuTemplate):
     NAME = "Git"
 
-    def __init__(self, master: tk.Tk, main: "PluginManager"):
+    def __init__(self, master: tk.Menu, main: "PluginManager"):
         super().__init__(master, main)
         self.add_command(
             label="Git Init", command=self.git_init)

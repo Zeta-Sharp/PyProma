@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 class IDEMenu(MenuTemplate):
     NAME = "IDE"
 
-    def __init__(self, master: tk.Tk, main: "PluginManager"):
+    def __init__(self, master: tk.Menu, main: "PluginManager"):
         super().__init__(master, main)
         self.add_command(
             label="Open Visual Studio Code",
