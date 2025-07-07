@@ -155,7 +155,7 @@ class PluginManager:
         Returns:
             Union[Any, None]: Returns the value or result.
         """
-        _plugins_config_key = "ProjectPlugins"
+        _plugins_config_key = "DirPlugins"
         _plugin_name = getattr(
             instance.__class__, "NAME", instance.__class__.__name__)
 
