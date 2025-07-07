@@ -22,10 +22,7 @@ json_template = {
         "project_names": [],
         "dir_paths": []
     },
-    "schedule": [],
-    "tokens": {
-        "github": ""
-    }
+    "schedule": []
 }
 
 

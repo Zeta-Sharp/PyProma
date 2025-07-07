@@ -1,6 +1,6 @@
 """
 name: Calendar
-version: "1.0.0"
+version: "1.0.1"
 author: rikeidanshi <rikeidanshi@duck.com>
 type: Tab
 description: Supports schedule management related to projects.
@@ -8,7 +8,6 @@ dependencies: null
 settings: null
 """
 
-import json
 import tkinter as tk
 import tkinter.ttk as ttk
 from calendar import monthrange
@@ -29,8 +28,7 @@ class CalendarTab(TabTemplate):
     def __init__(
             self, master: Union[tk.Tk, ttk.Notebook], main: "PluginManager"):
         super().__init__(master, main)
-        with open(json_path) as f:
-            self.projects = json.load(f)
+
         self.calender_tree = ttk.Treeview(
             self,
             show="headings",
@@ -58,10 +56,10 @@ class CalendarTab(TabTemplate):
     @TabTemplate.RefreshMethod
     def refresh(self):
         self.calender_tree.delete(*self.calender_tree.get_children())
-        for schedule in self.projects["schedule"]:
+        for schedule in self.main.load_settings(
+                self, "schedule", value=[], mode="get", initialize=True):
             self.calender_tree.insert(
-                "", tk.END,
-                values=schedule)
+                "", tk.END, values=schedule)
 
     def add_schedule(self):
         """this func adds schedule.
@@ -75,12 +73,12 @@ class CalendarTab(TabTemplate):
                 date = date.strftime("%Y-%m-%d")
                 detail = add_schedule_text4.get()
                 schedule = [date, project, subject, detail]
-                projects = self.projects["schedule"]
+                projects = self.main.load_settings(
+                    self, "schedule", mode="get")
                 projects.append(schedule)
                 projects = sorted(projects, key=sort_by_date, reverse=True)
-                self.projects["schedule"] = projects
-                with open(json_path, "w") as f:
-                    json.dump(self.projects, f, indent=4)
+                self.main.load_settings(
+                    self, "schedule", value=projects, mode="set")
                 add_schedule_window.destroy()
                 self.main.refresh_main()
             else:
@@ -142,7 +140,7 @@ class CalendarTab(TabTemplate):
             add_schedule_window,
             width=5,
             state="readonly",
-            values=self.projects["projects"]["project_names"])
+            values=self.main.projects["project_names"])
         add_schedule_combobox2.set("None")
         add_schedule_combobox2.place(x=10, y=70)
         add_schedule_label3 = tk.Label(
@@ -172,10 +170,11 @@ class CalendarTab(TabTemplate):
         """this func removes selected schedule.
         """
         selected_schedule = self.calender_tree.selection()[0]
-        self.projects["schedule"].remove(
+        projects = self.main.load_settings(self, "schedule", mode="get")
+        projects.remove(
             list(self.calender_tree.item(selected_schedule, "values")))
-        with open(json_path, "w") as f:
-            json.dump(self.projects, f, indent=4)
+        self.main.load_settings(
+            self, "schedule", value=projects, mode="set")
         self.main.refresh_main()
 
     def calendar_tree_on_right_click(self, event: tk.Event):

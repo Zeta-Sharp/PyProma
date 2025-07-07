@@ -1,6 +1,6 @@
 """
 name: Git
-version: "1.0.0"
+version: "1.5.0"
 author: rikeidanshi <rikeidanshi@duck.com>
 type: Tab Menu
 description: Supports Git operations.
@@ -8,10 +8,8 @@ dependencies:
     - gitpython: "3.1.43"
 settings: null
 """
-
-import json
 import os
-import re
+# import re
 import tkinter as tk
 import tkinter.ttk as ttk
 from textwrap import dedent
@@ -20,7 +18,7 @@ from typing import TYPE_CHECKING, Union, cast
 
 import git
 import git.exc
-from github import Github
+# from github import Github
 from PyProma_common.PyProma_templates.menu_template import MenuTemplate
 from PyProma_common.PyProma_templates.tab_template import TabTemplate
 
@@ -28,6 +26,9 @@ if TYPE_CHECKING:
     from PyProma_dir_view.plugins.plugin_manager import PluginManager
 
 json_path = "PyProma_settings.json"
+
+# IDEA Add Git remotes e.g. GitHub, Azure DevOps support.
+# However, it is difficult to save access tokens in settings file safely.
 
 
 class GitTab(TabTemplate):
@@ -51,7 +52,7 @@ class GitTab(TabTemplate):
 
 
 class GitLocalTab(tk.Frame):
-    def __init__(self, master: tk.Frame, main):
+    def __init__(self, master: tk.Frame, main: "PluginManager"):
         self.master, self.main = master, main
         super().__init__(master, width=800, height=550)
         self.propagate(False)
@@ -290,11 +291,11 @@ class GitLocalTab(tk.Frame):
 
 
 class GitRemoteTab(tk.Frame):
-    def __init__(self, master: tk.Frame, main):
-        with open(json_path) as file:
-            self.access_tokens = json.load(file)["tokens"]
+    def __init__(self, master: tk.Frame, main: "PluginManager"):
         self.master, self.main = master, main
         super().__init__(master, width=800, height=550)
+#        self.access_tokens = self.main.load_settings(
+#            self, "access_tokens", value={"github": ""}, mode="set", initialize=True)
         self.propagate(False)
         self.remotes_label = tk.Label(self, text="remote:")
         self.remotes_label.pack()
@@ -339,6 +340,7 @@ class GitRemoteTab(tk.Frame):
             self.remotes_combo["state"] = "readonly"
             self.pull_button["state"] = tk.ACTIVE
             self.push_button["state"] = tk.ACTIVE
+            r"""
             remotes = repo.remote().urls
             github_pattern = r"https://github\.com/[^/]+/[^/]"
             github_remotes = [
@@ -349,6 +351,7 @@ class GitRemoteTab(tk.Frame):
                 self.github_remotes = [
                     github.get_repo(remote_name)
                     for remote_name in github_remotes]
+            """
 
     def remote_pull(self):
         if not os.path.isdir(os.path.join(self.main.dir_path, ".git")):

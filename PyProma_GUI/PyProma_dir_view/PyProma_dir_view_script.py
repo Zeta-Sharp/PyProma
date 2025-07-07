@@ -12,8 +12,6 @@ from PyProma_common.show_version import ShowVersion
 from PyProma_dir_view.plugins import plugin_manager
 
 # IDEA Add builder function. e.g. pyinstaller, nuitka.
-# IDEA Add Poetry support.
-# IDEA Add Git remotes support.
 # IDEA Add Docker support.
 # IDEA divide this repository into main repository and plugins repository.
 
@@ -92,7 +90,7 @@ class DirView(tk.Tk):
         self.tab.enable_traversal()
         self.tab.pack(anchor=tk.NW)
         self.plugins = plugin_manager.PluginManager(self)
-        self.bind("<Control-r>", lambda event: self.refresh_trees())
+        self.bind("<Control-r>", lambda _: self.refresh_trees())
         self.refresh_trees()
         self.mainloop()
 
