@@ -34,7 +34,7 @@ class PluginManager:
 
     def _load_plugins(self):
         """This method loads all plugins
-        from the PyProma_dir_view/plugins directory.
+        from the PyProma_project_view/plugins directory.
         It searches for files ending with "_plugin.py" and imports them.
         Each plugin should have a class
         that inherits from TabTemplate or MenuTemplate.
