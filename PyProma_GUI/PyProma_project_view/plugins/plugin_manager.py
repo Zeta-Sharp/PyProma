@@ -25,8 +25,20 @@ class PluginManager:
         self.menus = {}
         self.main = main
         self._settings = None
+        self._initialize_settings()
+        self._load_plugins()
+
+    def _initialize_settings(self):
         with open(json_path, "r") as file:
             self._settings = json.load(file)
+
+    def _load_plugins(self):
+        """This method loads all plugins
+        from the PyProma_dir_view/plugins directory.
+        It searches for files ending with "_plugin.py" and imports them.
+        Each plugin should have a class
+        that inherits from TabTemplate or MenuTemplate.
+        """
         for filename in os.listdir(os.path.dirname(__file__)):
             if not filename.endswith("_plugin.py"):
                 continue
