@@ -11,14 +11,19 @@ settings: null
 import os
 import subprocess
 import tkinter as tk
+from typing import TYPE_CHECKING
+
+from PyProma_common.PyProma_templates.menu_template import MenuTemplate
+
+if TYPE_CHECKING:
+    from PyProma_dir_view.plugins.plugin_manager import PluginManager
 
 
-class IDEMenu(tk.Menu):
+class IDEMenu(MenuTemplate):
     NAME = "IDE"
 
-    def __init__(self, master=None, main=None):
-        self.main = main
-        super().__init__(master, tearoff=False)
+    def __init__(self, master: tk.Menu, main: "PluginManager"):
+        super().__init__(master, main)
         self.add_command(
             label="Open Visual Studio Code",
             command=self.open_vscode,

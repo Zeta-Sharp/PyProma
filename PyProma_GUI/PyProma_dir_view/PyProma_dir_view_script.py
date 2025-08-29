@@ -12,8 +12,6 @@ from PyProma_common.show_version import ShowVersion
 from PyProma_dir_view.plugins import plugin_manager
 
 # IDEA Add builder function. e.g. pyinstaller, nuitka.
-# IDEA Add Poetry support.
-# IDEA Add Git remotes support.
 # IDEA Add Docker support.
 # IDEA divide this repository into main repository and plugins repository.
 
@@ -45,6 +43,9 @@ class DirView(tk.Tk):
             label="Open directory", command=self.set_dir_path)
         self.help_menu = tk.Menu(self.main_menu, tearoff=False)
         self.main_menu.add_cascade(label="Help", menu=self.help_menu)
+        self.help_menu.add_command(
+            label="Refresh window  (Ctrl + R)", command=self.refresh_trees)
+        # self.help_menu.add_command(label="Settings", command=PyPromaSettings)
         self.help_menu.add_command(
             label="Version information",
             command=lambda: ShowVersion(self))
@@ -89,7 +90,7 @@ class DirView(tk.Tk):
         self.tab.enable_traversal()
         self.tab.pack(anchor=tk.NW)
         self.plugins = plugin_manager.PluginManager(self)
-        self.bind("<Control-r>", lambda event: self.refresh_trees())
+        self.bind("<Control-r>", lambda _: self.refresh_trees())
         self.refresh_trees()
         self.mainloop()
 
@@ -118,31 +119,31 @@ class DirView(tk.Tk):
                 command=lambda: self.open_directory(self.dir_path))
             self.make_dir_tree(self.dir_path)
 
-    def make_dir_tree(self, path: str, parent_tree: str = None):
+    def make_dir_tree(self, path: str, parent_tree: str = ""):
         """this func makes directory tree.
 
         Args:
             path (str): path which you want to make tree from
             parent_tree (str, optional): parent tree. Defaults to None.
         """
-        if os.path.exists(path):
-            dirs = os.listdir(path)
-            for directory in dirs:
-                full_path = os.path.join(path, directory)
-                full_path = os.path.normpath(full_path)
-                if os.path.isfile(full_path):
-                    self.dir_tree.insert(
-                        "" if parent_tree is None else parent_tree,
-                        tk.END,
-                        text=directory)
-                    if os.path.splitext(full_path)[1] == ".py":
-                        self.plugins.run_pyfile_plugin(full_path)
-                else:
-                    child = self.dir_tree.insert(
-                        "" if parent_tree is None else parent_tree,
-                        tk.END,
-                        text=directory)
-                    self.make_dir_tree(full_path, child)
+        if not os.path.exists(path):
+            return
+        for directory in os.listdir(path):
+            full_path = os.path.join(path, directory)
+            full_path = os.path.normpath(full_path)
+            if os.path.isfile(full_path):
+                self.dir_tree.insert(
+                    "" if parent_tree is None else parent_tree,
+                    tk.END,
+                    text=directory)
+                if os.path.splitext(full_path)[1] == ".py":
+                    self.plugins.run_pyfile_plugin(full_path)
+            else:
+                child = self.dir_tree.insert(
+                    "" if parent_tree is None else parent_tree,
+                    tk.END,
+                    text=directory)
+                self.make_dir_tree(full_path, child)
 
     def getpath(self, target_path: str) -> str:
         """this func generates path from treeview node.
@@ -161,6 +162,7 @@ class DirView(tk.Tk):
                 item_id = self.dir_tree.parent(item_id)
             path = "/".join(path_list)
             return path
+        return ""
 
     def open_directory(self, target_path: str):
         """this func opens selected file or directory in explorer.
@@ -169,12 +171,11 @@ class DirView(tk.Tk):
             target_path (string): target node
         """
         path = target_path
-        if path != self.dir_path:
-            if path:
-                path = os.path.join(
-                    self.dir_path,
-                    self.getpath(target_path),
-                    self.dir_tree.item(target_path, "text"))
+        if path != self.dir_path and path:
+            path = os.path.join(
+                self.dir_path,
+                self.getpath(target_path),
+                self.dir_tree.item(target_path, "text"))
         path = os.path.normpath(path)
         subprocess.Popen(
             ["explorer", f"/select,{path}"] if target_path else ["explorer"],
@@ -256,6 +257,15 @@ class DirView(tk.Tk):
             state=tk.NORMAL if flag else tk.DISABLED)
         self.dir_menu.post(event.x_root, event.y_root)
 
+
+"""
+class PyPromaSettings(tk.Toplevel):
+    def __init__(self):
+        super().__init__()
+        self.title("PyProma - Settings")
+        self.geometry("500x500")
+        self.mainloop()
+"""
 
 if __name__ == "__main__":
     script_path = Path(__file__).resolve().parent.parent.parent

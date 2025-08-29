@@ -12,16 +12,20 @@ import os
 import subprocess
 import tkinter as tk
 from tkinter import messagebox, simpledialog
+from typing import TYPE_CHECKING
 
 from PyProma_common.code_runner import CodeRunner
+from PyProma_common.PyProma_templates.menu_template import MenuTemplate
+
+if TYPE_CHECKING:
+    from PyProma_dir_view.plugins.plugin_manager import PluginManager
 
 
-class PipMenu(tk.Menu):
+class PipMenu(MenuTemplate):
     NAME = "pip"
 
-    def __init__(self, master=None, main=None):
-        self.main = main
-        super().__init__(master, tearoff=False)
+    def __init__(self, master: tk.Menu, main: "PluginManager"):
+        super().__init__(master, main)
         self.add_command(
             label="install package", command=self.pip_install)
         self.add_command(label="upgrade", command=self.upgrade_pip)
@@ -45,6 +49,8 @@ class PipMenu(tk.Menu):
                 self.main.refresh_main()
 
     def upgrade_pip(self):
+        """this func upgrades pip.
+        """
         if os.path.isdir(self.main.dir_path):
             venv_path = os.path.join(
                 self.main.dir_path, self.get_venv_path())
@@ -71,9 +77,15 @@ class PipMenu(tk.Menu):
                 self.main.refresh_main()
 
     @staticmethod
-    def get_venv_path():
+    def get_venv_path() -> str:
         match os.name:
             case "nt":
                 return ".venv/Scripts/python.exe"
             case "posix":
                 return ".venv/bin/python.exe"
+            case _:
+                messagebox.showerror(
+                    title="OS Error",
+                    message="This OS is not supported.")
+                raise OSError(
+                    "This OS is not supported.")

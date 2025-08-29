@@ -162,6 +162,7 @@ cython_debug/
 .idea/
 
 .vs/
+.vscode/
 
 snippets/
 PyProma_settings.json

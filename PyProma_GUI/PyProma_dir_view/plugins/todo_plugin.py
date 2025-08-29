@@ -11,25 +11,29 @@ settings: null
 import re
 import tkinter as tk
 import tkinter.ttk as ttk
+from typing import TYPE_CHECKING, Union
 
-from PyProma_common.PyProma_templates import tab_template
-from PyProma_dir_view.plugins.plugin_manager import PyFileMethod, RefreshMethod
+from PyProma_common.PyProma_templates.tab_template import TabTemplate
+
+if TYPE_CHECKING:
+    from PyProma_dir_view.plugins.plugin_manager import PluginManager
 
 
-class TodoTab(tab_template.TabTemplate):
+class TodoTab(TabTemplate):
     NAME = "ToDo"
 
-    def __init__(self, master=None, main=None):
+    def __init__(
+            self, master: Union[tk.Tk, ttk.Notebook], main: "PluginManager"):
         super().__init__(master, main)
         self.todo_tree = ttk.Treeview(self, show=["tree", "headings"])
         self.todo_tree.heading("#0", text="ToDo", anchor=tk.CENTER)
         self.todo_tree.pack(fill=tk.BOTH, expand=True)
 
-    @RefreshMethod
+    @TabTemplate.RefreshMethod
     def refresh(self):
         self.todo_tree.delete(*self.todo_tree.get_children())
 
-    @PyFileMethod
+    @TabTemplate.PyFileMethod
     def find_todo(self, filename: str):
         """this func finds todos and add node to todo_tree.
         this finds "# TODO", "# BUG", "# FIXME", "# HACK".
@@ -63,6 +67,6 @@ class TodoTab(tab_template.TabTemplate):
 if __name__ == "__main__":
     root = tk.Tk()
     root.geometry("800x575")
-    todo_tab = TodoTab(root)
+    todo_tab = TodoTab(root, None)
     todo_tab.pack()
     root.mainloop()

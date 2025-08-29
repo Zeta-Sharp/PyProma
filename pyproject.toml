@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "PyProma"
-version = "0.2.5"
+version = "0.2.6"
 description = "This is a package of project manager"
 authors = ["rikeidanshi <rikeidanshi@duck.com>"]
 readme = "README.md"
@@ -47,6 +47,8 @@ send2trash = "^1.8.3"
 markdown = "^3.7"
 nuitka = "^2.4.8"
 tkhtmlview = "^0.3.1"
+pygithub = "^2.5.0"
+azure-devops = "^7.1.0b4"
 
 [build-system]
 requires = ["poetry-core"]

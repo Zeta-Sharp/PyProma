@@ -1,6 +1,6 @@
 """
 name: Calendar
-version: "1.0.0"
+version: "1.0.1"
 author: rikeidanshi <rikeidanshi@duck.com>
 type: Tab
 description: Supports schedule management related to projects.
@@ -8,25 +8,27 @@ dependencies: null
 settings: null
 """
 
-import json
 import tkinter as tk
 import tkinter.ttk as ttk
 from calendar import monthrange
 from datetime import datetime
+from typing import TYPE_CHECKING, Union
 
-from PyProma_common.PyProma_templates import tab_template
-from PyProma_project_view.plugins.plugin_manager import RefreshMethod
+from PyProma_common.PyProma_templates.tab_template import TabTemplate
+
+if TYPE_CHECKING:
+    from PyProma_project_view.plugins.plugin_manager import PluginManager
 
 json_path = "PyProma_settings.json"
 
 
-class CalendarTab(tab_template.TabTemplate):
+class CalendarTab(TabTemplate):
     NAME = "Calendar"
 
-    def __init__(self, master=None, main=None):
+    def __init__(
+            self, master: Union[tk.Tk, ttk.Notebook], main: "PluginManager"):
         super().__init__(master, main)
-        with open(json_path) as f:
-            self.projects = json.load(f)
+
         self.calender_tree = ttk.Treeview(
             self,
             show="headings",
@@ -51,13 +53,13 @@ class CalendarTab(tab_template.TabTemplate):
         self.calender_tree.bind(
             "<Button-3>", self.calendar_tree_on_right_click)
 
-    @RefreshMethod
+    @TabTemplate.RefreshMethod
     def refresh(self):
         self.calender_tree.delete(*self.calender_tree.get_children())
-        for schedule in self.projects["schedule"]:
+        for schedule in self.main.load_settings(
+                self, "schedule", value=[], mode="get", initialize=True):
             self.calender_tree.insert(
-                "", tk.END,
-                values=schedule)
+                "", tk.END, values=schedule)
 
     def add_schedule(self):
         """this func adds schedule.
@@ -71,12 +73,12 @@ class CalendarTab(tab_template.TabTemplate):
                 date = date.strftime("%Y-%m-%d")
                 detail = add_schedule_text4.get()
                 schedule = [date, project, subject, detail]
-                projects = self.projects["schedule"]
+                projects = self.main.load_settings(
+                    self, "schedule", mode="get")
                 projects.append(schedule)
                 projects = sorted(projects, key=sort_by_date, reverse=True)
-                self.projects["schedule"] = projects
-                with open(json_path, "w") as f:
-                    json.dump(self.projects, f, indent=4)
+                self.main.load_settings(
+                    self, "schedule", value=projects, mode="set")
                 add_schedule_window.destroy()
                 self.main.refresh_main()
             else:
@@ -86,7 +88,7 @@ class CalendarTab(tab_template.TabTemplate):
         add_schedule_window.title("Add Schedule")
         add_schedule_window.geometry("150x220")
 
-        def update_max_day(_: tk.Event):
+        def update_max_day():
             year = int(year_combobox.get())
             month = int(month_combobox.get())
             max_day = monthrange(year, month)[1]
@@ -113,21 +115,23 @@ class CalendarTab(tab_template.TabTemplate):
         add_schedule_label1.place(x=10, y=0)
         year_combobox = ttk.Combobox(
             add_schedule_window, width=4,
-            values=tuple(range(2020, 2031)), state="readonly")
+            values=tuple(map(str, range(2020, 2031))), state="readonly")
         year_combobox.current(0)
         year_combobox.place(x=10, y=20)
         month_combobox = ttk.Combobox(
             add_schedule_window, width=2,
-            values=tuple(range(1, 13)), state="readonly")
+            values=tuple(map(str, range(1, 13))), state="readonly")
         month_combobox.current(0)
         month_combobox.place(x=60, y=20)
         day_combobox = ttk.Combobox(
             add_schedule_window, width=2,
-            values=tuple(range(1, 32)), state="readonly")
+            values=tuple(map(str, range(1, 32))), state="readonly")
         day_combobox.current(0)
         day_combobox.place(x=100, y=20)
-        year_combobox.bind("<<ComboboxSelected>>", update_max_day)
-        month_combobox.bind("<<ComboboxSelected>>", update_max_day)
+        year_combobox.bind(
+            "<<ComboboxSelected>>", lambda event: update_max_day())
+        month_combobox.bind(
+            "<<ComboboxSelected>>", lambda event: update_max_day())
 
         add_schedule_label2 = tk.Label(
             add_schedule_window, text="project")
@@ -136,7 +140,7 @@ class CalendarTab(tab_template.TabTemplate):
             add_schedule_window,
             width=5,
             state="readonly",
-            values=self.projects["projects"]["project_names"])
+            values=self.main.projects["project_names"])
         add_schedule_combobox2.set("None")
         add_schedule_combobox2.place(x=10, y=70)
         add_schedule_label3 = tk.Label(
@@ -166,10 +170,11 @@ class CalendarTab(tab_template.TabTemplate):
         """this func removes selected schedule.
         """
         selected_schedule = self.calender_tree.selection()[0]
-        self.projects["schedule"].remove(
+        projects = self.main.load_settings(self, "schedule", mode="get")
+        projects.remove(
             list(self.calender_tree.item(selected_schedule, "values")))
-        with open(json_path, "w") as f:
-            json.dump(self.projects, f, indent=4)
+        self.main.load_settings(
+            self, "schedule", value=projects, mode="set")
         self.main.refresh_main()
 
     def calendar_tree_on_right_click(self, event: tk.Event):
@@ -191,6 +196,6 @@ class CalendarTab(tab_template.TabTemplate):
 if __name__ == "__main__":
     root = tk.Tk()
     root.geometry("800x575")
-    calendar_tab = CalendarTab(root)
+    calendar_tab = CalendarTab(root, None)
     calendar_tab.pack()
     root.mainloop()

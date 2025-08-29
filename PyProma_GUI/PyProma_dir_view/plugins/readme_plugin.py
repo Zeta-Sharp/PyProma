@@ -12,24 +12,29 @@ settings: null
 
 import os
 import tkinter as tk
+import tkinter.ttk as ttk
+from typing import TYPE_CHECKING, Union
 
 import markdown
-from PyProma_common.PyProma_templates import tab_template
-from PyProma_dir_view.plugins.plugin_manager import RefreshMethod
+from PyProma_common.PyProma_templates.tab_template import TabTemplate
 from tkhtmlview import HTMLLabel
 
+if TYPE_CHECKING:
+    from PyProma_dir_view.plugins.plugin_manager import PluginManager
 
-class ReadmeTab(tab_template.TabTemplate):
+
+class ReadmeTab(TabTemplate):
     NAME = "README"
 
-    def __init__(self, master=None, main=None):
+    def __init__(
+            self, master: Union[tk.Tk, ttk.Notebook], main: "PluginManager"):
         super().__init__(master, main)
         self.readme_htmlview = HTMLLabel(self)
         self.readme_htmlview.set_html(
             "<p>There is no README.md in this directory.</p>")
         self.readme_htmlview.pack(fill=tk.BOTH, expand=True)
 
-    @RefreshMethod
+    @TabTemplate.RefreshMethod
     def read_readme(self):
         """this func reads README.md and writes on readme_text.
         """
@@ -46,6 +51,6 @@ class ReadmeTab(tab_template.TabTemplate):
 if __name__ == "__main__":
     root = tk.Tk()
     root.geometry("800x575")
-    readme_tab = ReadmeTab(root)
+    readme_tab = ReadmeTab(root, None)
     readme_tab.pack()
     root.mainloop()

@@ -10,16 +10,22 @@ settings: null
 
 import os
 import subprocess
+import tkinter as tk
 import venv
-from tkinter import Menu, messagebox
+from tkinter import messagebox
+from typing import TYPE_CHECKING
+
+from PyProma_common.PyProma_templates.menu_template import MenuTemplate
+
+if TYPE_CHECKING:
+    from PyProma_dir_view.plugins.plugin_manager import PluginManager
 
 
-class VenvMenu(Menu):
+class VenvMenu(MenuTemplate):
     NAME = "venv"
 
-    def __init__(self, master=None, main=None):
-        self.main = main
-        super().__init__(master, tearoff=False)
+    def __init__(self, master: tk.Menu, main: "PluginManager"):
+        super().__init__(master, main)
         self.add_command(label="create", command=self.venv_create)
 
     def venv_create(self):
