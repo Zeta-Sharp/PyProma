@@ -65,6 +65,27 @@ class CustomMenu(MenuTemplate):
         self.add_command(label="Custom Menu")
 ```
 
+#### Save or load settings:
+If needed, you can save and load settings by `self.main.load_settings`.  
+This method takes 5 arguments.
+- `instance`: This will be a key to access your settings. Please set `self`.  
+- `key` (str): This is the key to value.  
+- `value` (Any, Defaults to None): The value you want to set.  
+- `mode` (str, Defaults to "get"): This sets mode. Choose from "get" or "set".  
+- `initialize` (bool Defaults to False): If `True` and the key doesn't exist, initializes new key with `value`. This works `get` mode only.  
+```Python
+from PyProma_common.PyProma_templates.tab_template import TabTemplate
+
+class CustomTab(TabTemplate):
+    # Set the tab name (defaults to the class name if not defined)
+    NAME = "Custom"
+
+    def __init__(self, master=None, main=None):
+        # master is master frame. main is main instance.
+        super().__init__(master, main)
+        settings = self.main.load_settings(self, "settings", mode="get")
+```
+
 ### **Experimental** Plugin Meta Data
 Please write meta data in top of your module on toml format.  
 ```TOML
