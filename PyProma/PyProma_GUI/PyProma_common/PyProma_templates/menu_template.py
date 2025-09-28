@@ -3,9 +3,9 @@ from tkinter import Menu
 from typing import TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
-    from PyProma_dir_view.plugins.plugin_manager import \
+    from PyProma.PyProma_GUI.PyProma_dir_view.plugins.plugin_manager import \
         PluginManager as DirPluginManager
-    from PyProma_project_view.plugins.plugin_manager import \
+    from PyProma.PyProma_GUI.PyProma_project_view.plugins.plugin_manager import \
         PluginManager as ProjectPluginManager
 
 

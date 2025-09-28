@@ -3,7 +3,7 @@ name: Packages
 version: "1.5.0"
 author: rikeidanshi <rikeidanshi@duck.com>
 type: Tab
-description: Supports packages, dependences management.
+description: Supports packages, dependencies management.
 dependencies: null
 settings: null
 """
@@ -21,10 +21,12 @@ import webbrowser
 from tkinter import messagebox
 from typing import TYPE_CHECKING, Union
 
-from PyProma_common.PyProma_templates.tab_template import TabTemplate
+from PyProma.PyProma_GUI.PyProma_common.PyProma_templates.tab_template import \
+    TabTemplate
 
 if TYPE_CHECKING:
-    from PyProma_dir_view.plugins.plugin_manager import PluginManager
+    from PyProma.PyProma_GUI.PyProma_dir_view.plugins.plugin_manager import \
+        PluginManager
 
 
 class PackagesTab(TabTemplate):

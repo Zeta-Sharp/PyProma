@@ -13,10 +13,12 @@ import subprocess
 import tkinter as tk
 from typing import TYPE_CHECKING
 
-from PyProma_common.PyProma_templates.menu_template import MenuTemplate
+from PyProma.PyProma_GUI.PyProma_common.PyProma_templates.menu_template import \
+    MenuTemplate
 
 if TYPE_CHECKING:
-    from PyProma_dir_view.plugins.plugin_manager import PluginManager
+    from PyProma.PyProma_GUI.PyProma_dir_view.plugins.plugin_manager import \
+        PluginManager
 
 
 class IDEMenu(MenuTemplate):

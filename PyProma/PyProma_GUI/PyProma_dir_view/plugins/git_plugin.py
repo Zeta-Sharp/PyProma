@@ -19,11 +19,11 @@ from typing import TYPE_CHECKING, Union, cast
 import git
 import git.exc
 # from github import Github
-from PyProma_common.PyProma_templates.menu_template import MenuTemplate
-from PyProma_common.PyProma_templates.tab_template import TabTemplate
+from PyProma.PyProma_GUI.PyProma_common.PyProma_templates.menu_template import MenuTemplate
+from PyProma.PyProma_GUI.PyProma_common.PyProma_templates.tab_template import TabTemplate
 
 if TYPE_CHECKING:
-    from PyProma_dir_view.plugins.plugin_manager import PluginManager
+    from PyProma.PyProma_GUI.PyProma_dir_view.plugins.plugin_manager import PluginManager
 
 json_path = "PyProma_settings.json"
 

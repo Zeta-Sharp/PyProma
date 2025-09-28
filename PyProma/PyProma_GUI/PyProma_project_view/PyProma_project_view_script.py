@@ -11,9 +11,9 @@ import git
 import git.exc
 from cookiecutter.exceptions import CookiecutterException
 from cookiecutter.main import cookiecutter
-from PyProma_common.show_version import ShowVersion
-from PyProma_dir_view import PyProma_dir_view_script
-from PyProma_project_view.plugins import plugin_manager
+from PyProma.PyProma_GUI.PyProma_common.show_version import ShowVersion
+from PyProma.PyProma_GUI.PyProma_dir_view import PyProma_dir_view_script
+from PyProma.PyProma_GUI.PyProma_project_view.plugins import plugin_manager
 
 json_path = "PyProma_settings.json"
 
@@ -288,7 +288,7 @@ class AddProjectWindow(tk.Toplevel):
         self.destroy()
         self.parent.refresh_trees()
 
-    def _switch_frame(self, event: tk.Event):
+    def _switch_frame(self, _: tk.Event):
         combobox_state = self.add_project_combobox1.get()
         match combobox_state:
             case "Add from directory":
