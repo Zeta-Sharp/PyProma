@@ -1,7 +1,7 @@
 """
 name: Packages
 version: "1.5.0"
-author: rikeidanshi <rikeidanshi@duck.com>
+author: Zeta_Sharp <rikeidanshi@duck.com>
 type: Tab
 description: Supports packages, dependencies management.
 dependencies: null

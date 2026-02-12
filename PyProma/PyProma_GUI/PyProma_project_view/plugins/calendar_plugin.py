@@ -1,7 +1,7 @@
 """
 name: Calendar
 version: "1.0.1"
-author: rikeidanshi <rikeidanshi@duck.com>
+author: Zeta_Sharp <rikeidanshi@duck.com>
 type: Tab
 description: Supports schedule management related to projects.
 dependencies: null

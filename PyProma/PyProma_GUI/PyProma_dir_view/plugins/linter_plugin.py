@@ -1,7 +1,7 @@
 """
 name: Linter
 version: "1.0.0"
-author: rikeidanshi <rikeidanshi@duck.com>
+author: Zeta_Sharp <rikeidanshi@duck.com>
 type: Tab
 description: Supports automatic execution of linters.
 dependencies:

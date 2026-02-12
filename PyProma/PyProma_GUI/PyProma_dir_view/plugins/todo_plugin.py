@@ -1,7 +1,7 @@
 """
 name: ToDo
 version: "1.0.0"
-author: rikeidanshi <rikeidanshi@duck.com>
+author: Zeta_Sharp <rikeidanshi@duck.com>
 type: Tab
 description: Scann comments in .py file and display ToDos.
 dependencies: null

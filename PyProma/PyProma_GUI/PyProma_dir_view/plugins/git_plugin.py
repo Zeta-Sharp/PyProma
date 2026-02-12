@@ -1,7 +1,7 @@
 """
 name: Git
 version: "2.0.0"
-author: rikeidanshi <rikeidanshi@duck.com>
+author: Zeta_Sharp <rikeidanshi@duck.com>
 type: Tab Menu
 description: Supports Git operations.
 dependencies:

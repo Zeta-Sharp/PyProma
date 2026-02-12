@@ -1,7 +1,7 @@
 """
 name: README
 version: "1.2.0"
-author: rikeidanshi <rikeidanshi@duck.com>
+author: Zeta_Sharp <rikeidanshi@duck.com>
 type: Tab
 description: README viewer.
 dependencies:

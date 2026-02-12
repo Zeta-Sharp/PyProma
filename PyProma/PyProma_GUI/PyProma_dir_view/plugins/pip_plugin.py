@@ -1,7 +1,7 @@
 """
 name: pip
 version: "1.1.0"
-author: rikeidanshi <rikeidanshi@duck.com>
+author: Zeta_Sharp <rikeidanshi@duck.com>
 type: Menu
 description: Supports pip operations.
 dependencies: null
