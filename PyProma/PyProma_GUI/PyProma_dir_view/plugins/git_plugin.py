@@ -36,7 +36,10 @@ if TYPE_CHECKING:
 
 json_path = "PyProma_settings.json"
 
+# TODO Issue and Pull Request filtering support.
+# TODO GitHub Access Token expiration handling.
 # IDEA Expand Git remotes e.g. Azure DevOps support.
+# IDEA GitHub Pull Request creation, merging support.
 
 
 class GitTab(TabTemplate):
