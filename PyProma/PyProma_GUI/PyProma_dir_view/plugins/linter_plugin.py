@@ -16,6 +16,7 @@ import threading
 import tkinter as tk
 from tkinter import ttk
 from typing import TYPE_CHECKING, Union
+import sys
 
 from PyProma.PyProma_GUI.PyProma_common.PyProma_templates.tab_template import \
     TabTemplate
@@ -45,10 +46,12 @@ class LinterTab(TabTemplate):
 
     def start_linter(self, target_path):
         result = subprocess.run(
-            ["pylint", target_path], capture_output=True, text=True)
+            [sys.executable, "-m", "pylint", target_path],
+            capture_output=True, text=True)
         pylint_results = result.stdout.splitlines()[1:-4]
         result = subprocess.run(
-            ["flake8", target_path], capture_output=True, text=True)
+            [sys.executable, "-m", "flake8", target_path],
+            capture_output=True, text=True)
         flake8_results = result.stdout.splitlines()
         if len(pylint_results) > 0 or len(flake8_results) > 0:
             parent = self.result_tree.insert(
