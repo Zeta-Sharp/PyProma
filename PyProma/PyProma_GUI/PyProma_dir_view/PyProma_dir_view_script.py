@@ -8,8 +8,8 @@ from tkinter import filedialog, messagebox
 
 import pyperclip
 import send2trash
-from PyProma_common.show_version import ShowVersion
-from PyProma_dir_view.plugins import plugin_manager
+from PyProma.PyProma_GUI.PyProma_common.show_version import ShowVersion
+from PyProma.PyProma_GUI.PyProma_dir_view.plugins import plugin_manager
 
 # IDEA Add builder function. e.g. pyinstaller, nuitka.
 # IDEA Add Docker support.

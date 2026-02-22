@@ -8,11 +8,15 @@ from tkinter import messagebox
 from typing import TYPE_CHECKING, Any
 
 import inflection
-from PyProma_common.PyProma_templates.menu_template import MenuTemplate
-from PyProma_common.PyProma_templates.tab_template import TabTemplate
+
+from PyProma.PyProma_GUI.PyProma_common.PyProma_templates.menu_template import \
+    MenuTemplate
+from PyProma.PyProma_GUI.PyProma_common.PyProma_templates.tab_template import \
+    TabTemplate
 
 if TYPE_CHECKING:
-    from PyProma_dir_view.PyProma_dir_view_script import DirView
+    from PyProma.PyProma_GUI.PyProma_dir_view.PyProma_dir_view_script import \
+        DirView
 
 json_path = "PyProma_settings.json"
 

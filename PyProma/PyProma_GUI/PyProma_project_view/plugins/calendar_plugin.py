@@ -1,7 +1,7 @@
 """
 name: Calendar
 version: "1.0.1"
-author: rikeidanshi <rikeidanshi@duck.com>
+author: Zeta_Sharp <rikeidanshi@duck.com>
 type: Tab
 description: Supports schedule management related to projects.
 dependencies: null
@@ -14,10 +14,12 @@ from calendar import monthrange
 from datetime import datetime
 from typing import TYPE_CHECKING, Union
 
-from PyProma_common.PyProma_templates.tab_template import TabTemplate
+from PyProma.PyProma_GUI.PyProma_common.PyProma_templates.tab_template import \
+    TabTemplate
 
 if TYPE_CHECKING:
-    from PyProma_project_view.plugins.plugin_manager import PluginManager
+    from PyProma.PyProma_GUI.PyProma_project_view.plugins.plugin_manager import \
+        PluginManager
 
 json_path = "PyProma_settings.json"
 

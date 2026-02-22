@@ -1,34 +1,45 @@
 """
 name: Git
-version: "1.5.0"
-author: rikeidanshi <rikeidanshi@duck.com>
+version: "2.0.0"
+author: Zeta_Sharp <rikeidanshi@duck.com>
 type: Tab Menu
 description: Supports Git operations.
 dependencies:
     - gitpython: "3.1.43"
+    - pygithub: "2.6.1"
+    - keyring: "25.7.0"
 settings: null
 """
 import os
-# import re
+import re
 import tkinter as tk
 import tkinter.ttk as ttk
+from tkinter import simpledialog
 from textwrap import dedent
 from tkinter import messagebox
 from typing import TYPE_CHECKING, Union, cast
 
 import git
 import git.exc
-# from github import Github
-from PyProma_common.PyProma_templates.menu_template import MenuTemplate
-from PyProma_common.PyProma_templates.tab_template import TabTemplate
+from github import Github, GithubException
+from requests.exceptions import ConnectionError
+import keyring
+import webbrowser
+from PyProma.PyProma_GUI.PyProma_common.PyProma_templates.menu_template\
+    import MenuTemplate
+from PyProma.PyProma_GUI.PyProma_common.PyProma_templates.tab_template\
+    import TabTemplate
 
 if TYPE_CHECKING:
-    from PyProma_dir_view.plugins.plugin_manager import PluginManager
+    from PyProma.PyProma_GUI.PyProma_dir_view.plugins.plugin_manager\
+        import PluginManager
 
 json_path = "PyProma_settings.json"
 
-# IDEA Add Git remotes e.g. GitHub, Azure DevOps support.
-# However, it is difficult to save access tokens in settings file safely.
+# TODO Issue and Pull Request filtering support.
+# TODO GitHub Access Token expiration handling.
+# IDEA Expand Git remotes e.g. Azure DevOps support.
+# IDEA GitHub Pull Request creation, merging support.
 
 
 class GitTab(TabTemplate):
@@ -294,26 +305,44 @@ class GitRemoteTab(tk.Frame):
     def __init__(self, master: tk.Frame, main: "PluginManager"):
         self.master, self.main = master, main
         super().__init__(master, width=800, height=550)
-#        self.access_tokens = self.main.load_settings(
-#            self, "access_tokens", value={"github": ""}, mode="set", initialize=True)
         self.propagate(False)
-        self.remotes_label = tk.Label(self, text="remote:")
+        self.buttons_frame = tk.Frame(self, width=400, height=550)
+        self.buttons_frame.propagate(False)
+        self.buttons_frame.grid(row=0, column=0)
+        self.remotes_label = tk.Label(self.buttons_frame, text="remote:")
         self.remotes_label.pack()
-        self.remotes_combo = ttk.Combobox(self, state=tk.DISABLED)
+        self.remotes_combo = ttk.Combobox(
+            self.buttons_frame, state=tk.DISABLED)
         self.remotes_combo.pack()
-        self.branches_label = tk.Label(self, text="branch:")
+        self.branches_label = tk.Label(self.buttons_frame, text="branch:")
         self.branches_label.pack()
-        self.local_branches_combo = ttk.Combobox(self, state=tk.DISABLED)
+        self.local_branches_combo = ttk.Combobox(
+            self.buttons_frame, state=tk.DISABLED)
         self.local_branches_combo.pack()
         self.pull_button = tk.Button(
-            self, text="pull", state=tk.DISABLED, command=self.remote_pull)
+            self.buttons_frame, text="pull",
+            state=tk.DISABLED, command=self.remote_pull)
         self.pull_button.pack()
         self.push_button = tk.Button(
-            self, text="push", state=tk.DISABLED, command=self.remote_push)
+            self.buttons_frame, text="push",
+            state=tk.DISABLED, command=self.remote_push)
         self.push_button.pack()
         self.fetch_button = tk.Button(
-            self, text="fetch", state=tk.DISABLED, command=self.remote_fetch)
+            self.buttons_frame, text="fetch",
+            state=tk.DISABLED, command=self.remote_fetch)
         self.fetch_button.pack()
+        self.issues_frame = tk.Frame(self, width=400, height=550)
+        self.issues_frame.propagate(False)
+        self.issues_frame.grid(row=0, column=1)
+        self.issues_tree = ttk.Treeview(
+            self.issues_frame, show="headings",
+            columns=("number", "title", "state"))
+        self.issues_tree.heading("number", text="number", anchor=tk.CENTER)
+        self.issues_tree.heading("title", text="title", anchor=tk.CENTER)
+        self.issues_tree.heading("state", text="state", anchor=tk.CENTER)
+        self.issues_tree.pack(fill=tk.BOTH, expand=True)
+        self.issues_tree.bind(
+            "<Double-1>", self.open_github_issue)
 
     def refresh(self):
         self.remotes_combo["values"] = []
@@ -322,7 +351,10 @@ class GitRemoteTab(tk.Frame):
         self.local_branches_combo["state"] = tk.DISABLED
         self.pull_button["state"] = tk.DISABLED
         self.push_button["state"] = tk.DISABLED
+        self.fetch_button["state"] = tk.DISABLED
+        self.get_git_remotes()
 
+    def get_git_remotes(self):
         if not os.path.isdir(os.path.join(self.main.dir_path, ".git")):
             return
         git_path = os.path.join(self.main.dir_path, ".git")
@@ -340,57 +372,172 @@ class GitRemoteTab(tk.Frame):
             self.remotes_combo["state"] = "readonly"
             self.pull_button["state"] = tk.ACTIVE
             self.push_button["state"] = tk.ACTIVE
-            r"""
-            remotes = repo.remote().urls
-            github_pattern = r"https://github\.com/[^/]+/[^/]"
-            github_remotes = [
-                url.removeprefix("https://github.com/")
-                for url in remotes if re.match(github_pattern, url)]
-            if github_remotes and self.access_tokens["github"]:
-                github = Github(self.access_tokens["github"])
+            self.fetch_button["state"] = tk.ACTIVE
+            self.get_github_issues(repo)
+
+    def get_github_issues(self, repo: git.Repo):
+        remotes = repo.remote().urls
+        github_remotes = []
+        for url in remotes:
+            github_pattern = re.search(
+                r"github\.com/([^/]+/[^/.]+?)(?:\.git)?$", url)
+            if github_pattern:
+                github_remotes.append(github_pattern.group(1))
+        access_tokens = keyring.get_password(
+            "PyProma_GitHub_Access_Tokens", "tokens")
+        settings = self.main.load_settings(
+            self.master, key="remote.save_github_tokens",
+            mode="get", initialize=True, value=True)
+        if not access_tokens and settings:
+            message = """\
+            GitHub Access Token is not set.
+            Please set GitHub Access Token to access GitHub Issues and Pull Requests.
+            """
+            if messagebox.askokcancel(
+                    title="GitHub Access Token Not Set",
+                    message=dedent(message)):
+                self.set_github_access_token()
+                access_tokens = keyring.get_password(
+                    "PyProma_GitHub_Access_Tokens", "tokens")
+            else:
+                self.main.load_settings(
+                    self.master, key="remote.save_github_tokens", value=False,
+                    mode="set", initialize=True)
+
+        github = None
+        try:
+            if github_remotes and access_tokens:
+                github = Github(access_tokens)
                 self.github_remotes = [
                     github.get_repo(remote_name)
                     for remote_name in github_remotes]
-            """
+        except GithubException as e:
+            messagebox.showerror(
+                title="GitHub Access Error", message=str(e))
+            return
+        except ConnectionError as e:
+            messagebox.showerror(
+                title="GitHub Connection Error", message=str(e))
+            return
+        except Exception as e:
+            messagebox.showerror(
+                title="GitHub Unknown Error", message=str(e))
+            return
+        finally:
+            del access_tokens
+            if github:
+                github.close()
+
+        self.issues_tree.delete(*self.issues_tree.get_children())
+        issues_node = self.issues_tree.insert(
+            "", tk.END,
+            values=("GitHub Issues", "", ""))
+        prs_node = self.issues_tree.insert(
+            "", tk.END,
+            values=("GitHub Pull Requests", "", ""))
+        self.nodes = {}
+        for github_remote in self.github_remotes:
+            issues = github_remote.get_issues(state="all")
+            for issue in issues:
+                if issue.pull_request is None:
+                    node = self.issues_tree.insert(
+                        issues_node, tk.END,
+                        values=(issue.number, issue.title, issue.state))
+
+                else:
+                    node = self.issues_tree.insert(
+                        prs_node, tk.END,
+                        values=(issue.number, issue.title, issue.state))
+                self.nodes[node] = {
+                    "node": node,
+                    "number": issue.number,
+                    "title": issue.title,
+                    "state": issue.state,
+                    "url": issue.html_url,
+                    "pr": issue.pull_request is not None
+                }
+
+    def set_github_access_token(self):
+        token = simpledialog.askstring(
+            "GitHub Access Token",
+            "Please enter your GitHub Access Token:",
+            show="*")
+        if token:
+            keyring.set_password(
+                "PyProma_GitHub_Access_Tokens", "tokens", token)
+        del token
+
+    def open_github_issue(self, event: tk.Event):
+        widget: ttk.Treeview = cast(ttk.Treeview, event.widget)
+        selected_item = widget.selection()
+        if not selected_item:
+            return
+        item_values = widget.item(selected_item[0])["values"]
+        if not item_values:
+            return
+        node_info = self.nodes.get(selected_item[0])
+        if node_info:
+            webbrowser.open_new_tab(node_info["url"])
 
     def remote_pull(self):
         if not os.path.isdir(os.path.join(self.main.dir_path, ".git")):
             return
         git_path = os.path.join(self.main.dir_path, ".git")
         repo = git.Repo(git_path)
-        if self.remotes_combo.get() == "ALL":
-            remote_names = [remote.name for remote in repo.remotes]
-        else:
-            remote_names = [self.remotes_combo.get()]
-        for remote_name in remote_names:
-            remote = repo.remote(remote_name)
-            remote.pull(self.local_branches_combo.get())
+        try:
+            if self.remotes_combo.get() == "ALL":
+                remote_names = [remote.name for remote in repo.remotes]
+            else:
+                remote_names = [self.remotes_combo.get()]
+            for remote_name in remote_names:
+                remote = repo.remote(remote_name)
+                remote.pull(self.local_branches_combo.get())
+        except git.exc.GitCommandError as e:
+            messagebox.showerror(
+                title="GitCommandError", message=str(e))
+        except Exception as e:
+            messagebox.showerror(
+                title="Unknown Error", message=str(e))
 
     def remote_push(self):
         if not os.path.isdir(os.path.join(self.main.dir_path, ".git")):
             return
         git_path = os.path.join(self.main.dir_path, ".git")
         repo = git.Repo(git_path)
-        if self.remotes_combo.get() == "ALL":
-            remote_names = [remote.name for remote in repo.remotes]
-        else:
-            remote_names = [self.remotes_combo.get()]
-        for remote_name in remote_names:
-            remote = repo.remote(remote_name)
-            remote.push(self.local_branches_combo.get())
+        try:
+            if self.remotes_combo.get() == "ALL":
+                remote_names = [remote.name for remote in repo.remotes]
+            else:
+                remote_names = [self.remotes_combo.get()]
+            for remote_name in remote_names:
+                remote = repo.remote(remote_name)
+                remote.push(self.local_branches_combo.get())
+        except git.exc.GitCommandError as e:
+            messagebox.showerror(
+                title="GitCommandError", message=str(e))
+        except Exception as e:
+            messagebox.showerror(
+                title="Unknown Error", message=str(e))
 
     def remote_fetch(self):
         if not os.path.isdir(os.path.join(self.main.dir_path, ".git")):
             return
         git_path = os.path.join(self.main.dir_path, ".git")
         repo = git.Repo(git_path)
-        if self.remotes_combo.get() == "ALL":
-            remote_names = [remote.name for remote in repo.remotes]
-        else:
-            remote_names = [self.remotes_combo.get()]
-        for remote_name in remote_names:
-            remote = repo.remote(remote_name)
-            remote.fetch()
+        try:
+            if self.remotes_combo.get() == "ALL":
+                remote_names = [remote.name for remote in repo.remotes]
+            else:
+                remote_names = [self.remotes_combo.get()]
+            for remote_name in remote_names:
+                remote = repo.remote(remote_name)
+                remote.fetch()
+        except git.exc.GitCommandError as e:
+            messagebox.showerror(
+                title="GitCommandError", message=str(e))
+        except Exception as e:
+            messagebox.showerror(
+                title="Unknown Error", message=str(e))
 
 
 class GitMenu(MenuTemplate):
