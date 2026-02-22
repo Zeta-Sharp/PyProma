@@ -1,6 +1,6 @@
 """
 name: Linter
-version: "1.0.0"
+version: "1.0.1"
 author: Zeta_Sharp <rikeidanshi@duck.com>
 type: Tab
 description: Supports automatic execution of linters.
